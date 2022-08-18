@@ -1,3 +1,8 @@
+@import "open-props/style";
+@import "open-props/normalize";
+@import "open-props/buttons";
+@import "open-props/sizes";
+
 html,
 body {
   padding: 0;
@@ -13,4 +18,9 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
 }

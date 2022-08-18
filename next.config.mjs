@@ -12,4 +12,9 @@ function defineNextConfig(config) {
 export default defineNextConfig({
   reactStrictMode: true,
   swcMinify: true,
+  images: {
+    domains: ["res.cloudinary.com"],
+    loader: "cloudinary",
+    path: "https://res.cloudinary.com/makon-dev/image/upload",
+  },
 });
