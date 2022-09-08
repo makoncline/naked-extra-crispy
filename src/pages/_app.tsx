@@ -5,6 +5,7 @@ import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
+// import {} from "styled-components/cssprop";
 
 const MyApp: AppType = ({
   Component,

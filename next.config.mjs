@@ -17,4 +17,7 @@ export default defineNextConfig({
     loader: "cloudinary",
     path: "https://res.cloudinary.com/makon-dev/image/upload",
   },
+  compiler: {
+    styledComponents: true,
+  },
 });

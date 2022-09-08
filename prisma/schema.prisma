@@ -6,15 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  // provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-model Example {
-  id String @id @default(cuid())
-}
-
-model Restaurant {
+model Spot {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
@@ -23,35 +20,34 @@ model Restaurant {
   state     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  reviews     Review[]
-  Images    Image[]
+  wings     Wing[]
+  images    Image[]
 }
 
-model Review {
+model Wing {
   id           String     @id @default(cuid())
   userId       String
-  restaurantId String
-  title        String
-  description  String
+  spotId String
+  review       String
   rating       Int
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   images       Image[]
   user         User       @relation(fields: [userId], references: [id])
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  spot   Spot @relation(fields: [spotId], references: [id])
 }
 
 model Image {
   id           String     @id @default(cuid())
   userId       String
-  restaurantId String
-  reviewId     String
+  spotId String
+  wingId     String
   key          String
   type         String
   createdAt    DateTime   @default(now())
   user         User       @relation(fields: [userId], references: [id])
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  review       Review     @relation(fields: [reviewId], references: [id])
+  restaurant   Spot @relation(fields: [spotId], references: [id])
+  wing       Wing     @relation(fields: [wingId], references: [id])
 }
 
 // Necessary for Next auth
@@ -61,12 +57,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String? // @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -88,8 +84,8 @@ model User {
   emailVerified DateTime?
   accounts      Account[]
   sessions      Session[]
-  restaurants    Restaurant[]
-  reviews       Review[]
+  spots    Spot[]
+  wings       Wing[]
   images         Image[]
 }
 

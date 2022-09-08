@@ -24,3 +24,7 @@ label {
   display: flex;
   flex-direction: column;
 }
+
+* {
+  --text-color--error: var(--red-4);
+}

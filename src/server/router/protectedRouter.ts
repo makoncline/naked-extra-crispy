@@ -11,7 +11,7 @@ export const protectedRouter = createProtectedRouter()
       return ctx.session;
     },
   })
-  .mutation("createRestaurant", {
+  .mutation("createSpot", {
     input: z.object({
       userId: z.string(),
       name: z.string(),
@@ -19,7 +19,7 @@ export const protectedRouter = createProtectedRouter()
       city: z.string().min(1),
     }),
     async resolve({ input }) {
-      const restaurant = await prisma.restaurant.create({
+      const spot = await prisma.spot.create({
         data: input,
         select: {
           id: true,
@@ -30,55 +30,67 @@ export const protectedRouter = createProtectedRouter()
           createdAt: true,
         },
       });
-      return restaurant;
+      return spot;
     },
   })
-  .mutation("createReview", {
+  .mutation("createWing", {
     input: z.object({
       userId: z.string(),
-      restaurantId: z.string(),
-      title: z.string(),
-      description: z.string(),
-      rating: z.preprocess(
-        (a) => parseInt(z.string().parse(a), 10),
-        z.number().positive().min(1).max(5)
-      ),
-      mainImage: z.string(),
+      spotId: z.string(),
+      review: z.string(),
+      rating: z.number().positive().min(1).max(10),
+      mainImageId: z.string(),
+      drumImageId: z.string().nullable(),
+      flatImageId: z.string().nullable(),
     }),
     async resolve({ input }) {
-      const { mainImage, ...restaurantReview } = input;
-      let main: string | undefined = undefined;
-      if (input.mainImage) {
-        main = await uploadImage(input.mainImage);
-      }
-      // save the review
-      const { id: reviewId } = await prisma.review.create({
-        data: restaurantReview,
+      const { mainImageId, drumImageId, flatImageId, ...wingReview } = input;
+      const { id: wingId } = await prisma.wing.create({
+        data: wingReview,
         select: {
           id: true,
         },
       });
+      const { userId, spotId } = wingReview;
 
-      if (main) {
-        console.log("savingImage");
-        // save the image
+      if (mainImageId) {
         await prisma.image.create({
           data: {
-            userId: input.userId,
-            restaurantId: input.restaurantId,
-            reviewId: reviewId,
-            key: main,
+            userId,
+            spotId,
+            wingId,
+            key: mainImageId,
             type: "main",
           },
         });
       }
-
-      const review = await prisma.review.findFirstOrThrow({
-        where: { id: reviewId },
+      if (drumImageId) {
+        await prisma.image.create({
+          data: {
+            userId,
+            spotId,
+            wingId,
+            key: drumImageId,
+            type: "drum",
+          },
+        });
+      }
+      if (flatImageId) {
+        await prisma.image.create({
+          data: {
+            userId,
+            spotId,
+            wingId,
+            key: flatImageId,
+            type: "flat",
+          },
+        });
+      }
+      const wing = await prisma.wing.findFirstOrThrow({
+        where: { id: wingId },
         select: {
           id: true,
-          title: true,
-          description: true,
+          review: true,
           rating: true,
           createdAt: true,
           user: {
@@ -87,7 +99,7 @@ export const protectedRouter = createProtectedRouter()
               name: true,
             },
           },
-          restaurant: {
+          spot: {
             select: {
               id: true,
               name: true,
@@ -103,6 +115,6 @@ export const protectedRouter = createProtectedRouter()
           },
         },
       });
-      return review;
+      return wing;
     },
   });
