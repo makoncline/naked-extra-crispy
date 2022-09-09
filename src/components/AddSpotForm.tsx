@@ -15,7 +15,7 @@ export const AddSpotForm = ({
   onSuccess,
 }: {
   userId: string;
-  onSuccess: () => void;
+  onSuccess: (spotId: string) => void;
 }) => {
   const {
     register,
@@ -23,9 +23,9 @@ export const AddSpotForm = ({
     formState: { errors },
   } = useForm<AddSpotFormInputs>();
   const createRestaurant = trpc.useMutation("protected.createSpot");
-  const onSubmit: SubmitHandler<AddSpotFormInputs> = (data) => {
-    createRestaurant.mutate(data);
-    onSuccess();
+  const onSubmit: SubmitHandler<AddSpotFormInputs> = async (data) => {
+    const { id: spotId } = await createRestaurant.mutateAsync(data);
+    onSuccess(spotId);
   };
   return (
     <div>

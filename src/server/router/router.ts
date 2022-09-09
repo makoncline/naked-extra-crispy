@@ -12,7 +12,7 @@ export const router = createRouter()
         const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
         const numWings = spot.wings.length;
         const roundedRating =
-          numWings > 0 ? Math.floor(totalRating / numWings + 1) : null;
+          numWings > 0 ? Math.ceil(totalRating / numWings) : null;
         const { wings, ...spotData } = spot;
         return { ...spotData, rating: roundedRating, numWings };
       });
@@ -23,7 +23,7 @@ export const router = createRouter()
       spotId: z.string(),
     }),
     async resolve({ input, ctx }) {
-      return await ctx.prisma.spot.findFirstOrThrow({
+      const spot = await ctx.prisma.spot.findFirstOrThrow({
         where: {
           id: input.spotId,
         },
@@ -31,6 +31,7 @@ export const router = createRouter()
           name: true,
           state: true,
           city: true,
+          createdAt: true,
           wings: {
             select: {
               review: true,
@@ -64,6 +65,12 @@ export const router = createRouter()
           },
         },
       });
+      const ratings = spot.wings.map((wing) => wing.rating);
+      const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
+      const numWings = spot.wings.length;
+      const roundedRating =
+        numWings > 0 ? Math.ceil(totalRating / numWings) : null;
+      return { ...spot, rating: roundedRating, numWings };
     },
   })
   .query("getWings", {

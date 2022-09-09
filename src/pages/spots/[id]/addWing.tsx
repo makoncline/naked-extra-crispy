@@ -3,6 +3,7 @@ import { AddWingForm } from "../../../components/AddWingForm";
 import { Loading } from "../../../components/Loading";
 import { useRouter } from "next/router";
 import { NextPage } from "next";
+import { BackButton } from "../../../components/BackButton";
 
 const AddWing: NextPage = () => {
   const router = useRouter();
@@ -17,11 +18,14 @@ const AddWing: NextPage = () => {
     return null;
   }
   return (
-    <AddWingForm
-      userId={userId}
-      spotId={spotId}
-      onSuccess={() => router.push("/")}
-    />
+    <>
+      <BackButton />
+      <AddWingForm
+        userId={userId}
+        spotId={spotId}
+        onSuccess={() => router.push(`/spots/${spotId}`)}
+      />
+    </>
   );
 };
 

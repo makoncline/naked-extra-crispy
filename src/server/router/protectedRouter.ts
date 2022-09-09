@@ -1,8 +1,6 @@
 import { createProtectedRouter } from "./protected-router";
 import { z } from "zod";
 import { prisma } from "../db/client";
-import FormData from "form-data";
-import { uploadImage } from "../lib/uploadImage";
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const protectedRouter = createProtectedRouter()

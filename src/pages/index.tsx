@@ -22,7 +22,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-        {/* <h1>{title}</h1> */}
+        <h1>{title}</h1>
         {session ? (
           <>
             Signed in as {session.user?.email} <br />

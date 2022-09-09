@@ -2,6 +2,7 @@ import { useSession, signIn } from "next-auth/react";
 import { AddSpotForm } from "../../components/AddSpotForm";
 import { Loading } from "../../components/Loading";
 import { useRouter } from "next/router";
+import { BackButton } from "../../components/BackButton";
 
 const AddSpot = () => {
   const router = useRouter();
@@ -14,7 +15,15 @@ const AddSpot = () => {
     signIn();
     return null;
   }
-  return <AddSpotForm userId={userId} onSuccess={() => router.push("/")} />;
+  return (
+    <>
+      <BackButton />
+      <AddSpotForm
+        userId={userId}
+        onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
+      />
+    </>
+  );
 };
 
 export default AddSpot;
