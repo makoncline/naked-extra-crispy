@@ -1,7 +1,7 @@
 import { createRouter } from "./context";
 import { z } from "zod";
 
-export const router = createRouter()
+export const routes = createRouter()
   .query("getAllSpots", {
     async resolve({ ctx }) {
       const spots = await ctx.prisma.spot.findMany({

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "../db/client";
 
 // Example router with queries that can only be hit if the user requesting is signed in
-export const protectedRouter = createProtectedRouter()
+export const protectedRoutes = createProtectedRouter()
   .query("getSession", {
     resolve({ ctx }) {
       return ctx.session;

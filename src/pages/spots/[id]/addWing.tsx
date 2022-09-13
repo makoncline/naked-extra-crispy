@@ -4,6 +4,7 @@ import { Loading } from "../../../components/Loading";
 import { useRouter } from "next/router";
 import { NextPage } from "next";
 import { BackButton } from "../../../components/BackButton";
+import { Layout } from "../../../components/Layout";
 
 const AddWing: NextPage = () => {
   const router = useRouter();
@@ -18,14 +19,14 @@ const AddWing: NextPage = () => {
     return null;
   }
   return (
-    <>
+    <Layout>
       <BackButton />
       <AddWingForm
         userId={userId}
         spotId={spotId}
         onSuccess={() => router.push(`/spots/${spotId}`)}
       />
-    </>
+    </Layout>
   );
 };
 

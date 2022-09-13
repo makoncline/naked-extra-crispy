@@ -9,6 +9,7 @@ import Error from "next/error";
 import { Loading } from "../../../components/Loading";
 import Link from "next/link";
 import { BackButton } from "../../../components/BackButton";
+import { Layout } from "../../../components/Layout";
 
 const Spot: NextPage = () => {
   const [sort, setSort] = React.useState<"date" | "rating">("rating");
@@ -34,12 +35,7 @@ const Spot: NextPage = () => {
     return reverse ? value * -1 : value;
   });
   return (
-    <>
-      <Head>
-        <title>{name} - Naked Extra Crispy</title>
-        <meta name="description" content="A site for crispy wing enthusiasts" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout title={`${name} - Naked Extra Crispy`}>
       <div>
         <BackButton />
         <h1>{name}</h1>
@@ -49,7 +45,9 @@ const Spot: NextPage = () => {
         <p>added: {spot.createdAt.toLocaleDateString()} </p>
         <p># wings: {spot.numWings}</p>
         {spot.rating && <p>Rating: {spot.rating}</p>}
-        <Link href={`/spots/${spotId}/addWing`}>Add Wing</Link>
+        <Link href={`/spots/${spotId}/addWing`}>
+          <button>Add Wing</button>
+        </Link>
       </div>
       <div>
         <h2>Wings</h2>
@@ -104,7 +102,7 @@ const Spot: NextPage = () => {
           <p>There are no wings for this spot...</p>
         )}
       </div>
-    </>
+    </Layout>
   );
 };
 

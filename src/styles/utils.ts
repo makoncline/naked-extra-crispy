@@ -17,3 +17,7 @@ export const col = css`
 export const errorText = css`
   color: var(--text-color--error);
 `;
+
+export const content = css`
+  max-width: var(--size-md);
+`;

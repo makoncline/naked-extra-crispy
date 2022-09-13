@@ -3,13 +3,14 @@ import React, { ChangeEventHandler } from "react";
 import { col } from "../styles/utils";
 import { inferQueryOutput } from "../utils/trpc";
 import { SelectStateOptions } from "./SelectStateOptions";
+import { row } from "../styles/utils";
 
 type SortOrder = "rating" | "name" | "numWings";
 
 export const SpotsDisplay = ({
-  spots,
+  spots = [],
 }: {
-  spots: inferQueryOutput<"getAllSpots">;
+  spots?: inferQueryOutput<"getAllSpots">;
 }) => {
   const [nameFilter, setNameFilter] = React.useState<string>("");
   const [stateFilter, setStateFilter] = React.useState<string>("");
@@ -63,74 +64,139 @@ export const SpotsDisplay = ({
     </>
   );
   return (
-    <>
-      <div
+    <div>
+      <h2
         css={`
-          ${col}
+          padding-bottom: var(--size-6);
         `}
       >
-        <h3>Filters</h3>
-        <input
-          type="text"
-          placeholder="Name includes..."
-          value={nameFilter}
-          onChange={(e) => setNameFilter(e.target.value)}
-        />
-        <select value={stateFilter} onChange={handleSelectState}>
-          <option value="">Select a State</option>
-          <SelectStateOptions />
-        </select>
-        <select value={cityFilter} onChange={handleSelectCity}>
-          <option value="">Select a City</option>
-          <SelectCityOptions />
-        </select>
-      </div>
-      <div>
-        <h3>Sort</h3>
-        <select value={sortBy} onChange={handleSelectSortOrder}>
-          <option value="rating">Rating</option>
-          <option value="numWings">Popularity</option>
-          <option value="name">Name</option>
-        </select>
-        <button
-          onClick={() => {
-            setSortOrder((prev) => !prev);
-          }}
+        Spots
+      </h2>
+      <div
+        css={`
+          padding-bottom: var(--size-6);
+        `}
+      >
+        <h3
+          css={`
+            padding-bottom: var(--size-4);
+          `}
         >
-          Reverse
-        </button>
+          Search
+        </h3>
+        <form>
+          <div>
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="What's it called?"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+          <div>
+            <label htmlFor="state">State</label>
+            <select id="state" value={stateFilter} onChange={handleSelectState}>
+              <option value="">Pick a state</option>
+              <SelectStateOptions />
+            </select>
+          </div>
+          <div>
+            <label htmlFor="city">City</label>
+            <select id="city" value={cityFilter} onChange={handleSelectCity}>
+              <option value="">Select a city</option>
+              <SelectCityOptions />
+            </select>
+          </div>
+          <div>
+            <label htmlFor="sort">Sort by</label>
+            <select id="sort" value={sortBy} onChange={handleSelectSortOrder}>
+              <option value="rating">Rating</option>
+              <option value="numWings">Popularity</option>
+              <option value="name">Name</option>
+            </select>
+          </div>
+          <div
+            css={`
+              ${row}
+              white-space: nowrap;
+            `}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setSortOrder((prev) => !prev);
+              }}
+            >
+              Reverse {sortOrder ? "▲" : "▼"}
+            </button>
+            <button type="button" onClick={() => handleReset()}>
+              Reset ↺
+            </button>
+            <Link href="#results">
+              <button
+                css={`
+                  width: 100%;
+                `}
+              >
+                Results 👇
+              </button>
+            </Link>
+          </div>
+        </form>
       </div>
-      <button onClick={() => handleReset()}>Reset</button>
-      {filteredSpots && filteredSpots.length ? (
-        <ul>
-          {filteredSpots.map((spot, i) => (
-            <li key={i}>
-              <article>
-                <h3>{spot.name}</h3>
-                <p>
-                  {spot.city}, {spot.state}
-                </p>
-                <p>added: {spot.createdAt.toLocaleDateString()} </p>
-                <p># wings: {spot.numWings}</p>
-                {spot.rating && <p>Rating: {spot.rating}</p>}
-                <div
-                  css={`
-                    ${col}
-                  `}
-                >
-                  <Link href={`/spots/${spot.id}`}>View</Link>
-                  <Link href={`/spots/${spot.id}/addWing`}>Add Wing</Link>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>
-          <p>There are no spots matching this search...</p>
-          <button onClick={() => handleReset()}>Reset</button>
-        </div>
-      )}
-    </>
+      <div
+        id="results"
+        css={`
+          min-height: 100vh;
+        `}
+      >
+        <h3
+          css={`
+            padding-bottom: var(--size-4);
+          `}
+        >
+          Results
+        </h3>
+        {filteredSpots && filteredSpots.length ? (
+          <ul>
+            {filteredSpots.map((spot, i) => (
+              <li key={i}>
+                <article>
+                  <h3>{spot.name}</h3>
+                  <p>
+                    {spot.city}, {spot.state}
+                  </p>
+                  <p>added: {spot.createdAt.toLocaleDateString()} </p>
+                  <p># wings: {spot.numWings}</p>
+                  {spot.rating && <p>Rating: {spot.rating}</p>}
+                  <div
+                    css={`
+                      ${col}
+                    `}
+                  >
+                    <Link href={`/spots/${spot.id}`}>
+                      <button>View</button>
+                    </Link>
+                    <Link href={`/spots/${spot.id}/addWing`}>
+                      <button>Add Wing</button>
+                    </Link>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div>
+            <p>There are no spots matching this search...</p>
+            <Link href="/spots/add">
+              <button>Add a spot</button>
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

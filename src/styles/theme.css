@@ -1,0 +1,40 @@
+:where(html) {
+  color: var(--text-2);
+  background-color: var(--surface-1);
+
+  --scrollthumb-color: var(--gray-6);
+  scrollbar-color: var(--scrollthumb-color) transparent;
+  accent-color: var(--link);
+  caret-color: var(--link);
+
+  --brand-color: var(--orange-6);
+  --brand-color--dark: var(--orange-8);
+
+  --link: var(--brand-color);
+  --link-visited: var(--brand-color--dark);
+
+  --text-1: var(--gray-1);
+  --text-2: var(--gray-4);
+
+  --surface-1: var(--gray-9);
+  --surface-2: var(--gray-8);
+  --surface-3: var(--gray-7);
+  --surface-4: var(--gray-6);
+
+  --text-color--error: var(--red-4);
+}
+
+:where(h1, h2, h3, h4, h5, h6, dt) {
+  color: var(--text-1);
+}
+
+:where(a[href]) {
+  color: var(--link);
+}
+:where(a[href]):visited {
+  color: var(--link-visited);
+}
+
+:focus-visible {
+  outline-color: var(--link);
+}
