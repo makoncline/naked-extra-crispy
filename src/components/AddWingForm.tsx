@@ -75,10 +75,10 @@ export const AddWingForm = ({
             `}
           >
             {watchReview && watchReview.length < 60 && (
-              <Error>Don't leave us hanging - what else you got?</Error>
+              <Error>Don&apos;t leave us hanging - what else you got?</Error>
             )}
             {watchReview && watchReview.length >= 60 && (
-              <span>Now you're rolling - got any more to add?</span>
+              <span>Now you&apos;re rolling - got any more to add?</span>
             )}
             {errors.review && !watchReview.length && (
               <Error>

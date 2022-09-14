@@ -70,7 +70,13 @@ export const ImageUpload = ({
   return (
     <>
       {publicId ? (
-        <Image src={publicId} width={300} height={300} objectFit="cover" />
+        <Image
+          src={publicId}
+          width={300}
+          height={300}
+          objectFit="cover"
+          alt="wing image"
+        />
       ) : (
         <form
           ref={formRef}
@@ -94,6 +100,7 @@ export const ImageUpload = ({
               width={300}
               height={300}
               objectFit="cover"
+              alt="wing image"
             />
           )}
           {error && <Error>{error}</Error>}

@@ -171,9 +171,8 @@ export const SpotsDisplay = ({
             `}
           >
             {filteredSpots.map((spot, i) => (
-              <Link href={`/spots/${spot.id}`}>
+              <Link href={`/spots/${spot.id}`} key={i}>
                 <article
-                  key={i}
                   css={`
                     display: grid;
                     &:hover {
@@ -202,6 +201,7 @@ export const SpotsDisplay = ({
                   >
                     {spot.images.map((image, i) => (
                       <div
+                        key={i}
                         css={`
                           position: relative;
                           width: 100%;
@@ -213,6 +213,7 @@ export const SpotsDisplay = ({
                           layout="fill"
                           key={i}
                           objectFit="cover"
+                          alt="wing image"
                         />
                       </div>
                     ))}

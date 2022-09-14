@@ -37,7 +37,7 @@ export const AddSpotForm = ({
           hidden
         />
         <label>
-          What's the place's name?
+          What&apos;s the place&apos;s name?
           <input {...register("name", { required: true })} />
         </label>
         {errors.name && <span>What? This place has wings, but no name?</span>}
