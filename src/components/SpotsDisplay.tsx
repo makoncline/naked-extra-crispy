@@ -4,6 +4,9 @@ import { col } from "../styles/utils";
 import { inferQueryOutput } from "../utils/trpc";
 import { SelectStateOptions } from "./SelectStateOptions";
 import { row } from "../styles/utils";
+import Image from "next/image";
+import { Rating } from "./Rating";
+import { above } from "../styles/breakpoints";
 
 type SortOrder = "rating" | "name" | "numWings";
 
@@ -161,33 +164,102 @@ export const SpotsDisplay = ({
           Results
         </h3>
         {filteredSpots && filteredSpots.length ? (
-          <ul>
+          <div
+            css={`
+              ${col}
+              gap: var(--gap-list);
+            `}
+          >
             {filteredSpots.map((spot, i) => (
-              <li key={i}>
-                <article>
-                  <h3>{spot.name}</h3>
-                  <p>
-                    {spot.city}, {spot.state}
-                  </p>
-                  <p>added: {spot.createdAt.toLocaleDateString()} </p>
-                  <p># wings: {spot.numWings}</p>
-                  {spot.rating && <p>Rating: {spot.rating}</p>}
+              <Link href={`/spots/${spot.id}`}>
+                <article
+                  key={i}
+                  css={`
+                    display: grid;
+                    &:hover {
+                      background-color: rgba(255, 255, 255, 0.01);
+                      cursor: pointer;
+                    }
+                    ${above["md"]`
+                      grid-template-columns: 1fr 1fr;
+                    `}
+                  `}
+                >
+                  <div
+                    css={`
+                      display: flex;
+                      overflow-x: auto;
+                      scroll-snap-type: x mandatory;
+                      scroll-snap-points-x: repeat(100%);
+                      -webkit-overflow-scrolling: touch;
+                      -ms-scroll-snap-type: x mandatory;
+                      -ms-scroll-snap-points-x: repeat(100%);
+                      & > div {
+                        scroll-snap-align: start;
+                        min-width: 100%;
+                      }
+                    `}
+                  >
+                    {spot.images.map((image, i) => (
+                      <div
+                        css={`
+                          position: relative;
+                          width: 100%;
+                          aspect-ratio: 1 / 1;
+                        `}
+                      >
+                        <Image
+                          src={image.key}
+                          layout="fill"
+                          key={i}
+                          objectFit="cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
                   <div
                     css={`
                       ${col}
+                      gap: var(--gap-list);
+                      justify-content: space-between;
+                      padding: var(--card-padding);
                     `}
                   >
-                    <Link href={`/spots/${spot.id}`}>
-                      <button>View</button>
-                    </Link>
+                    <div
+                      css={`
+                        ${col}
+                        gap: var(--gap-list);
+                      `}
+                    >
+                      <div>
+                        <h4>{spot.name}</h4>
+                        <p>
+                          {spot.city}, {spot.state}
+                        </p>
+                      </div>
+                      {spot.rating ? (
+                        <div
+                          css={`
+                            ${row}
+                            align-items: center;
+                            gap: var(--size-4);
+                          `}
+                        >
+                          <Rating displayValue={spot.rating} />
+                          {spot.numWings.toLocaleString()} wings
+                        </div>
+                      ) : (
+                        <span>🚫 No wings</span>
+                      )}
+                    </div>
                     <Link href={`/spots/${spot.id}/addWing`}>
-                      <button>Add Wing</button>
+                      <button>+ Add wing</button>
                     </Link>
                   </div>
                 </article>
-              </li>
+              </Link>
             ))}
-          </ul>
+          </div>
         ) : (
           <div>
             <p>There are no spots matching this search...</p>

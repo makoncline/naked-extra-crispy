@@ -5,16 +5,25 @@ export const routes = createRouter()
   .query("getAllSpots", {
     async resolve({ ctx }) {
       const spots = await ctx.prisma.spot.findMany({
-        include: { wings: { select: { rating: true } } },
+        include: {
+          wings: {
+            select: {
+              rating: true,
+              images: { select: { key: true }, orderBy: { createdAt: "desc" } },
+            },
+          },
+        },
       });
+
       return spots.map((spot) => {
+        const images = spot.wings.flatMap((wing) => wing.images);
         const ratings = spot.wings.map((wing) => wing.rating);
         const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
         const numWings = spot.wings.length;
         const roundedRating =
           numWings > 0 ? Math.ceil(totalRating / numWings) : null;
         const { wings, ...spotData } = spot;
-        return { ...spotData, rating: roundedRating, numWings };
+        return { ...spotData, rating: roundedRating, numWings, images };
       });
     },
   })

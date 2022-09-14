@@ -11,6 +11,7 @@ export const Hero = () => {
         display: grid;
         align-items: center;
         grid-template-columns: 1fr 1fr;
+        padding-bottom: var(--size-7);
       `}
     >
       <section
@@ -41,8 +42,10 @@ export const Hero = () => {
             font-size: var(--font-size-fluid-0);
           `}
         >
-          Lorem ipsum dolor sit amet consectetu adipisicing elit. Nemo in
-          doloremque quam, voluptatibus eum voluptatum.
+          Naked Extra Crispy. It's how we like our wings. Good wings are crispy,
+          but never breaded. They're tossed in sauce and come with a dip.
+          Housemade sauces are key. We're not a wing spot, but we do wings
+          right.
         </p>
         <div>
           <Link href="#spots">

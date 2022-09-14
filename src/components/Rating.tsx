@@ -3,16 +3,20 @@ import styled from "styled-components";
 import { col, row } from "../styles/utils";
 
 export const Rating = ({
-  onChange,
+  onChange = () => {},
+  displayValue,
 }: {
-  onChange: (rating: number) => void;
+  onChange?: (rating: number) => void;
+  displayValue?: number;
 }) => {
-  const [rating, setRating] = React.useState(0);
+  const [rating, setRating] = React.useState(displayValue || 0);
   const maxRating = 10;
   const checkboxes = Array.from({ length: maxRating }, (_, i) => i + 1);
   const handleChange = (rating: number) => {
-    setRating(rating);
-    onChange(rating);
+    if (!displayValue) {
+      setRating(rating);
+      onChange(rating);
+    }
   };
   return (
     <ScRating>
@@ -22,16 +26,30 @@ export const Rating = ({
           onClick={() => handleChange(i)}
           className={i < rating ? "selected" : ""}
           type="button"
+          disabled={!!displayValue}
         >
           <div
             css={`
               ${col}
+              gap: 0;
               p {
                 font-size: var(--font-size-00);
               }
             `}
           >
-            <span>{i <= rating ? "🔥" : "⚪"}</span>
+            <span>
+              {i <= rating ? (
+                <span>🔥</span>
+              ) : (
+                <span
+                  css={`
+                    filter: grayscale(100%);
+                  `}
+                >
+                  🔥
+                </span>
+              )}
+            </span>
             <p>{i}</p>
           </div>
         </button>

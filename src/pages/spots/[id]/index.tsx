@@ -36,7 +36,11 @@ const Spot: NextPage = () => {
   });
   return (
     <Layout title={`${name} - Naked Extra Crispy`}>
-      <div>
+      <div
+        css={`
+          width: 100%;
+        `}
+      >
         <BackButton />
         <h1>{name}</h1>
         <p>
