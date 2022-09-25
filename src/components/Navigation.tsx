@@ -12,7 +12,6 @@ export const Navigation = () => {
         grid-template-columns: 1fr 1fr;
         align-items: center;
         padding-top: var(--size-2);
-        padding-bottom: var(--size-7);
         width: 100%;
       `}
     >

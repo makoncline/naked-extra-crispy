@@ -1,12 +1,12 @@
 import { trpc } from "../utils/trpc";
 import { useForm, SubmitHandler } from "react-hook-form";
 import React from "react";
-import { toBase64 } from "../lib/toBase64";
 import { Rating } from "./Rating";
-import { col } from "../styles/utils";
 import { ImageUpload } from "./ImageUpload";
-import { Error } from "../styles/text";
-
+import { Error, Success, Warn } from "../styles/text";
+import { Space } from "./Space";
+import { ImageUploadLabel } from "./ImageUploadLabel";
+import { col, row } from "../styles/utils";
 export type AddWFormInputs = {
   userId: string;
   spotId: string;
@@ -20,10 +20,12 @@ export type AddWFormInputs = {
 export const AddWingForm = ({
   userId,
   spotId,
+  spotName,
   onSuccess,
 }: {
   userId: string;
   spotId: string;
+  spotName: string;
   onSuccess: () => void;
 }) => {
   const {
@@ -37,7 +39,7 @@ export const AddWingForm = ({
   const watchRating = watch("rating");
   const createWing = trpc.useMutation("protected.createWing");
   const handleRatingChange = (rating: number) => {
-    setValue("rating", rating);
+    setValue("rating", rating, { shouldValidate: true });
   };
   const onSubmit: SubmitHandler<AddWFormInputs> = async (data) => {
     createWing.mutate(data);
@@ -45,13 +47,9 @@ export const AddWingForm = ({
   };
   return (
     <div>
-      <h2>Add your wings</h2>
-      <form
-        css={`
-          ${col}
-          gap: var(--size-4);
-        `}
-      >
+      <h2>{spotName}</h2>
+      <Space size="sm" />
+      <form>
         <input
           {...register("userId", { required: true })}
           value={userId}
@@ -62,87 +60,119 @@ export const AddWingForm = ({
           value={spotId}
           hidden
         />
-        <div>
-          <label>
-            How were they?
-            <textarea
-              {...register("review", { required: true, minLength: 60 })}
-            />
-          </label>
-          <div
-            css={`
-              ${col}
-            `}
-          >
-            {watchReview && watchReview.length < 60 && (
-              <Error>Don&apos;t leave us hanging - what else you got?</Error>
-            )}
-            {watchReview && watchReview.length >= 60 && (
-              <span>Now you&apos;re rolling - got any more to add?</span>
-            )}
-            {errors.review && !watchReview.length && (
-              <Error>
-                Were they crispy? How was the sauce? Leave a review.
-              </Error>
-            )}
-          </div>
-        </div>
-        <div>
-          <label>
-            Your rating
-            <input
-              {...register("rating", { required: true })}
-              type="number"
-              hidden
-            />
-            <Rating onChange={handleRatingChange} />
-          </label>
+        <input
+          {...register("rating", {
+            required: {
+              value: true,
+              message: "How were the wings? Enter a rating.",
+            },
+          })}
+          id="rating"
+          hidden
+        />
+        <input
+          {...register("mainImageId", {
+            required: {
+              value: true,
+              message:
+                "A picture is worth a thousand words. Upload a main photo.",
+            },
+          })}
+          hidden
+        />
+        <input {...register("drumImageId")} hidden />
+        <input {...register("flatImageId")} hidden />
+        <div
+          css={`
+            border: 1px solid var(--color-gray-300);
+          `}
+        >
+          <Rating aria-label="rating" onChange={handleRatingChange} />
+          {!watchRating && !errors.rating && <span>Select your rating</span>}
+          {watchRating === 1 && <span>💩</span>}
+          {watchRating === 2 && <span>Bad</span>}
+          {watchRating === 3 && <span>Not good</span>}
+          {watchRating === 4 && <span>Could've been better</span>}
+          {watchRating === 5 && <span>OK</span>}
+          {watchRating === 6 && <span>Good</span>}
           {watchRating === 7 && (
             <Error>Come on... choose a something besides 7.</Error>
           )}
+          {watchRating === 8 && <span>Great</span>}
+          {watchRating === 9 && <span>OMG</span>}
+          {watchRating === 10 && <span>Will never have better</span>}
+          {errors.rating && <Error>{errors.rating.message}</Error>}
         </div>
-        {errors.rating && <Error>How were the wings? Enter a rating.</Error>}
-
-        <input {...register("mainImageId", { required: true })} hidden />
-        <input {...register("drumImageId")} hidden />
-        <input {...register("flatImageId")} hidden />
+        <div>
+          <textarea
+            aria-label="review"
+            {...register("review")}
+            placeholder="I'm totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
+            css={`
+              width: 100%;
+              min-height: 200px;
+            `}
+          />
+          {!watchReview && (
+            <span>Were they crispy? How was the sauce? Leave a review.</span>
+          )}
+          {watchReview && watchReview.length < 60 && (
+            <Warn>Don&apos;t leave us hanging - what else you got?</Warn>
+          )}
+          {watchReview && watchReview.length >= 60 && (
+            <Success>Now you&apos;re rolling - got any more to add?</Success>
+          )}
+        </div>
       </form>
-      <div>
-        <label>
-          Main Image
+      <Space size="sm" />
+      <h3>Attach Photos</h3>
+      <Space size="sm" />
+      <div
+        css={`
+          ${col}
+        `}
+      >
+        <div>
           <ImageUpload
             onUploadSuccess={(id) => {
-              setValue("mainImageId", id);
+              setValue("mainImageId", id, { shouldValidate: true });
             }}
-          />
-        </label>
-        {errors.mainImageId && (
-          <Error>A picture is worth a thousand words. Upload a photo.</Error>
-        )}
-      </div>
-      <div>
-        <label>
-          Drum Image
+          >
+            <ImageUploadLabel image="/mainWing.png" type="Main" />
+          </ImageUpload>
+          {errors.mainImageId && <Error>{errors.mainImageId.message}</Error>}
+        </div>
+
+        <div>
           <ImageUpload
             onUploadSuccess={(id) => {
               setValue("drumImageId", id);
             }}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Flat Image
+          >
+            <ImageUploadLabel image="/drumWing.png" type="Drum" />
+          </ImageUpload>
+        </div>
+        <div>
           <ImageUpload
             onUploadSuccess={(id) => {
               setValue("flatImageId", id);
             }}
-          />
-        </label>
+          >
+            <ImageUploadLabel image="/flatWing.png" type="Flat" />
+          </ImageUpload>
+        </div>
       </div>
+      <Space size="sm" />
       <button type="submit" onClick={handleSubmit(onSubmit)}>
         Submit
       </button>
+      {Object.keys(errors).length > 0 &&
+        Object.entries(errors).map(([key, error]) => (
+          <div key={key}>
+            <Error>{error.message}</Error>
+          </div>
+        ))}
+      <Space size="lg" />
     </div>
   );
 };

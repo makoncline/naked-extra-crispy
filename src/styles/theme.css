@@ -22,10 +22,16 @@
   --surface-4: var(--gray-6);
 
   --text-color--error: var(--red-4);
+  --text-color--warn: var(--orange-4);
+  --text-color--success: var(--green-4);
 
   --card-padding: var(--size-4);
 
   --gap-list: var(--size-4);
+
+  --space-sm: var(--size-4);
+  --space-md: var(--size-8);
+  --space-lg: var(--size-12);
 }
 
 :where(h1, h2, h3, h4, h5, h6, dt) {

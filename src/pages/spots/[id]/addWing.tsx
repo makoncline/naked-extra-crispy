@@ -5,12 +5,15 @@ import { useRouter } from "next/router";
 import { NextPage } from "next";
 import { BackButton } from "../../../components/BackButton";
 import { Layout } from "../../../components/Layout";
+import { trpc } from "../../../utils/trpc";
 
 const AddWing: NextPage = () => {
   const router = useRouter();
   const spotId = router.query.id as string;
+  const { data: spot } = trpc.useQuery(["getSpotName", { spotId }]);
   const { data: session, status } = useSession();
-  if (status === "loading") {
+  const isLoading = status === "loading" || !spot;
+  if (isLoading) {
     return <Loading />;
   }
   const userId = session?.user?.id;
@@ -24,6 +27,7 @@ const AddWing: NextPage = () => {
       <AddWingForm
         userId={userId}
         spotId={spotId}
+        spotName={spot!.name}
         onSuccess={() => router.push(`/spots/${spotId}`)}
       />
     </Layout>

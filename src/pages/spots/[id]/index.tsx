@@ -10,6 +10,8 @@ import { Loading } from "../../../components/Loading";
 import Link from "next/link";
 import { BackButton } from "../../../components/BackButton";
 import { Layout } from "../../../components/Layout";
+import { Space } from "../../../components/Space";
+import { row } from "../../../styles/utils";
 
 const Spot: NextPage = () => {
   const [sort, setSort] = React.useState<"date" | "rating">("rating");
@@ -36,26 +38,30 @@ const Spot: NextPage = () => {
   });
   return (
     <Layout title={`${name} - Naked Extra Crispy`}>
-      <div
-        css={`
-          width: 100%;
-        `}
-      >
+      <div>
         <BackButton />
         <h1>{name}</h1>
+        <Space size="sm" />
         <p>
           {spot.city}, {spot.state}
         </p>
         <p>added: {spot.createdAt.toLocaleDateString()} </p>
         <p># wings: {spot.numWings}</p>
         {spot.rating && <p>Rating: {spot.rating}</p>}
+        <Space size="sm" />
         <Link href={`/spots/${spotId}/addWing`}>
           <button>Add Wing</button>
         </Link>
       </div>
+      <Space size="md" />
       <div>
         <h2>Wings</h2>
-        <div>
+        <Space size="md" />
+        <div
+          css={`
+            ${row}
+          `}
+        >
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as any)}
@@ -74,6 +80,7 @@ const Spot: NextPage = () => {
             Reset
           </button>
         </div>
+        <Space size="md" />
         {wings && wings.length > 0 ? (
           <ul>
             {sortedWings.map((wing, i) => (

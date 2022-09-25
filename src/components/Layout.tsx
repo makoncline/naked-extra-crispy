@@ -1,6 +1,6 @@
-import { col } from "../styles/utils";
 import { Header } from "./Header";
 import { Navigation } from "./Navigation";
+import { Space } from "./Space";
 
 export const Layout = ({
   title,
@@ -19,10 +19,14 @@ export const Layout = ({
         max-width: var(--size-md);
         margin: 0 auto;
         padding: 0 var(--size-2);
+        & > * {
+          width: 100%;
+        }
       `}
     >
       <Header title={title} description={description} />
       <Navigation />
+      <Space size="md" />
       {children}
     </div>
   );

@@ -32,24 +32,23 @@ export const Rating = ({
             css={`
               ${col}
               gap: 0;
+              font-size: var(--font-size-4);
               p {
                 font-size: var(--font-size-00);
               }
             `}
           >
-            <span>
-              {i <= rating ? (
-                <span>🔥</span>
-              ) : (
-                <span
-                  css={`
-                    filter: grayscale(100%);
-                  `}
-                >
-                  🔥
-                </span>
-              )}
-            </span>
+            {i <= rating ? (
+              <span>🔥</span>
+            ) : (
+              <span
+                css={`
+                  filter: grayscale(100%);
+                `}
+              >
+                🔥
+              </span>
+            )}
             <p>{i}</p>
           </div>
         </button>
@@ -65,6 +64,5 @@ const ScRating = styled.div`
     border: none;
     box-shadow: var(--shadow-1);
     padding: 0;
-    width: var(--size-4);
   }
 `;

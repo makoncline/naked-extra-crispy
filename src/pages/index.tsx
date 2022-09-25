@@ -5,20 +5,15 @@ import { SpotsDisplay } from "../components/SpotsDisplay";
 import { Layout } from "../components/Layout";
 import { Hero } from "../components/Hero";
 import Link from "next/link";
+import { Space } from "../components/Space";
 
 const Home: NextPage = () => {
   const { data: spots } = trpc.useQuery(["getAllSpots"]);
   return (
     <Layout>
       <Hero />
-      <div
-        id="spots"
-        css={`
-          width: 100%;
-        `}
-      >
-        <SpotsDisplay spots={spots} />
-      </div>
+      <Space size="md" />
+      <SpotsDisplay spots={spots} />
     </Layout>
   );
 };

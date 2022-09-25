@@ -3,13 +3,16 @@ import { siteConfig } from "../siteConfig";
 import { Error } from "../styles/text";
 import { Spinner } from "./Spiner";
 import Image from "next/image";
-import { col, row } from "../styles/utils";
+import { center, col, row } from "../styles/utils";
 import { toBase64 } from "../lib/toBase64";
+import { Loading } from "./Loading";
 
 export const ImageUpload = ({
   onUploadSuccess,
+  children,
 }: {
   onUploadSuccess: (publicId: string) => void;
+  children: React.ReactNode;
 }) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [previewImage, setPreviewImage] = React.useState<string | null>(null);
@@ -66,17 +69,18 @@ export const ImageUpload = ({
     formRef.current?.reset();
   };
   const isUploading = status === "uploading";
-
   return (
     <>
       {publicId ? (
-        <Image
-          src={publicId}
-          width={300}
-          height={300}
-          objectFit="cover"
-          alt="wing image"
-        />
+        <div>
+          <Image
+            src={publicId}
+            width={300}
+            height={300}
+            objectFit="cover"
+            alt="wing image"
+          />
+        </div>
       ) : (
         <form
           ref={formRef}
@@ -86,22 +90,50 @@ export const ImageUpload = ({
             align-items: flex-start;
           `}
         >
+          {!file && (
+            <label
+              htmlFor="file"
+              css={`
+                width: 100%;
+              `}
+            >
+              {children}
+            </label>
+          )}
           <input
+            id="file"
             type="file"
             accept="image/*"
             name="fileInput"
             multiple={false}
             onChange={onFileChange}
-            hidden={!!previewImage || !!publicId}
+            hidden
           />
           {previewImage && (
-            <Image
-              src={previewImage}
-              width={300}
-              height={300}
-              objectFit="cover"
-              alt="wing image"
-            />
+            <div
+              css={`
+                display: grid;
+                place-items: center;
+                & > * {
+                  grid-area: 1/1;
+                }
+              `}
+            >
+              <div
+                css={`
+                  ${isUploading && `filter: grayscale(80%);`}
+                `}
+              >
+                <Image
+                  src={previewImage}
+                  width={300}
+                  height={300}
+                  objectFit="cover"
+                  alt="wing image"
+                />
+              </div>
+              {isUploading && <Loading />}
+            </div>
           )}
           {error && <Error>{error}</Error>}
           <div

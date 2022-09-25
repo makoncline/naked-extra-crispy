@@ -2,6 +2,7 @@ import { trpc } from "../utils/trpc";
 import { useForm, SubmitHandler } from "react-hook-form";
 import React from "react";
 import { SelectStateOptions } from "./SelectStateOptions";
+import { Space } from "./Space";
 
 export type AddSpotFormInputs = {
   userId: string;
@@ -30,6 +31,7 @@ export const AddSpotForm = ({
   return (
     <div>
       <h2>Add Spot</h2>
+      <Space size="sm" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           {...register("userId", { required: true })}

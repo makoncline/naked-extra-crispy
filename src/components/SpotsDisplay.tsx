@@ -7,6 +7,7 @@ import { row } from "../styles/utils";
 import Image from "next/image";
 import { Rating } from "./Rating";
 import { above } from "../styles/breakpoints";
+import { Space } from "./Space";
 
 type SortOrder = "rating" | "name" | "numWings";
 
@@ -68,25 +69,11 @@ export const SpotsDisplay = ({
   );
   return (
     <div>
-      <h2
-        css={`
-          padding-bottom: var(--size-6);
-        `}
-      >
-        Spots
-      </h2>
-      <div
-        css={`
-          padding-bottom: var(--size-6);
-        `}
-      >
-        <h3
-          css={`
-            padding-bottom: var(--size-4);
-          `}
-        >
-          Search
-        </h3>
+      <h2 id="spots">Spots</h2>
+      <Space size="md" />
+      <div>
+        <h3>Search</h3>
+        <Space size="sm" />
         <form>
           <div>
             <label htmlFor="name">Name</label>
@@ -150,19 +137,15 @@ export const SpotsDisplay = ({
           </div>
         </form>
       </div>
+      <Space size="md" />
       <div
         id="results"
         css={`
           min-height: 100vh;
         `}
       >
-        <h3
-          css={`
-            padding-bottom: var(--size-4);
-          `}
-        >
-          Results
-        </h3>
+        <h3>Results</h3>
+        <Space size="sm" />
         {filteredSpots && filteredSpots.length ? (
           <div
             css={`

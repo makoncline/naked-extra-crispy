@@ -11,7 +11,6 @@ export const Hero = () => {
         display: grid;
         align-items: center;
         grid-template-columns: 1fr 1fr;
-        padding-bottom: var(--size-7);
       `}
     >
       <section
@@ -58,7 +57,6 @@ export const Hero = () => {
           align-items: center;
           position: relative;
           align-self: stretch;
-          //   background-color: var(--brand-color);
           & > img {
             block-size: 100%;
             object-fit: cover;

@@ -82,6 +82,21 @@ export const routes = createRouter()
       return { ...spot, rating: roundedRating, numWings };
     },
   })
+  .query("getSpotName", {
+    input: z.object({
+      spotId: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      return await ctx.prisma.spot.findFirstOrThrow({
+        where: {
+          id: input.spotId,
+        },
+        select: {
+          name: true,
+        },
+      });
+    },
+  })
   .query("getWings", {
     input: z.object({
       spotId: z.string(),
