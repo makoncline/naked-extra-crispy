@@ -92,7 +92,7 @@ export const AddWingForm = ({
           {watchRating === 1 && <span>💩</span>}
           {watchRating === 2 && <span>Bad</span>}
           {watchRating === 3 && <span>Not good</span>}
-          {watchRating === 4 && <span>Could've been better</span>}
+          {watchRating === 4 && <span>Could&apos;ve been better</span>}
           {watchRating === 5 && <span>OK</span>}
           {watchRating === 6 && <span>Good</span>}
           {watchRating === 7 && (
@@ -107,7 +107,7 @@ export const AddWingForm = ({
           <textarea
             aria-label="review"
             {...register("review")}
-            placeholder="I'm totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
+            placeholder="I&apos;m totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
             css={`
               width: 100%;
               min-height: 200px;
