@@ -70,14 +70,17 @@ const Spot: NextPage = () => {
             <option value="rating">{reverse ? "Worst" : "Best"}</option>
             <option value="date">{reverse ? "Oldest" : "Newest"}</option>
           </select>
-          <button onClick={() => setReverse((prev) => !prev)}>Reverse</button>
+          <button onClick={() => setReverse((prev) => !prev)}>
+            Reverse {reverse ? "▲" : "▼"}
+          </button>
           <button
             onClick={() => {
               setSort("rating");
               setReverse(false);
             }}
+            type="reset"
           >
-            Reset
+            Reset ↺
           </button>
         </div>
         <Space size="md" />

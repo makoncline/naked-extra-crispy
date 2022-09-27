@@ -122,7 +122,7 @@ export const SpotsDisplay = ({
             >
               Reverse {sortOrder ? "▲" : "▼"}
             </button>
-            <button type="button" onClick={() => handleReset()}>
+            <button type="reset" onClick={() => handleReset()}>
               Reset ↺
             </button>
             <Link href="#results">
@@ -162,6 +162,7 @@ export const SpotsDisplay = ({
                       background-color: rgba(255, 255, 255, 0.01);
                       cursor: pointer;
                     }
+                    max-width: 400px;
                     ${above["md"]`
                       grid-template-columns: 1fr 1fr;
                     `}
@@ -220,18 +221,10 @@ export const SpotsDisplay = ({
                         <p>
                           {spot.city}, {spot.state}
                         </p>
+                        <p>{spot.numWings.toLocaleString()} wings</p>
                       </div>
                       {spot.rating ? (
-                        <div
-                          css={`
-                            ${row}
-                            align-items: center;
-                            gap: var(--size-4);
-                          `}
-                        >
-                          <Rating displayValue={spot.rating} />
-                          {spot.numWings.toLocaleString()} wings
-                        </div>
+                        <Rating displayValue={spot.rating} />
                       ) : (
                         <span>🚫 No wings</span>
                       )}

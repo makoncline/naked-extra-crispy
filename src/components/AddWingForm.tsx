@@ -107,7 +107,7 @@ export const AddWingForm = ({
           <textarea
             aria-label="review"
             {...register("review")}
-            placeholder="I&apos;m totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
+            placeholder="I'm totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
             css={`
               width: 100%;
               min-height: 200px;
@@ -134,6 +134,7 @@ export const AddWingForm = ({
       >
         <div>
           <ImageUpload
+            id="main"
             onUploadSuccess={(id) => {
               setValue("mainImageId", id, { shouldValidate: true });
             }}
@@ -145,6 +146,7 @@ export const AddWingForm = ({
 
         <div>
           <ImageUpload
+            id="drum"
             onUploadSuccess={(id) => {
               setValue("drumImageId", id);
             }}
@@ -154,6 +156,7 @@ export const AddWingForm = ({
         </div>
         <div>
           <ImageUpload
+            id="flat"
             onUploadSuccess={(id) => {
               setValue("flatImageId", id);
             }}

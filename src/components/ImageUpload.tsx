@@ -6,13 +6,17 @@ import Image from "next/image";
 import { center, col, row } from "../styles/utils";
 import { toBase64 } from "../lib/toBase64";
 import { Loading } from "./Loading";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Space } from "./Space";
 
 export const ImageUpload = ({
   onUploadSuccess,
   children,
+  id,
 }: {
   onUploadSuccess: (publicId: string) => void;
   children: React.ReactNode;
+  id: string;
 }) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [previewImage, setPreviewImage] = React.useState<string | null>(null);
@@ -92,7 +96,7 @@ export const ImageUpload = ({
         >
           {!file && (
             <label
-              htmlFor="file"
+              htmlFor={id}
               css={`
                 width: 100%;
               `}
@@ -101,7 +105,7 @@ export const ImageUpload = ({
             </label>
           )}
           <input
-            id="file"
+            id={id}
             type="file"
             accept="image/*"
             name="fileInput"
@@ -109,53 +113,76 @@ export const ImageUpload = ({
             onChange={onFileChange}
             hidden
           />
-          {previewImage && (
-            <div
+          <Dialog.Root open={Boolean(previewImage)} onOpenChange={handleClear}>
+            <Dialog.Overlay
               css={`
+                background-color: hsla(var(--surface-1-hsl) / 90%);
+                opacity: 1;
+                position: fixed;
+                inset: 0;
                 display: grid;
-                place-items: center;
-                & > * {
-                  grid-area: 1/1;
-                }
+                align-items: center;
+                justify-items: center;
+                z-index: var(--layer-important);
               `}
             >
-              <div
+              <Dialog.Content
                 css={`
-                  ${isUploading && `filter: grayscale(80%);`}
+                  background-color: var(--surface-1);
+                  padding: var(--space-sm);
+                  border: 1px solid var(--surface-2);
                 `}
               >
-                <Image
-                  src={previewImage}
-                  width={300}
-                  height={300}
-                  objectFit="cover"
-                  alt="wing image"
-                />
-              </div>
-              {isUploading && <Loading />}
-            </div>
-          )}
-          {error && <Error>{error}</Error>}
-          <div
-            css={`
-              ${row}
-            `}
-          >
-            {previewImage && (
-              <button
-                onClick={handleClear}
-                type="button"
-                disabled={isUploading}
-              >
-                Try Again
-              </button>
-            )}
-            {file && (
-              <button type="submit" disabled={isUploading}>
-                {isUploading ? <Spinner scale={0.3} /> : "Looks Good!"}
-              </button>
-            )}
-          </div>
+                <div>
+                  <div
+                    css={`
+                      display: grid;
+                      place-items: center;
+                      & > * {
+                        grid-area: 1/1;
+                      }
+                    `}
+                  >
+                    <div
+                      css={`
+                        ${isUploading && `filter: grayscale(80%);`}
+                      `}
+                    >
+                      {previewImage && (
+                        <Image
+                          src={previewImage}
+                          width={300}
+                          height={300}
+                          objectFit="cover"
+                          alt="wing image"
+                        />
+                      )}
+                    </div>
+                    {isUploading && <Loading />}
+                  </div>
+                  {error && <Error>{error}</Error>}
+                  <Space size="sm" />
+                  <div
+                    css={`
+                      ${row}
+                      justify-content: center;
+                    `}
+                  >
+                    <button
+                      onClick={handleClear}
+                      type="button"
+                      disabled={isUploading}
+                    >
+                      Try Again
+                    </button>
+                    <button type="submit" disabled={isUploading}>
+                      {isUploading ? <Spinner scale={0.3} /> : "Looks Good!"}
+                    </button>
+                  </div>
+                </div>
+              </Dialog.Content>
+            </Dialog.Overlay>
+          </Dialog.Root>
         </form>
       )}
     </>

@@ -38,7 +38,7 @@ export const ImageUploadLabel = ({
       </div>
       <div
         css={`
-          z-index: 1;
+          z-index: var(--layer-1);
           display: grid;
           grid-template-rows: 3fr 1fr;
           justify-items: center;
