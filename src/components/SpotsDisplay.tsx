@@ -164,6 +164,7 @@ export const SpotsDisplay = ({
                     }
                     max-width: 400px;
                     ${above["md"]`
+                      max-width: unset;
                       grid-template-columns: 1fr 1fr;
                     `}
                   `}
