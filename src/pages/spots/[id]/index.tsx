@@ -95,7 +95,7 @@ const Spot: NextPage = () => {
                   {wing.images.length > 0 &&
                     wing.images.map((image, i) => {
                       return (
-                        <>
+                        <div key={i}>
                           <p>{image.type}</p>
                           <Image
                             src={image.key}
@@ -105,7 +105,7 @@ const Spot: NextPage = () => {
                             objectFit="cover"
                             key={i}
                           />
-                        </>
+                        </div>
                       );
                     })}
                 </article>
