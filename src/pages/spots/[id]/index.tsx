@@ -98,7 +98,7 @@ const Spot: NextPage = () => {
             `}
           >
             {sortedWings.map((wing, i) => (
-              <Card>
+              <Card key={i}>
                 <ImageDisplay
                   imageKeys={wing.images.map((image) => image.key)}
                 />
