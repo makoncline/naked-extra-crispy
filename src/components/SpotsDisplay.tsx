@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React, { ChangeEventHandler } from "react";
-import { col } from "../styles/utils";
+import { cardWidth, col } from "../styles/utils";
 import { inferQueryOutput } from "../utils/trpc";
 import { SelectStateOptions } from "./SelectStateOptions";
 import { row } from "../styles/utils";
@@ -9,6 +9,8 @@ import { Rating } from "./Rating";
 import { above } from "../styles/breakpoints";
 import { Space } from "./Space";
 import { ImageDisplay } from "./ImageDisplay";
+import { SpotInfo } from "./SpotInfo";
+import { Card } from "./Card";
 
 type SortOrder = "rating" | "name" | "numWings";
 
@@ -155,56 +157,27 @@ export const SpotsDisplay = ({
             `}
           >
             {filteredSpots.map((spot, i) => (
-              <Link href={`/spots/${spot.id}`} key={i}>
-                <article
-                  css={`
-                    display: grid;
-                    &:hover {
-                      background-color: rgba(255, 255, 255, 0.01);
-                      cursor: pointer;
-                    }
-                    max-width: 400px;
-                    ${above["md"]`
-                      max-width: unset;
-                      grid-template-columns: 1fr 1fr;
-                    `}
-                  `}
-                >
-                  <ImageDisplay
-                    imageKeys={spot.images.map((image) => image.key)}
-                  />
-                  <div
-                    css={`
-                      ${col}
-                      gap: var(--gap-list);
-                      justify-content: space-between;
-                      padding: var(--card-padding);
-                    `}
-                  >
+              <Link href={`/spots/${spot.id}`} key={i} passHref>
+                <a>
+                  <Card hover>
+                    <ImageDisplay
+                      imageKeys={spot.images.map((image) => image.key)}
+                    />
                     <div
                       css={`
                         ${col}
                         gap: var(--gap-list);
+                        justify-content: space-between;
+                        padding: var(--card-padding);
                       `}
                     >
-                      <div>
-                        <h4>{spot.name}</h4>
-                        <p>
-                          {spot.city}, {spot.state}
-                        </p>
-                        <p>{spot.numWings.toLocaleString()} wings</p>
-                      </div>
-                      {spot.rating ? (
-                        <Rating displayValue={spot.rating} />
-                      ) : (
-                        <span>🚫 No wings</span>
-                      )}
+                      <SpotInfo spot={spot} />
+                      <Link href={`/spots/${spot.id}/addWing`}>
+                        <button>+ Add wing</button>
+                      </Link>
                     </div>
-                    <Link href={`/spots/${spot.id}/addWing`}>
-                      <button>+ Add wing</button>
-                    </Link>
-                  </div>
-                </article>
+                  </Card>
+                </a>
               </Link>
             ))}
           </div>

@@ -1,4 +1,5 @@
 import { css } from "styled-components";
+import { above } from "./breakpoints";
 
 const flex = css`
   display: flex;
@@ -32,4 +33,11 @@ export const center = css`
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+export const cardWidth = css`
+  max-width: var(--card-width);
+  ${above["md"]`
+    max-width: unset;
+  `}
 `;

@@ -33,6 +33,8 @@
   --space-sm: var(--size-4);
   --space-md: var(--size-8);
   --space-lg: var(--size-12);
+
+  --card-width: 400px;
 }
 
 :where(h1, h2, h3, h4, h5, h6, dt) {

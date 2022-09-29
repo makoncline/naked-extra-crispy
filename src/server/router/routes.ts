@@ -5,11 +5,42 @@ export const routes = createRouter()
   .query("getAllSpots", {
     async resolve({ ctx }) {
       const spots = await ctx.prisma.spot.findMany({
-        include: {
+        select: {
+          id: true,
+          name: true,
+          state: true,
+          city: true,
+          createdAt: true,
           wings: {
             select: {
+              id: true,
+              review: true,
               rating: true,
-              images: { select: { key: true }, orderBy: { createdAt: "desc" } },
+              createdAt: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              images: {
+                select: {
+                  key: true,
+                  type: true,
+                },
+              },
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          images: {
+            select: {
+              key: true,
+              type: true,
             },
           },
         },
@@ -22,8 +53,7 @@ export const routes = createRouter()
         const numWings = spot.wings.length;
         const roundedRating =
           numWings > 0 ? Math.ceil(totalRating / numWings) : null;
-        const { wings, ...spotData } = spot;
-        return { ...spotData, rating: roundedRating, numWings, images };
+        return { ...spot, rating: roundedRating, numWings, images };
       });
     },
   })
@@ -37,6 +67,7 @@ export const routes = createRouter()
           id: input.spotId,
         },
         select: {
+          id: true,
           name: true,
           state: true,
           city: true,

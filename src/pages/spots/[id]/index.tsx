@@ -11,7 +11,11 @@ import Link from "next/link";
 import { BackButton } from "../../../components/BackButton";
 import { Layout } from "../../../components/Layout";
 import { Space } from "../../../components/Space";
-import { row } from "../../../styles/utils";
+import { cardWidth, col, row } from "../../../styles/utils";
+import { SpotInfo } from "../../../components/SpotInfo";
+import { ImageDisplay } from "../../../components/ImageDisplay";
+import { Rating } from "../../../components/Rating";
+import { Card } from "../../../components/Card";
 
 const Spot: NextPage = () => {
   const [sort, setSort] = React.useState<"date" | "rating">("rating");
@@ -40,14 +44,16 @@ const Spot: NextPage = () => {
     <Layout title={`${name} - Naked Extra Crispy`}>
       <div>
         <BackButton />
-        <h1>{name}</h1>
-        <Space size="sm" />
-        <p>
-          {spot.city}, {spot.state}
-        </p>
-        <p>added: {spot.createdAt.toLocaleDateString()} </p>
-        <p># wings: {spot.numWings}</p>
-        {spot.rating && <p>Rating: {spot.rating}</p>}
+        <Card>
+          <ImageDisplay imageKeys={spot.images.map((image) => image.key)} />
+          <div
+            css={`
+              padding: var(--card-padding);
+            `}
+          >
+            <SpotInfo spot={spot} />
+          </div>
+        </Card>
         <Space size="sm" />
         <Link href={`/spots/${spotId}/addWing`}>
           <button>Add Wing</button>
@@ -85,33 +91,37 @@ const Spot: NextPage = () => {
         </div>
         <Space size="md" />
         {wings && wings.length > 0 ? (
-          <ul>
+          <div
+            css={`
+              ${col}
+              gap: var(--gap-list);
+            `}
+          >
             {sortedWings.map((wing, i) => (
-              <li key={i}>
-                <article>
-                  <p>added: {wing.createdAt.toLocaleDateString()} </p>
-                  <p>rating: {wing.rating}</p>
+              <Card>
+                <ImageDisplay
+                  imageKeys={wing.images.map((image) => image.key)}
+                />
+                <div
+                  css={`
+                    ${col}
+                    padding: var(--card-padding);
+                  `}
+                >
                   <p>{wing.review}</p>
-                  {wing.images.length > 0 &&
-                    wing.images.map((image, i) => {
-                      return (
-                        <div key={i}>
-                          <p>{image.type}</p>
-                          <Image
-                            src={image.key}
-                            alt={`${image.type}`}
-                            width={300}
-                            height={300}
-                            objectFit="cover"
-                            key={i}
-                          />
-                        </div>
-                      );
-                    })}
-                </article>
-              </li>
+                  <Rating displayValue={wing.rating} />
+                  <p
+                    css={`
+                      color: var(--text-2);
+                      font-size: var(--font-size-0);
+                    `}
+                  >
+                    {wing.createdAt.toLocaleDateString()}{" "}
+                  </p>
+                </div>
+              </Card>
             ))}
-          </ul>
+          </div>
         ) : (
           <p>There are no wings for this spot...</p>
         )}

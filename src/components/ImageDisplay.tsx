@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { above } from "../styles/breakpoints";
+import { cardWidth } from "../styles/utils";
 
 export const ImageDisplay = ({ imageKeys }: { imageKeys: string[] }) => {
   return (
@@ -15,6 +17,7 @@ export const ImageDisplay = ({ imageKeys }: { imageKeys: string[] }) => {
           scroll-snap-align: start;
           min-width: 100%;
         }
+        ${cardWidth}
       `}
     >
       {imageKeys.map((key, i) => (
