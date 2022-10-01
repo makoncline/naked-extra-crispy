@@ -42,7 +42,7 @@ export const Hero = () => {
           `}
         >
           Naked Extra Crispy. It&apos;s how we like our wings. Good wings are
-          crispy, Housemade sauces are key&apos;. We&apos;re not a wing spot,
+          crispy, but never breaded. They&apos;re covered in buffalo sauce and come with a dip. Housemade sauces are key. We&apos;re not a wing spot,
           but we do wings right.
         </p>
         <div>
