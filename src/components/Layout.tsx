@@ -28,6 +28,7 @@ export const Layout = ({
       <Navigation />
       <Space size="md" />
       {children}
+      <Space size="lg" />
     </div>
   );
 };

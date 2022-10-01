@@ -13,10 +13,11 @@ export const Card = ({
     <article
       css={`
         display: grid;
+        background-color: rgba(255, 255, 255, 0.01);
         ${hover &&
         `
             &:hover {
-                background-color: rgba(255, 255, 255, 0.01);
+                background-color: rgba(255, 255, 255, 0.02);
                 cursor: pointer;
             }
         `}

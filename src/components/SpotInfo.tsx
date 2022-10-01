@@ -8,6 +8,9 @@ export const SpotInfo = ({ spot }: { spot: inferQueryOutput<"getSpot"> }) => {
       css={`
         ${col}
         gap: var(--gap-list);
+        p {
+          color: var(--text-2);
+        }
       `}
     >
       <div>
@@ -15,7 +18,7 @@ export const SpotInfo = ({ spot }: { spot: inferQueryOutput<"getSpot"> }) => {
         <p>
           {spot.city}, {spot.state}
         </p>
-        <p>{spot.numWings.toLocaleString()} wings</p>
+        {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} wings</p>}
       </div>
       {spot.rating ? (
         <Rating displayValue={spot.rating} />

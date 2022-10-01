@@ -20,18 +20,36 @@ export const ImageDisplay = ({ imageKeys }: { imageKeys: string[] }) => {
         ${cardWidth}
       `}
     >
-      {imageKeys.map((key, i) => (
+      {imageKeys.length ? (
+        imageKeys.map((key, i) => (
+          <div
+            key={i}
+            css={`
+              position: relative;
+              width: 100%;
+              aspect-ratio: 1 / 1;
+            `}
+          >
+            <Image src={key} layout="fill" objectFit="cover" alt="wing image" />
+          </div>
+        ))
+      ) : (
         <div
-          key={i}
           css={`
             position: relative;
             width: 100%;
             aspect-ratio: 1 / 1;
           `}
         >
-          <Image src={key} layout="fill" objectFit="cover" alt="wing image" />
+          <Image
+            src="/wings.png"
+            layout="fill"
+            objectFit="cover"
+            alt="wing image"
+            loader={({ src }) => src}
+          />
         </div>
-      ))}
+      )}
     </div>
   );
 };
