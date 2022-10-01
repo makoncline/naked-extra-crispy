@@ -23,7 +23,7 @@ const Spot: NextPage = () => {
   const router = useRouter();
   const spotId = router.query.id as string;
   const { data: spot, isLoading } = trpc.useQuery(["getSpot", { spotId }]);
-  if (true) {
+  if (isLoading) {
     return <Loading />;
   }
   if (!spot) {
