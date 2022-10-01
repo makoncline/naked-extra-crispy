@@ -1,8 +1,13 @@
+import { center } from "../styles/utils";
 import { Spinner } from "./Spiner";
 
 export const Loading = () => {
   return (
-    <div>
+    <div
+      css={`
+        ${center}
+      `}
+    >
       <Spinner />
     </div>
   );

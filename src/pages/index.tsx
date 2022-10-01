@@ -4,7 +4,6 @@ import React from "react";
 import { SpotsDisplay } from "../components/SpotsDisplay";
 import { Layout } from "../components/Layout";
 import { Hero } from "../components/Hero";
-import Link from "next/link";
 import { Space } from "../components/Space";
 
 const Home: NextPage = () => {
