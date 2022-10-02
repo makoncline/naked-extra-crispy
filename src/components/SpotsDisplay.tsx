@@ -61,7 +61,7 @@ export const SpotsDisplay = ({
   const SelectCityOptions = () => (
     <>
       {Array.from(new Set(spots
-        .map((spot) => spot.city)))
+        .map((spot) => spot.city.trim())))
         .sort()
         .map((city, i) => (
           <option value={city} key={i}>
