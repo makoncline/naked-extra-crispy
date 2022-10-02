@@ -46,9 +46,7 @@ export const AddWingForm = ({
     onSuccess();
   };
   return (
-    <div>
-      <h2>{spotName}</h2>
-      <Space size="sm" />
+    <>
       <form>
         <input
           {...register("userId", { required: true })}
@@ -125,7 +123,7 @@ export const AddWingForm = ({
         </div>
       </form>
       <Space size="sm" />
-      <h3>Attach Photos</h3>
+      <h2>Attach Photos</h2>
       <Space size="sm" />
       <div
         css={`
@@ -175,7 +173,6 @@ export const AddWingForm = ({
             <Error>{error.message}</Error>
           </div>
         ))}
-      <Space size="lg" />
-    </div>
+    </>
   );
 };

@@ -15,7 +15,7 @@ export const Layout = ({
     <div
       css={`
         display: grid;
-        justify-items: center;
+        justify-items: start;
         max-width: var(--size-md);
         margin: 0 auto;
         padding: 0 var(--size-2);

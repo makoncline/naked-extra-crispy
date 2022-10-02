@@ -24,32 +24,30 @@ export const Rating = ({
         <button
           key={i}
           onClick={() => handleChange(i)}
-          className={i < rating ? "selected" : ""}
           type="button"
-          disabled={!!displayValue}
+          disabled={Boolean(displayValue)}
         >
           <div
             css={`
               ${col}
               gap: 0;
-              font-size: var(--font-size-4);
-              p {
-                font-size: var(--font-size-00);
-              }
             `}
           >
-            {i <= rating ? (
-              <span>🔥</span>
-            ) : (
-              <span
-                css={`
-                  filter: grayscale(100%);
-                `}
-              >
-                🔥
-              </span>
-            )}
-            <p>{i}</p>
+            <span
+              css={`
+                font-size: var(--font-size-4);
+                ${i > rating && `filter: grayscale(100%);`}
+              `}
+            >
+              🔥
+            </span>
+            <p
+              css={`
+                font-size: var(--font-size-00);
+              `}
+            >
+              {i}
+            </p>
           </div>
         </button>
       ))}
@@ -62,7 +60,8 @@ const ScRating = styled.div`
   button {
     background: none;
     border: none;
-    box-shadow: var(--shadow-1);
+    box-shadow: none;
     padding: 0;
+    cursor: unset;
   }
 `;

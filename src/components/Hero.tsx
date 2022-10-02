@@ -2,6 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "../siteConfig";
 import { row } from "../styles/utils";
 import Image from "next/image";
+import { local } from "../lib/loaders";
 
 export const Hero = () => {
   const { title, description } = siteConfig;
@@ -47,7 +48,7 @@ export const Hero = () => {
           but we do wings right.
         </p>
         <div>
-          <Link href="#spots">
+          <Link href="#results">
             <button>Show me the wings</button>
           </Link>
         </div>
@@ -67,7 +68,7 @@ export const Hero = () => {
         <Image
           src="/wings.png"
           alt="a random doodle"
-          loader={({ src }) => src}
+          loader={local}
           width={800}
           height={800}
         />

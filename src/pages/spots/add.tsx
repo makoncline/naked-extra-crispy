@@ -4,6 +4,7 @@ import { Loading } from "../../components/Loading";
 import { useRouter } from "next/router";
 import { BackButton } from "../../components/BackButton";
 import { Layout } from "../../components/Layout";
+import { Space } from "../../components/Space";
 
 const AddSpot = () => {
   const router = useRouter();
@@ -18,11 +19,14 @@ const AddSpot = () => {
   }
   return (
     <Layout>
-      <BackButton />
-      <AddSpotForm
-        userId={userId}
-        onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
-      />
+      <h1>Add Spot</h1>
+      <Space size="sm" />
+      <div>
+        <AddSpotForm
+          userId={userId}
+          onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
+        />
+      </div>
     </Layout>
   );
 };

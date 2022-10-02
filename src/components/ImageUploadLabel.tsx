@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { local } from "../lib/loaders";
 import { center } from "../styles/utils";
 
 export const ImageUploadLabel = ({
@@ -33,7 +34,7 @@ export const ImageUploadLabel = ({
           height={size - offset}
           objectFit="cover"
           alt={type}
-          loader={({ src }) => src}
+          loader={local}
         />
       </div>
       <div

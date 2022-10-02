@@ -25,6 +25,7 @@ export const routes = createRouter()
               },
               images: {
                 select: {
+                  id: true,
                   key: true,
                   type: true,
                 },
@@ -39,6 +40,7 @@ export const routes = createRouter()
           },
           images: {
             select: {
+              id: true,
               key: true,
               type: true,
             },
@@ -52,7 +54,7 @@ export const routes = createRouter()
         const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
         const numWings = spot.wings.length;
         const roundedRating =
-          numWings > 0 ? Math.ceil(totalRating / numWings) : null;
+          numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
         return { ...spot, rating: roundedRating, numWings, images };
       });
     },
@@ -74,6 +76,7 @@ export const routes = createRouter()
           createdAt: true,
           wings: {
             select: {
+              id: true,
               review: true,
               rating: true,
               createdAt: true,
@@ -85,6 +88,7 @@ export const routes = createRouter()
               },
               images: {
                 select: {
+                  id: true,
                   key: true,
                   type: true,
                 },
@@ -99,6 +103,7 @@ export const routes = createRouter()
           },
           images: {
             select: {
+              id: true,
               key: true,
               type: true,
             },
@@ -109,7 +114,7 @@ export const routes = createRouter()
       const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
       const numWings = spot.wings.length;
       const roundedRating =
-        numWings > 0 ? Math.ceil(totalRating / numWings) : null;
+        numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
       return { ...spot, rating: roundedRating, numWings };
     },
   })

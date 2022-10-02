@@ -1,55 +1,49 @@
 import Image from "next/image";
-import { above } from "../styles/breakpoints";
-import { cardWidth } from "../styles/utils";
+import styled from "styled-components";
+import { local } from "../lib/loaders";
 
 export const ImageDisplay = ({ imageKeys }: { imageKeys: string[] }) => {
+  const alt = "wing image";
+  const hasImages = imageKeys.length > 0;
   return (
-    <div
-      css={`
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scroll-snap-points-x: repeat(100%);
-        -webkit-overflow-scrolling: touch;
-        -ms-scroll-snap-type: x mandatory;
-        -ms-scroll-snap-points-x: repeat(100%);
-        & > div {
-          scroll-snap-align: start;
-          min-width: 100%;
-        }
-        ${cardWidth}
-      `}
-    >
-      {imageKeys.length ? (
+    <ImageDisplayWrapper>
+      {hasImages ? (
         imageKeys.map((key, i) => (
-          <div
-            key={i}
-            css={`
-              position: relative;
-              width: 100%;
-              aspect-ratio: 1 / 1;
-            `}
-          >
-            <Image src={key} layout="fill" objectFit="cover" alt="wing image" />
-          </div>
+          <ImageWrapper key={i}>
+            <Image src={key} alt={alt} layout="fill" objectFit="cover" />
+          </ImageWrapper>
         ))
       ) : (
-        <div
-          css={`
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1;
-          `}
-        >
+        <ImageWrapper>
           <Image
             src="/wings.png"
+            loader={local}
+            alt={alt}
             layout="fill"
             objectFit="cover"
-            alt="wing image"
-            loader={({ src }) => src}
           />
-        </div>
+        </ImageWrapper>
       )}
-    </div>
+    </ImageDisplayWrapper>
   );
 };
+
+const ImageDisplayWrapper = styled.div`
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-snap-points-x: repeat(100%);
+  -webkit-overflow-scrolling: touch;
+  -ms-scroll-snap-type: x mandatory;
+  -ms-scroll-snap-points-x: repeat(100%);
+  & > div {
+    scroll-snap-align: start;
+    min-width: 100%;
+  }
+`;
+
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+`;

@@ -37,7 +37,7 @@ button.link {
 form {
   display: flex;
   flex-direction: column;
-  gap: var(--size-4);
+  gap: var(--gap-list);
   width: 100%;
   max-width: var(--size-sm);
 }

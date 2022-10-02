@@ -6,6 +6,7 @@ import { NextPage } from "next";
 import { BackButton } from "../../../components/BackButton";
 import { Layout } from "../../../components/Layout";
 import { trpc } from "../../../utils/trpc";
+import { Space } from "../../../components/Space";
 
 const AddWing: NextPage = () => {
   const router = useRouter();
@@ -23,7 +24,8 @@ const AddWing: NextPage = () => {
   }
   return (
     <Layout>
-      <BackButton />
+      <h1>{spot.name}</h1>
+      <Space size="sm" />
       <AddWingForm
         userId={userId}
         spotId={spotId}

@@ -23,7 +23,7 @@ export const SpotsDisplay = ({
   const [stateFilter, setStateFilter] = React.useState<string>("");
   const [cityFilter, setCityFilter] = React.useState<string>("");
   const [sortBy, setSortBy] = React.useState<SortOrder>("rating");
-  const [sortOrder, setSortOrder] = React.useState(true);
+  const [reverse, setReverse] = React.useState(true);
   const handleSelectState: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setStateFilter(e.target.value);
   };
@@ -38,7 +38,7 @@ export const SpotsDisplay = ({
     setStateFilter("");
     setCityFilter("");
     setSortBy("rating");
-    setSortOrder(true);
+    setReverse(true);
   };
   const filteredSpots = spots
     .filter((spot) =>
@@ -49,19 +49,19 @@ export const SpotsDisplay = ({
     .filter((spot) => (stateFilter ? spot.state === stateFilter : true))
     .filter((spot) => (cityFilter ? spot.city === cityFilter : true))
     .sort((spotA, spotB) => {
-      let a = spotA[sortBy] || 0;
-      let b = spotB[sortBy] || 0;
+      let a = spotA[sortBy].toString().toLowerCase();
+      let b = spotB[sortBy].toString().toLowerCase();
       if (sortBy === "name") {
-        a = (a as string).toLowerCase();
-        b = (b as string).toLowerCase();
+        const oldA = a;
+        a = b;
+        b = oldA;
       }
       const result = a < b ? 1 : -1;
-      return sortOrder ? result : result * -1;
+      return reverse ? result : result * -1;
     });
   const SelectCityOptions = () => (
     <>
-      {Array.from(new Set(spots
-        .map((spot) => spot.city.trim())))
+      {Array.from(new Set(spots.map((spot) => spot.city.trim())))
         .sort()
         .map((city, i) => (
           <option value={city} key={i}>
@@ -72,7 +72,7 @@ export const SpotsDisplay = ({
   );
   return (
     <div>
-      <h2 id="spots">Spots</h2>
+      <h2>Spots</h2>
       <Space size="md" />
       <div>
         <h3>Search</h3>
@@ -106,9 +106,13 @@ export const SpotsDisplay = ({
           <div>
             <label htmlFor="sort">Sort by</label>
             <select id="sort" value={sortBy} onChange={handleSelectSortOrder}>
-              <option value="rating">Rating</option>
-              <option value="numWings">Popularity</option>
-              <option value="name">Name</option>
+              <option value="rating">{reverse ? "Best" : "Worst"}</option>
+              <option value="numWings">
+                {reverse ? "Most Popular" : "Least Popular"}
+              </option>
+              <option value="name">
+                Name ({reverse ? "A to Z" : "Z to A"})
+              </option>
             </select>
           </div>
           <div
@@ -120,10 +124,10 @@ export const SpotsDisplay = ({
             <button
               type="button"
               onClick={() => {
-                setSortOrder((prev) => !prev);
+                setReverse((prev) => !prev);
               }}
             >
-              Reverse {sortOrder ? "▲" : "▼"}
+              Reverse {reverse ? "▲" : "▼"}
             </button>
             <button type="reset" onClick={() => handleReset()}>
               Reset ↺

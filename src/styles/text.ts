@@ -11,3 +11,8 @@ export const Warn = styled.span`
 export const Success = styled.span`
   ${successText}
 `;
+
+export const Subtle = styled.span`
+  color: var(--text-2);
+  font-size: var(--font-size-0);
+`;
