@@ -94,16 +94,7 @@ export const ImageUpload = ({
             align-items: flex-start;
           `}
         >
-          {!file && (
-            <label
-              htmlFor={id}
-              css={`
-                width: 100%;
-              `}
-            >
-              {children}
-            </label>
-          )}
+          <label htmlFor={id}>{children}</label>
           <input
             id={id}
             type="file"

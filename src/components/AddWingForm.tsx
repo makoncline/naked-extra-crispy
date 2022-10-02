@@ -37,7 +37,12 @@ export const AddWingForm = ({
   } = useForm<AddWFormInputs>();
   const watchReview = watch("review");
   const watchRating = watch("rating");
-  const createWing = trpc.useMutation("protected.createWing");
+  const utils = trpc.useContext();
+  const createWing = trpc.useMutation("protected.createWing", {
+    onSuccess: (input) => {
+      utils.invalidateQueries(["getSpot", { spotId: input.spot.id }]);
+    },
+  });
   const handleRatingChange = (rating: number) => {
     setValue("rating", rating, { shouldValidate: true });
   };
@@ -47,7 +52,7 @@ export const AddWingForm = ({
   };
   return (
     <>
-      <form>
+      <form id="add-wing">
         <input
           {...register("userId", { required: true })}
           value={userId}
@@ -164,9 +169,11 @@ export const AddWingForm = ({
         </div>
       </div>
       <Space size="sm" />
-      <button type="submit" onClick={handleSubmit(onSubmit)}>
-        Submit
-      </button>
+      <form>
+        <button type="submit" onClick={handleSubmit(onSubmit)} form="add-wing">
+          Submit
+        </button>
+      </form>
       {Object.keys(errors).length > 0 &&
         Object.entries(errors).map(([key, error]) => (
           <div key={key}>

@@ -18,7 +18,11 @@ export const protectedRoutes = createProtectedRouter()
     }),
     async resolve({ input }) {
       const spot = await prisma.spot.create({
-        data: input,
+        data: {
+          ...input,
+          name: input.name.trim(),
+          city: input.city.trim(),
+        },
         select: {
           id: true,
           user: true,
@@ -50,13 +54,12 @@ export const protectedRoutes = createProtectedRouter()
         },
       });
       const { userId, spotId } = wingReview;
+      const baseImageData = { userId, spotId, wingId };
 
       if (mainImageId) {
         await prisma.image.create({
           data: {
-            userId,
-            spotId,
-            wingId,
+            ...baseImageData,
             key: mainImageId,
             type: "main",
           },
@@ -65,9 +68,7 @@ export const protectedRoutes = createProtectedRouter()
       if (drumImageId) {
         await prisma.image.create({
           data: {
-            userId,
-            spotId,
-            wingId,
+            ...baseImageData,
             key: drumImageId,
             type: "drum",
           },
@@ -76,9 +77,7 @@ export const protectedRoutes = createProtectedRouter()
       if (flatImageId) {
         await prisma.image.create({
           data: {
-            userId,
-            spotId,
-            wingId,
+            ...baseImageData,
             key: flatImageId,
             type: "flat",
           },
