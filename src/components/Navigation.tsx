@@ -2,6 +2,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { col } from "../styles/utils";
+import { local } from "../lib/loaders";
 
 export const Navigation = () => {
   const { data: session } = useSession();
@@ -20,7 +21,18 @@ export const Navigation = () => {
           font-weight: var(--font-weight-9);
         `}
       >
-        <Link href="/">Naked Extra Crispy</Link>
+        <Link href="/" passHref>
+          <a>
+            <Image
+              src="/nxcLogo.png"
+              loader={local}
+              width={200}
+              height={100}
+              objectFit="cover"
+              alt="Naked Extra Crispy logo"
+            />
+          </a>
+        </Link>
       </div>
 
       <div
