@@ -160,8 +160,8 @@ export const SpotsDisplay = ({
               gap: var(--gap-list);
             `}
           >
-            {filteredSpots.map((spot, i) => (
-              <Link href={`/spots/${spot.id}`} key={i} passHref>
+            {filteredSpots.map((spot) => (
+              <Link href={`/spots/${spot.id}`} key={spot.id} passHref>
                 <a>
                   <Card hover>
                     <ImageDisplay
