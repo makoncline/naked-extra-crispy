@@ -84,9 +84,9 @@ model User {
   emailVerified DateTime?
   accounts      Account[]
   sessions      Session[]
-  spots    Spot[]
-  wings       Wing[]
-  images         Image[]
+  spots         Spot[]
+  wings         Wing[]
+  images        Image[]
 }
 
 model VerificationToken {
