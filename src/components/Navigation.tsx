@@ -24,7 +24,7 @@ export const Navigation = () => {
         <Link href="/" passHref>
           <a>
             <Image
-              src="/nxcLogo.png"
+              src="/nxcLogo.webp"
               loader={local}
               width={200}
               height={100}

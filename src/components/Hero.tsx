@@ -66,7 +66,7 @@ export const Hero = () => {
         `}
       >
         <Image
-          src="/wings.png"
+          src="/wings.webp"
           alt="a random doodle"
           loader={local}
           width={800}

@@ -50,3 +50,12 @@ form select {
 form label {
   padding-bottom: var(--size-1);
 }
+
+button {
+  background: var(--surface-3);
+  text-shadow: 0px 0px 2px black;
+}
+
+button[type="reset"] {
+  color: var(--red-5);
+}

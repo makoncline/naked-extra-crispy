@@ -16,7 +16,7 @@ export const ImageDisplay = ({ imageKeys }: { imageKeys: string[] }) => {
       ) : (
         <ImageWrapper>
           <Image
-            src="/wings.png"
+            src="/wings.webp"
             loader={local}
             alt={alt}
             layout="fill"

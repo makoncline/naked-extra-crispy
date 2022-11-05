@@ -142,7 +142,7 @@ export const AddWingForm = ({
               setValue("mainImageId", id, { shouldValidate: true });
             }}
           >
-            <ImageUploadLabel image="/mainWing.png" type="Main" />
+            <ImageUploadLabel image="/mainWing.webp" type="Main" />
           </ImageUpload>
           {errors.mainImageId && <Error>{errors.mainImageId.message}</Error>}
         </div>
@@ -154,7 +154,7 @@ export const AddWingForm = ({
               setValue("drumImageId", id);
             }}
           >
-            <ImageUploadLabel image="/drumWing.png" type="Drum" />
+            <ImageUploadLabel image="/drumWing.webp" type="Drum" />
           </ImageUpload>
         </div>
         <div>
@@ -164,7 +164,7 @@ export const AddWingForm = ({
               setValue("flatImageId", id);
             }}
           >
-            <ImageUploadLabel image="/flatWing.png" type="Flat" />
+            <ImageUploadLabel image="/flatWing.webp" type="Flat" />
           </ImageUpload>
         </div>
       </div>
