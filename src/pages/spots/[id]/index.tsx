@@ -34,7 +34,10 @@ const Spot: NextPage = () => {
       <h1>{spot.name}</h1>
       <Space size="md" />
       <Card>
-        <ImageDisplay imageKeys={spot.images.map((image) => image.key)} />
+        <ImageDisplay
+          imageKeys={spot.images.map((image) => image.key)}
+          priority
+        />
         <Card.Body
           css={`
             justify-content: space-between;

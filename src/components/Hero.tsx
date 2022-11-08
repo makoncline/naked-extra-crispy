@@ -2,7 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "../siteConfig";
 import { row } from "../styles/utils";
 import Image from "next/image";
-import { local } from "../lib/loaders";
+import wings from "../../public/wings.webp";
 
 export const Hero = () => {
   const { title, description } = siteConfig;
@@ -66,11 +66,12 @@ export const Hero = () => {
         `}
       >
         <Image
-          src="/wings.webp"
+          src={wings}
           alt="a random doodle"
-          loader={local}
           width={800}
           height={800}
+          priority
+          placeholder="blur"
         />
       </picture>
     </div>

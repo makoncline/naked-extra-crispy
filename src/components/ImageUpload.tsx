@@ -3,11 +3,12 @@ import { siteConfig } from "../siteConfig";
 import { Error } from "../styles/text";
 import { Spinner } from "./Spiner";
 import Image from "next/image";
-import { center, col, row } from "../styles/utils";
+import { col, row } from "../styles/utils";
 import { toBase64 } from "../lib/toBase64";
 import { Loading } from "./Loading";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Space } from "./Space";
+import { toCloudinaryBlurUrl, toCloudinaryUrl } from "../lib/cloudinary";
 
 export const ImageUpload = ({
   onUploadSuccess,
@@ -78,7 +79,9 @@ export const ImageUpload = ({
       {publicId ? (
         <div>
           <Image
-            src={publicId}
+            src={toCloudinaryUrl(publicId, 300)}
+            placeholder="blur"
+            blurDataURL={toCloudinaryBlurUrl(publicId)}
             width={300}
             height={300}
             objectFit="cover"

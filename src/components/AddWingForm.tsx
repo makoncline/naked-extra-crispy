@@ -6,7 +6,11 @@ import { ImageUpload } from "./ImageUpload";
 import { Error, Success, Warn } from "../styles/text";
 import { Space } from "./Space";
 import { ImageUploadLabel } from "./ImageUploadLabel";
-import { col, row } from "../styles/utils";
+import { col } from "../styles/utils";
+import mainWing from "../../public/mainWing.webp";
+import drumWing from "../../public/drumWing.webp";
+import flatWing from "../../public/flatWing.webp";
+
 export type AddWFormInputs = {
   userId: string;
   spotId: string;
@@ -142,7 +146,7 @@ export const AddWingForm = ({
               setValue("mainImageId", id, { shouldValidate: true });
             }}
           >
-            <ImageUploadLabel image="/mainWing.webp" type="Main" />
+            <ImageUploadLabel image={mainWing} type="Main" />
           </ImageUpload>
           {errors.mainImageId && <Error>{errors.mainImageId.message}</Error>}
         </div>
@@ -154,7 +158,7 @@ export const AddWingForm = ({
               setValue("drumImageId", id);
             }}
           >
-            <ImageUploadLabel image="/drumWing.webp" type="Drum" />
+            <ImageUploadLabel image={drumWing} type="Drum" />
           </ImageUpload>
         </div>
         <div>
@@ -164,7 +168,7 @@ export const AddWingForm = ({
               setValue("flatImageId", id);
             }}
           >
-            <ImageUploadLabel image="/flatWing.webp" type="Flat" />
+            <ImageUploadLabel image={flatWing} type="Flat" />
           </ImageUpload>
         </div>
       </div>
