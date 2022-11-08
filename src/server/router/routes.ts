@@ -31,6 +31,9 @@ export const routes = createRouter()
                 },
               },
             },
+            orderBy: {
+              createdAt: "desc",
+            },
           },
           user: {
             select: {
@@ -94,6 +97,9 @@ export const routes = createRouter()
                 },
               },
             },
+            orderBy: {
+              createdAt: "desc",
+            },
           },
           user: {
             select: {
@@ -106,6 +112,9 @@ export const routes = createRouter()
               id: true,
               key: true,
               type: true,
+            },
+            orderBy: {
+              createdAt: "desc",
             },
           },
         },

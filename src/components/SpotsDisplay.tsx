@@ -1,12 +1,9 @@
 import Link from "next/link";
 import React, { ChangeEventHandler } from "react";
-import { cardWidth, col } from "../styles/utils";
+import { col } from "../styles/utils";
 import { inferQueryOutput } from "../utils/trpc";
 import { SelectStateOptions } from "./SelectStateOptions";
 import { row } from "../styles/utils";
-import Image from "next/image";
-import { Rating } from "./Rating";
-import { above } from "../styles/breakpoints";
 import { Space } from "./Space";
 import { ImageDisplay } from "./ImageDisplay";
 import { SpotInfo } from "./SpotInfo";
@@ -49,14 +46,14 @@ export const SpotsDisplay = ({
     .filter((spot) => (stateFilter ? spot.state === stateFilter : true))
     .filter((spot) => (cityFilter ? spot.city === cityFilter : true))
     .sort((spotA, spotB) => {
-      let a = spotA[sortBy].toString().toLowerCase();
-      let b = spotB[sortBy].toString().toLowerCase();
-      if (sortBy === "name") {
-        const oldA = a;
-        a = b;
-        b = oldA;
+      let result = 0;
+      if (sortBy === "rating") {
+        result = spotA.rating > spotB.rating ? -1 : 1;
+      } else if (sortBy === "name") {
+        result = spotA.name > spotB.name ? 1 : -1;
+      } else if (sortBy === "numWings") {
+        result = spotA.numWings > spotB.numWings ? -1 : 1;
       }
-      const result = a < b ? 1 : -1;
       return reverse ? result : result * -1;
     });
   const SelectCityOptions = () => (

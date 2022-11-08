@@ -2,7 +2,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { col } from "../styles/utils";
-import { local } from "../lib/loaders";
+import logo from "../../public/nxcLogo.webp";
 
 export const Navigation = () => {
   const { data: session } = useSession();
@@ -24,12 +24,13 @@ export const Navigation = () => {
         <Link href="/" passHref>
           <a>
             <Image
-              src="/nxcLogo.webp"
-              loader={local}
+              src={logo}
               width={200}
               height={100}
               objectFit="cover"
               alt="Naked Extra Crispy logo"
+              priority
+              placeholder="blur"
             />
           </a>
         </Link>

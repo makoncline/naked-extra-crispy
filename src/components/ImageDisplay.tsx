@@ -1,26 +1,44 @@
 import Image from "next/image";
 import styled from "styled-components";
-import { local } from "../lib/loaders";
+import { toCloudinaryBlurUrl, toCloudinaryUrl } from "../lib/cloudinary";
+import wings from "../../public/wings.webp";
 
-export const ImageDisplay = ({ imageKeys }: { imageKeys: string[] }) => {
+export const ImageDisplay = ({
+  imageKeys,
+  priority = false,
+}: {
+  imageKeys: string[];
+  priority?: boolean;
+}) => {
   const alt = "wing image";
   const hasImages = imageKeys.length > 0;
+  const imageSize = 400;
   return (
     <ImageDisplayWrapper>
       {hasImages ? (
         imageKeys.map((key, i) => (
           <ImageWrapper key={i}>
-            <Image src={key} alt={alt} layout="fill" objectFit="cover" />
+            <Image
+              src={toCloudinaryUrl(key, imageSize)}
+              blurDataURL={toCloudinaryBlurUrl(key)}
+              placeholder="blur"
+              alt={alt}
+              objectFit="cover"
+              priority={i === 0 && priority ? true : false}
+              width={imageSize}
+              height={imageSize}
+            />
           </ImageWrapper>
         ))
       ) : (
         <ImageWrapper>
           <Image
-            src="/wings.webp"
-            loader={local}
+            src={wings}
+            placeholder="blur"
             alt={alt}
-            layout="fill"
             objectFit="cover"
+            width={imageSize}
+            height={imageSize}
           />
         </ImageWrapper>
       )}

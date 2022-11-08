@@ -1,12 +1,11 @@
-import Image from "next/image";
-import { local } from "../lib/loaders";
+import Image, { StaticImageData } from "next/image";
 import { center } from "../styles/utils";
 
 export const ImageUploadLabel = ({
   image,
   type,
 }: {
-  image: string;
+  image: StaticImageData;
   type: string;
 }) => {
   const size = 110;
@@ -30,11 +29,11 @@ export const ImageUploadLabel = ({
       >
         <Image
           src={image}
+          placeholder="blur"
           width={size - offset}
           height={size - offset}
           objectFit="cover"
           alt={type}
-          loader={local}
         />
       </div>
       <div

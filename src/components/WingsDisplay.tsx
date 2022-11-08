@@ -17,7 +17,7 @@ export const WingsDisplay = ({
   const [sort, setSort] = React.useState<"date" | "rating">("rating");
   const [reverse, setReverse] = React.useState(false);
   const sortedWings = wings.sort((a, b) => {
-    let value: number = 0;
+    let value = 0;
     if (sort === "rating") {
       value = b.rating - a.rating;
     }
