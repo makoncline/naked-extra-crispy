@@ -154,6 +154,7 @@ export const SpotsDisplay = ({
           <div
             css={`
               ${col}
+              align-items: flex-start;
               gap: var(--gap-list);
             `}
           >

@@ -48,7 +48,8 @@ export const ImageDisplay = ({
 
 const ImageDisplayWrapper = styled.div`
   display: flex;
-  overflow-x: auto;
+  overflow-x: scroll;
+  height: 100%;
   scroll-snap-type: x mandatory;
   scroll-snap-points-x: repeat(100%);
   -webkit-overflow-scrolling: touch;
@@ -57,6 +58,15 @@ const ImageDisplayWrapper = styled.div`
   & > div {
     scroll-snap-align: start;
     min-width: 100%;
+  }
+  overflow-x: overlay;
+  ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background-color: var(--gray-6);
   }
 `;
 
