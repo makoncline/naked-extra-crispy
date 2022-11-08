@@ -67,9 +67,9 @@ export const Hero = () => {
       >
         <Image
           src={wings}
-          alt="a random doodle"
-          width={800}
-          height={800}
+          alt="a wing doodle"
+          width={400}
+          height={400}
           priority
           placeholder="blur"
         />

@@ -10,8 +10,9 @@ export const toCloudinaryUrl = (imageId: string, size: number) =>
         type: "fill",
         width: size * 2,
         height: size * 2,
-        aspectRation: "1:1",
+        aspectRatio: "1:1",
       },
+      quality: 100,
     },
   });
 
@@ -21,7 +22,7 @@ export const toCloudinaryBlurUrl = (imageId: string) =>
       cloudName: "makon-dev",
     },
     transformations: {
-      effect: "blur:1000",
+      effect: { name: "blur", value: 1000 },
       quality: 1,
     },
   });

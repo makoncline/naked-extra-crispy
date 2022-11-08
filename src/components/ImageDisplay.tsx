@@ -12,19 +12,21 @@ export const ImageDisplay = ({
 }) => {
   const alt = "wing image";
   const hasImages = imageKeys.length > 0;
+  const imageSize = 400;
   return (
     <ImageDisplayWrapper>
       {hasImages ? (
         imageKeys.map((key, i) => (
           <ImageWrapper key={i}>
             <Image
-              src={toCloudinaryUrl(key, 400)}
-              placeholder="blur"
+              src={toCloudinaryUrl(key, imageSize)}
               blurDataURL={toCloudinaryBlurUrl(key)}
+              placeholder="blur"
               alt={alt}
-              layout="fill"
               objectFit="cover"
               priority={i === 0 && priority ? true : false}
+              width={imageSize}
+              height={imageSize}
             />
           </ImageWrapper>
         ))
@@ -32,10 +34,11 @@ export const ImageDisplay = ({
         <ImageWrapper>
           <Image
             src={wings}
-            alt={alt}
-            layout="fill"
-            objectFit="cover"
             placeholder="blur"
+            alt={alt}
+            objectFit="cover"
+            width={imageSize}
+            height={imageSize}
           />
         </ImageWrapper>
       )}

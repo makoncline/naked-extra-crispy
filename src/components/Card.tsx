@@ -33,23 +33,6 @@ const Card = ({
   );
 };
 
-const Carddd = styled.article<{ hover?: boolean }>`
-  display: grid;
-  background-color: rgba(255, 255, 255, 0.01);
-  ${cardWidth}
-  ${above["md"]`
-  grid-template-columns: 1fr 1fr;
-  `}
-  ${(p) =>
-    p.hover &&
-    `
-    &:hover {
-        background-color: rgba(255, 255, 255, 0.02);
-        cursor: pointer;
-    }
-    `}
-`;
-
 const Body = styled.div`
   ${col}
   gap: var(--gap-list);
