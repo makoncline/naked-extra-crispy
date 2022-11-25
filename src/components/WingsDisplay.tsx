@@ -26,6 +26,7 @@ export const WingsDisplay = ({
     }
     return reverse ? value * -1 : value;
   });
+  const numWings = wings.length;
   return (
     <>
       <h3>Sort</h3>
@@ -70,7 +71,7 @@ export const WingsDisplay = ({
                 width: 100%;
               `}
             >
-              Results 👇
+              {numWings} Result{numWings !== 1 ? "s" : ""} 👇
             </button>
           </Link>
         </div>

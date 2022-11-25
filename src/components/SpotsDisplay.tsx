@@ -56,6 +56,7 @@ export const SpotsDisplay = ({
       }
       return reverse ? result : result * -1;
     });
+  const numFilteredSpots = filteredSpots.length;
   const SelectCityOptions = () => (
     <>
       {Array.from(new Set(spots.map((spot) => spot.city.trim())))
@@ -133,7 +134,7 @@ export const SpotsDisplay = ({
                   width: 100%;
                 `}
               >
-                Results 👇
+                {numFilteredSpots} Result{numFilteredSpots !== 1 ? "s" : ""} 👇
               </button>
             </Link>
           </div>
