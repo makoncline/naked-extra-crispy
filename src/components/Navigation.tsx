@@ -3,9 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { col } from "../styles/utils";
 import logo from "../../public/nxcLogo.webp";
+import { Loading } from "./Loading";
 
 export const Navigation = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const isLoading = status === "loading";
   return (
     <div
       css={`
@@ -50,6 +52,8 @@ export const Navigation = () => {
               Sign out
             </a>
           </>
+        ) : isLoading ? (
+          <Loading scale={0.5} />
         ) : (
           <button onClick={() => signIn()}>Sign in</button>
         )}

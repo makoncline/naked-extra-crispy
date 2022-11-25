@@ -68,9 +68,7 @@ export const SpotsDisplay = ({
     </>
   );
   return (
-    <div>
-      <h2>Spots</h2>
-      <Space size="md" />
+    <>
       <div>
         <h3>Search</h3>
         <Space size="sm" />
@@ -186,12 +184,13 @@ export const SpotsDisplay = ({
         ) : (
           <div>
             <p>There are no spots matching this search...</p>
+            <Space size="sm" />
             <Link href="/spots/add">
               <button>Add a spot</button>
             </Link>
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
