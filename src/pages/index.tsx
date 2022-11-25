@@ -5,14 +5,20 @@ import { SpotsDisplay } from "../components/SpotsDisplay";
 import { Layout } from "../components/Layout";
 import { Hero } from "../components/Hero";
 import { Space } from "../components/Space";
+import { Loading } from "../components/Loading";
 
 const Home: NextPage = () => {
-  const { data: spots } = trpc.useQuery(["getAllSpots"]);
+  const { data: spots, status } = trpc.useQuery(["getAllSpots"]);
+  const isLoading = status === "loading";
   return (
     <Layout>
       <Hero />
       <Space size="md" />
-      <SpotsDisplay spots={spots} />
+      <div>
+        <h2>Spots</h2>
+        <Space size="md" />
+        {isLoading ? <Loading /> : <SpotsDisplay spots={spots} />}
+      </div>
     </Layout>
   );
 };
