@@ -1,64 +1,67 @@
 import { createRouter } from "./context";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+
+const defaultUserSelect = Prisma.validator<Prisma.UserArgs>()({
+  select: {
+    id: true,
+    name: true,
+  },
+});
+
+const defaultImagesSelect = Prisma.validator<Prisma.ImageArgs>()({
+  select: {
+    id: true,
+    key: true,
+    type: true,
+  },
+});
+
+const defaultWingsSelect = Prisma.validator<Prisma.WingArgs>()({
+  select: {
+    id: true,
+    review: true,
+    rating: true,
+    createdAt: true,
+    user: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+    images: { ...defaultImagesSelect, orderBy: { createdAt: "asc" } },
+  },
+});
+
+const defaultSpotSelect = Prisma.validator<Prisma.SpotArgs>()({
+  select: {
+    id: true,
+    name: true,
+    state: true,
+    city: true,
+    createdAt: true,
+    wings: { ...defaultWingsSelect, orderBy: { createdAt: "desc" } },
+    user: defaultUserSelect,
+    images: {
+      where: { type: "main" },
+      ...defaultImagesSelect,
+      orderBy: { createdAt: "desc" },
+    },
+  },
+});
 
 export const routes = createRouter()
   .query("getAllSpots", {
     async resolve({ ctx }) {
-      const spots = await ctx.prisma.spot.findMany({
-        select: {
-          id: true,
-          name: true,
-          state: true,
-          city: true,
-          createdAt: true,
-          wings: {
-            select: {
-              id: true,
-              review: true,
-              rating: true,
-              createdAt: true,
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-              images: {
-                select: {
-                  id: true,
-                  key: true,
-                  type: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          images: {
-            select: {
-              id: true,
-              key: true,
-              type: true,
-            },
-          },
-        },
-      });
+      const spots = await ctx.prisma.spot.findMany(defaultSpotSelect);
 
       return spots.map((spot) => {
-        const images = spot.wings.flatMap((wing) => wing.images);
         const ratings = spot.wings.map((wing) => wing.rating);
         const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
         const numWings = spot.wings.length;
         const roundedRating =
           numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
-        return { ...spot, rating: roundedRating, numWings, images };
+        return { ...spot, rating: roundedRating, numWings };
       });
     },
   })
@@ -71,53 +74,7 @@ export const routes = createRouter()
         where: {
           id: input.spotId,
         },
-        select: {
-          id: true,
-          name: true,
-          state: true,
-          city: true,
-          createdAt: true,
-          wings: {
-            select: {
-              id: true,
-              review: true,
-              rating: true,
-              createdAt: true,
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-              images: {
-                select: {
-                  id: true,
-                  key: true,
-                  type: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          images: {
-            select: {
-              id: true,
-              key: true,
-              type: true,
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-        },
+        ...defaultSpotSelect,
       });
       const ratings = spot.wings.map((wing) => wing.rating);
       const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
@@ -153,23 +110,7 @@ export const routes = createRouter()
             id: input.spotId,
           },
         },
-        select: {
-          review: true,
-          rating: true,
-          createdAt: true,
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          images: {
-            select: {
-              key: true,
-              type: true,
-            },
-          },
-        },
+        ...defaultWingsSelect,
       });
     },
   });

@@ -3,7 +3,6 @@ import { AddWingForm } from "../../../components/AddWingForm";
 import { Loading } from "../../../components/Loading";
 import { useRouter } from "next/router";
 import { NextPage } from "next";
-import { BackButton } from "../../../components/BackButton";
 import { Layout } from "../../../components/Layout";
 import { trpc } from "../../../utils/trpc";
 import { Space } from "../../../components/Space";
