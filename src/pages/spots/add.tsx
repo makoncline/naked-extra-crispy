@@ -2,7 +2,6 @@ import { useSession, signIn } from "next-auth/react";
 import { AddSpotForm } from "../../components/AddSpotForm";
 import { Loading } from "../../components/Loading";
 import { useRouter } from "next/router";
-import { BackButton } from "../../components/BackButton";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 

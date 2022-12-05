@@ -43,7 +43,8 @@ form {
 }
 
 form input,
-form select {
+form select,
+form textarea {
   width: 100%;
 }
 

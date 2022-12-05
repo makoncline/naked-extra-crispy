@@ -99,7 +99,7 @@ export const AddWingForm = ({
           {watchRating === 1 && <span>💩</span>}
           {watchRating === 2 && <span>Bad</span>}
           {watchRating === 3 && <span>Not good</span>}
-          {watchRating === 4 && <span>Could&apos;ve been better</span>}
+          {watchRating === 4 && <span>Could've been better</span>}
           {watchRating === 5 && <span>OK</span>}
           {watchRating === 6 && <span>Good</span>}
           {watchRating === 7 && (
@@ -116,7 +116,6 @@ export const AddWingForm = ({
             {...register("review")}
             placeholder="I'm totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
             css={`
-              width: 100%;
               min-height: 200px;
             `}
           />
@@ -124,10 +123,10 @@ export const AddWingForm = ({
             <span>Were they crispy? How was the sauce? Leave a review.</span>
           )}
           {watchReview && watchReview.length < 60 && (
-            <Warn>Don&apos;t leave us hanging - what else you got?</Warn>
+            <Warn>Don't leave us hanging - what else you got?</Warn>
           )}
           {watchReview && watchReview.length >= 60 && (
-            <Success>Now you&apos;re rolling - got any more to add?</Success>
+            <Success>Now you're rolling - got any more to add?</Success>
           )}
         </div>
       </form>
