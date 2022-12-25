@@ -37,7 +37,7 @@ export const protectedRoutes = createProtectedRouter()
         const message = `%0a
         New spot added by ${spot.user.name || spot.user.email}: %0a
         ${spot.name} %0a
-        ${spot.city}, ${spot.state}
+        ${spot.city}, ${spot.state} %0a
         ${siteConfig.baseUrl}/spots/${spot.id}`;
         fetch(`${siteConfig.sendTextUrl}?message=${message}`);
       } catch (e) {
@@ -130,7 +130,8 @@ export const protectedRoutes = createProtectedRouter()
         ${wing.spot.name} %0a
         ${wing.spot.city}, ${wing.spot.state} %0a
         ${wing.rating}/10 %0a
-        ${wing.review}${siteConfig.baseUrl}/spots/${wing.spot.id}#${wing.id}
+        ${wing.review} %0a
+        ${siteConfig.baseUrl}/spots/${wing.spot.id}#${wing.id}
         `;
         fetch(
           `https://send-to-makon.vercel.app/api/send-text?message=${message}`
