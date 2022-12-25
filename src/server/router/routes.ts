@@ -113,4 +113,25 @@ export const routes = createRouter()
         ...defaultWingsSelect,
       });
     },
+  })
+  .query("getWing", {
+    input: z.object({
+      wingId: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      return await ctx.prisma.wing.findFirstOrThrow({
+        where: {
+          id: input.wingId,
+        },
+        select: {
+          spot: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          ...defaultWingsSelect.select,
+        },
+      });
+    },
   });
