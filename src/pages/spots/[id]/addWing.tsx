@@ -10,7 +10,7 @@ import { Space } from "../../../components/Space";
 const AddWing: NextPage = () => {
   const router = useRouter();
   const spotId = router.query.id as string;
-  const { data: spot } = trpc.useQuery(["getSpotName", { spotId }]);
+  const { data: spot } = trpc.public.getSpotName.useQuery({ spotId });
   const { data: session, status } = useSession();
   const isLoading = status === "loading" || !spot;
   if (isLoading) {

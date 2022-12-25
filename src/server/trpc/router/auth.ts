@@ -1,24 +1,22 @@
-import { createProtectedRouter } from "./protected-router";
 import { z } from "zod";
-import { prisma } from "../db/client";
-import { siteConfig } from "../../siteConfig";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { siteConfig } from "../../../siteConfig";
 
-// Example router with queries that can only be hit if the user requesting is signed in
-export const protectedRoutes = createProtectedRouter()
-  .query("getSession", {
-    resolve({ ctx }) {
-      return ctx.session;
-    },
-  })
-  .mutation("createSpot", {
-    input: z.object({
-      userId: z.string(),
-      name: z.string(),
-      state: z.string().min(1).max(2),
-      city: z.string().min(1),
-    }),
-    async resolve({ input }) {
-      const spot = await prisma.spot.create({
+export const authRouter = router({
+  getSession: publicProcedure.query(({ ctx }) => {
+    return ctx.session;
+  }),
+  createSpot: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        name: z.string(),
+        state: z.string().min(1).max(2),
+        city: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const spot = await ctx.prisma.spot.create({
         data: {
           ...input,
           name: input.name.trim(),
@@ -34,31 +32,32 @@ export const protectedRoutes = createProtectedRouter()
         },
       });
       try {
-        const message = ` 
-        %0aNew spot added by ${spot.user.name || spot.user.email}:
-        %0a${spot.name}
-        %0a${spot.city}, ${spot.state}
-        %0a${siteConfig.baseUrl}/spots/${spot.id}`;
+        const message = `
+                %0aNew spot added by ${spot.user.name || spot.user.email}:
+                %0a${spot.name}
+                %0a${spot.city}, ${spot.state}
+                %0a${siteConfig.baseUrl}/spots/${spot.id}`;
         fetch(`${siteConfig.sendTextUrl}?message=${message}`);
       } catch (e) {
         // ignore
       }
       return spot;
-    },
-  })
-  .mutation("createWing", {
-    input: z.object({
-      userId: z.string(),
-      spotId: z.string(),
-      review: z.string(),
-      rating: z.number().positive().min(1).max(10),
-      mainImageId: z.string(),
-      drumImageId: z.string().nullable(),
-      flatImageId: z.string().nullable(),
     }),
-    async resolve({ input }) {
+  createWing: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        spotId: z.string(),
+        review: z.string(),
+        rating: z.number().positive().min(1).max(10),
+        mainImageId: z.string(),
+        drumImageId: z.string().nullable(),
+        flatImageId: z.string().nullable(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
       const { mainImageId, drumImageId, flatImageId, ...wingReview } = input;
-      const { id: wingId } = await prisma.wing.create({
+      const { id: wingId } = await ctx.prisma.wing.create({
         data: wingReview,
         select: {
           id: true,
@@ -68,7 +67,7 @@ export const protectedRoutes = createProtectedRouter()
       const baseImageData = { userId, spotId, wingId };
 
       if (mainImageId) {
-        await prisma.image.create({
+        await ctx.prisma.image.create({
           data: {
             ...baseImageData,
             key: mainImageId,
@@ -77,7 +76,7 @@ export const protectedRoutes = createProtectedRouter()
         });
       }
       if (drumImageId) {
-        await prisma.image.create({
+        await ctx.prisma.image.create({
           data: {
             ...baseImageData,
             key: drumImageId,
@@ -86,7 +85,7 @@ export const protectedRoutes = createProtectedRouter()
         });
       }
       if (flatImageId) {
-        await prisma.image.create({
+        await ctx.prisma.image.create({
           data: {
             ...baseImageData,
             key: flatImageId,
@@ -94,7 +93,7 @@ export const protectedRoutes = createProtectedRouter()
           },
         });
       }
-      const wing = await prisma.wing.findFirstOrThrow({
+      const wing = await ctx.prisma.wing.findFirstOrThrow({
         where: { id: wingId },
         select: {
           id: true,
@@ -125,14 +124,14 @@ export const protectedRoutes = createProtectedRouter()
         },
       });
       try {
-        const message = ` 
-        %0aNew wing added by ${wing.user.name || wing.user.email}:
-        %0a${wing.spot.name}
-        %0a${wing.spot.city}, ${wing.spot.state}
-        %0a${wing.rating}/10
-        %0a${wing.review}
-        %0a${siteConfig.baseUrl}/wings/${wing.id}
-        `;
+        const message = `
+                %0aNew wing added by ${wing.user.name || wing.user.email}:
+                %0a${wing.spot.name}
+                %0a${wing.spot.city}, ${wing.spot.state}
+                %0a${wing.rating}/10
+                %0a${wing.review}
+                %0a${siteConfig.baseUrl}/wings/${wing.id}
+                `;
         fetch(
           `https://send-to-makon.vercel.app/api/send-text?message=${message}`
         );
@@ -140,5 +139,5 @@ export const protectedRoutes = createProtectedRouter()
         // ignore
       }
       return wing;
-    },
-  });
+    }),
+});

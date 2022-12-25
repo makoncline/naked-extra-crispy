@@ -1,8 +1,12 @@
 import { col } from "../styles/utils";
-import { inferQueryOutput } from "../utils/trpc";
+import { RouterOutputs } from "../utils/trpc";
 import { Rating } from "./Rating";
 
-export const SpotInfo = ({ spot }: { spot: inferQueryOutput<"getSpot"> }) => {
+export const SpotInfo = ({
+  spot,
+}: {
+  spot: RouterOutputs["public"]["getSpot"];
+}) => {
   return (
     <div
       css={`

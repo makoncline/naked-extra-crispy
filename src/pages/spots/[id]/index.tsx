@@ -16,7 +16,7 @@ import { WingsDisplay } from "../../../components/WingsDisplay";
 const Spot: NextPage = () => {
   const router = useRouter();
   const spotId = router.query.id as string;
-  const { data: spot, isLoading } = trpc.useQuery(["getSpot", { spotId }]);
+  const { data: spot, isLoading } = trpc.public.getSpot.useQuery({ spotId });
   if (isLoading) {
     return <Loading />;
   }

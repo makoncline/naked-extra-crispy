@@ -1,6 +1,6 @@
-import { createRouter } from "./context";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
+import { router, publicProcedure } from "../trpc";
 
 const defaultUserSelect = Prisma.validator<Prisma.UserArgs>()({
   select: {
@@ -50,26 +50,22 @@ const defaultSpotSelect = Prisma.validator<Prisma.SpotArgs>()({
   },
 });
 
-export const routes = createRouter()
-  .query("getAllSpots", {
-    async resolve({ ctx }) {
-      const spots = await ctx.prisma.spot.findMany(defaultSpotSelect);
+export const routes = router({
+  getAllSpots: publicProcedure.query(async ({ ctx }) => {
+    const spots = await ctx.prisma.spot.findMany(defaultSpotSelect);
 
-      return spots.map((spot) => {
-        const ratings = spot.wings.map((wing) => wing.rating);
-        const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
-        const numWings = spot.wings.length;
-        const roundedRating =
-          numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
-        return { ...spot, rating: roundedRating, numWings };
-      });
-    },
-  })
-  .query("getSpot", {
-    input: z.object({
-      spotId: z.string(),
-    }),
-    async resolve({ input, ctx }) {
+    return spots.map((spot) => {
+      const ratings = spot.wings.map((wing) => wing.rating);
+      const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
+      const numWings = spot.wings.length;
+      const roundedRating =
+        numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
+      return { ...spot, rating: roundedRating, numWings };
+    });
+  }),
+  getSpot: publicProcedure
+    .input(z.object({ spotId: z.string() }))
+    .query(async ({ input, ctx }) => {
       const spot = await ctx.prisma.spot.findFirstOrThrow({
         where: {
           id: input.spotId,
@@ -82,13 +78,10 @@ export const routes = createRouter()
       const roundedRating =
         numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
       return { ...spot, rating: roundedRating, numWings };
-    },
-  })
-  .query("getSpotName", {
-    input: z.object({
-      spotId: z.string(),
     }),
-    async resolve({ input, ctx }) {
+  getSpotName: publicProcedure
+    .input(z.object({ spotId: z.string() }))
+    .query(async ({ input, ctx }) => {
       return await ctx.prisma.spot.findFirstOrThrow({
         where: {
           id: input.spotId,
@@ -97,13 +90,10 @@ export const routes = createRouter()
           name: true,
         },
       });
-    },
-  })
-  .query("getWings", {
-    input: z.object({
-      spotId: z.string(),
     }),
-    async resolve({ input, ctx }) {
+  getWings: publicProcedure
+    .input(z.object({ spotId: z.string() }))
+    .query(async ({ input, ctx }) => {
       return await ctx.prisma.wing.findMany({
         where: {
           spot: {
@@ -112,13 +102,10 @@ export const routes = createRouter()
         },
         ...defaultWingsSelect,
       });
-    },
-  })
-  .query("getWing", {
-    input: z.object({
-      wingId: z.string(),
     }),
-    async resolve({ input, ctx }) {
+  getWing: publicProcedure
+    .input(z.object({ wingId: z.string() }))
+    .query(async ({ input, ctx }) => {
       return await ctx.prisma.wing.findFirstOrThrow({
         where: {
           id: input.wingId,
@@ -133,5 +120,5 @@ export const routes = createRouter()
           ...defaultWingsSelect.select,
         },
       });
-    },
-  });
+    }),
+});

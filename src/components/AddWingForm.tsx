@@ -42,9 +42,9 @@ export const AddWingForm = ({
   const watchReview = watch("review");
   const watchRating = watch("rating");
   const utils = trpc.useContext();
-  const createWing = trpc.useMutation("protected.createWing", {
-    onSuccess: (input) => {
-      utils.invalidateQueries(["getSpot", { spotId: input.spot.id }]);
+  const createWing = trpc.auth.createWing.useMutation({
+    onSuccess: () => {
+      utils.invalidate();
     },
   });
   const handleRatingChange = (rating: number) => {

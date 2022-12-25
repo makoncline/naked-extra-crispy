@@ -2,16 +2,16 @@ import Link from "next/link";
 import React from "react";
 import { Subtle } from "../styles/text";
 import { row, col } from "../styles/utils";
-import { inferQueryOutput } from "../utils/trpc";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
 import { Rating } from "./Rating";
 import { Space } from "./Space";
+import { RouterOutputs } from "../utils/trpc";
 
 export const WingsDisplay = ({
   wings,
 }: {
-  wings: inferQueryOutput<"getSpot">["wings"];
+  wings: RouterOutputs["public"]["getSpot"]["wings"];
 }) => {
   const [sort, setSort] = React.useState<"date" | "rating">("rating");
   const [reverse, setReverse] = React.useState(false);
