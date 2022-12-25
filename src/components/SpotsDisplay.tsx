@@ -1,20 +1,20 @@
 import Link from "next/link";
 import React, { ChangeEventHandler } from "react";
 import { col } from "../styles/utils";
-import { inferQueryOutput } from "../utils/trpc";
 import { SelectStateOptions } from "./SelectStateOptions";
 import { row } from "../styles/utils";
 import { Space } from "./Space";
 import { ImageDisplay } from "./ImageDisplay";
 import { SpotInfo } from "./SpotInfo";
 import { Card } from "./Card";
+import { RouterOutputs } from "../utils/trpc";
 
 type SortOrder = "rating" | "name" | "numWings";
 
 export const SpotsDisplay = ({
   spots = [],
 }: {
-  spots?: inferQueryOutput<"getAllSpots">;
+  spots?: RouterOutputs["public"]["getAllSpots"];
 }) => {
   const [nameFilter, setNameFilter] = React.useState<string>("");
   const [stateFilter, setStateFilter] = React.useState<string>("");

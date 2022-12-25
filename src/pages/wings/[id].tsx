@@ -12,7 +12,7 @@ import { WingDisplay } from "../../components/WingDisplay";
 const Wing: NextPage = () => {
   const router = useRouter();
   const wingId = router.query.id as string;
-  const { data: wing, isLoading } = trpc.useQuery(["getWing", { wingId }]);
+  const { data: wing, isLoading } = trpc.public.getWing.useQuery({ wingId });
   if (isLoading) {
     return <Loading />;
   }

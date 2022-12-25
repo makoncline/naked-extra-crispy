@@ -1,5 +1,5 @@
 import { Subtle } from "../styles/text";
-import { inferQueryOutput } from "../utils/trpc";
+import { RouterOutputs } from "../utils/trpc";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
 import { Rating } from "./Rating";
@@ -7,7 +7,7 @@ import { Rating } from "./Rating";
 export const WingDisplay = ({
   wing,
 }: {
-  wing: inferQueryOutput<"getWing">;
+  wing: RouterOutputs["public"]["getWing"];
 }) => {
   return (
     <Card key={wing.id} id={wing.id}>

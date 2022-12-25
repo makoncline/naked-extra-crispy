@@ -10,7 +10,7 @@ import { Contact } from "../components/Contact";
 import { useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
-  const { data: spots, status } = trpc.useQuery(["getAllSpots"]);
+  const { data: spots, status } = trpc.public.getAllSpots.useQuery();
   const { data: session } = useSession();
   const isLoading = status === "loading";
   return (
