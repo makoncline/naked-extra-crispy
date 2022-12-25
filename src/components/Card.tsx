@@ -6,9 +6,11 @@ import { cardWidth, col } from "../styles/utils";
 const Card = ({
   children,
   hover,
+  ...rest
 }: {
   children: React.ReactNode;
   hover?: boolean;
+  id?: string;
 }) => {
   return (
     <article
@@ -27,6 +29,7 @@ const Card = ({
             grid-template-columns: 1fr 1fr;
         `}
       `}
+      {...rest}
     >
       {children}
     </article>

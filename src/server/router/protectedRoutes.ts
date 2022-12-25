@@ -1,6 +1,7 @@
 import { createProtectedRouter } from "./protected-router";
 import { z } from "zod";
 import { prisma } from "../db/client";
+import { siteConfig } from "../../siteConfig";
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const protectedRoutes = createProtectedRouter()
@@ -32,6 +33,16 @@ export const protectedRoutes = createProtectedRouter()
           createdAt: true,
         },
       });
+      try {
+        const message = `%0a
+        New spot added by ${spot.user.name || spot.user.email}: %0a
+        ${spot.name} %0a
+        ${spot.city}, ${spot.state}
+        ${siteConfig.baseUrl}/spots/${spot.id}`;
+        fetch(`${siteConfig.sendTextUrl}?message=${message}`);
+      } catch (e) {
+        // ignore
+      }
       return spot;
     },
   })
@@ -94,6 +105,7 @@ export const protectedRoutes = createProtectedRouter()
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           spot: {
@@ -112,6 +124,20 @@ export const protectedRoutes = createProtectedRouter()
           },
         },
       });
+      try {
+        const message = `%0a
+        New wing added by ${wing.user.name || wing.user.email}: %0a
+        ${wing.spot.name} %0a
+        ${wing.spot.city}, ${wing.spot.state} %0a
+        ${wing.rating}/10 %0a
+        ${wing.review}${siteConfig.baseUrl}/spots/${wing.spot.id}#${wing.id}
+        `;
+        fetch(
+          `https://send-to-makon.vercel.app/api/send-text?message=${message}`
+        );
+      } catch (e) {
+        // ignore
+      }
       return wing;
     },
   });
