@@ -1,4 +1,3 @@
-import { reverse } from "dns";
 import Link from "next/link";
 import React from "react";
 import { Subtle } from "../styles/text";
@@ -87,7 +86,7 @@ export const WingsDisplay = ({
           `}
         >
           {sortedWings.map((wing) => (
-            <Card key={wing.id}>
+            <Card key={wing.id} id={wing.id}>
               <ImageDisplay imageKeys={wing.images.map((image) => image.key)} />
               <Card.Body>
                 <p>{wing.review}</p>
