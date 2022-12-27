@@ -4,6 +4,7 @@ import { Loading } from "../../components/Loading";
 import { useRouter } from "next/router";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
+import React from "react";
 
 const AddSpot = () => {
   const router = useRouter();
