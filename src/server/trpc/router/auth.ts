@@ -16,21 +16,29 @@ export const authRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const spot = await ctx.prisma.spot.create({
-        data: {
-          ...input,
-          name: input.name.trim(),
-          city: input.city.trim(),
-        },
-        select: {
-          id: true,
-          user: true,
-          name: true,
-          state: true,
-          city: true,
-          createdAt: true,
-        },
-      });
+      const spot = await ctx.prisma.spot
+        .create({
+          data: {
+            ...input,
+            name: input.name.trim(),
+            city: input.city.trim(),
+          },
+          select: {
+            id: true,
+            user: true,
+            name: true,
+            state: true,
+            city: true,
+            createdAt: true,
+          },
+        })
+        .catch((e) => {
+          if (e.code === "P2002") {
+            throw new Error("A spot with this name already exists!");
+          } else {
+            throw e;
+          }
+        });
       try {
         const message = `
                 %0aNew spot added by ${spot.user.name || spot.user.email}:

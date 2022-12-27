@@ -5,8 +5,13 @@ import { useRouter } from "next/router";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 import React from "react";
+import Script from "next/script";
+import { clientEnv } from "../../env/schema.mjs";
 
 const AddSpot = () => {
+  const [googleMapsLoading, setGoogleMapsLoading] = React.useState(true);
+  const canUseGoogleMaps =
+    typeof google === "object" && typeof google.maps === "object";
   const router = useRouter();
   const { data: session, status } = useSession();
   if (status === "loading") {
@@ -18,16 +23,26 @@ const AddSpot = () => {
     return null;
   }
   return (
-    <Layout>
-      <h1>Add Spot</h1>
-      <Space size="sm" />
-      <div>
-        <AddSpotForm
-          userId={userId}
-          onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
-        />
-      </div>
-    </Layout>
+    <>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${clientEnv.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="lazyOnload"
+        onLoad={() => setGoogleMapsLoading(false)}
+      />
+      <Layout>
+        <h1>Add Spot</h1>
+        <Space size="sm" />
+        {googleMapsLoading && !canUseGoogleMaps ? (
+          <Loading />
+        ) : (
+          <AddSpotForm
+            userId={userId}
+            onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
+            canUseGoogleMaps={canUseGoogleMaps}
+          />
+        )}
+      </Layout>
+    </>
   );
 };
 
