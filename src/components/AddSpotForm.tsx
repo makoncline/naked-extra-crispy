@@ -2,35 +2,75 @@ import { trpc } from "../utils/trpc";
 import { useForm, SubmitHandler } from "react-hook-form";
 import React from "react";
 import { SelectStateOptions } from "./SelectStateOptions";
+import { PlacesAutocomplete } from "./PlacesAutocomplete";
+import { Space } from "./Space";
+import { GoogleMapsPlaceData } from "../lib/getPlaceDataById";
+import { Error } from "../styles/text";
 
 export type AddSpotFormInputs = {
   userId: string;
+  placeId?: string;
   name: string;
   city: string;
   state: string;
+  lat?: number;
+  lng?: number;
 };
+
+export type OnSelectPlaceData =
+  | (GoogleMapsPlaceData & { placeName: string })
+  | null;
 
 export const AddSpotForm = ({
   userId,
   onSuccess,
+  canUseGoogleMaps,
 }: {
   userId: string;
   onSuccess: (spotId: string) => void;
+  canUseGoogleMaps: boolean;
 }) => {
+  const [manualEntryToggle, setManualEntryToggle] = React.useState(false);
+  const shouldShowManualEntry = manualEntryToggle || !canUseGoogleMaps;
+  const [error, setError] = React.useState<string | null>(null);
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<AddSpotFormInputs>();
+    formState: { errors, isValid },
+    reset,
+    setValue,
+    trigger,
+  } = useForm<AddSpotFormInputs>({
+    defaultValues: { userId },
+    reValidateMode: "onChange",
+  });
   const utils = trpc.useContext();
-  const createRestaurant = trpc.auth.createSpot.useMutation({
+  const createSpot = trpc.auth.createSpot.useMutation({
     onSuccess: () => {
       utils.invalidate();
     },
   });
   const onSubmit: SubmitHandler<AddSpotFormInputs> = async (data) => {
-    const { id: spotId } = await createRestaurant.mutateAsync(data);
-    onSuccess(spotId);
+    try {
+      const { id: spotId } = await createSpot.mutateAsync(data);
+      onSuccess(spotId);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+  const onSelectPlace = (placeData: OnSelectPlaceData) => {
+    if (!placeData) {
+      reset();
+    } else {
+      setValue("name", placeData.placeName);
+      setValue("city", placeData.city);
+      setValue("state", placeData.state);
+      setValue("placeId", placeData.placeId);
+      setValue("lat", placeData.lat);
+      setValue("lng", placeData.lng);
+      trigger();
+    }
+    setError(null);
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -39,12 +79,22 @@ export const AddSpotForm = ({
         value={userId}
         hidden
       />
-      <div>
+      <input {...register("placeId")} hidden />
+      <input {...register("lat")} hidden />
+      <input {...register("lng")} hidden />
+
+      {!shouldShowManualEntry && (
+        <div>
+          <PlacesAutocomplete onSelectPlace={onSelectPlace} />
+          {errors.name && <Error>You have to select a place!</Error>}
+        </div>
+      )}
+      <div hidden={!shouldShowManualEntry}>
         <label htmlFor="name">What's the place's name?</label>
         <input id="name" {...register("name", { required: true })} />
-        {errors.name && <span>What? This place has wings, but no name?</span>}
+        {errors.name && <Error>What? This place has wings, but no name?</Error>}
       </div>
-      <div>
+      <div hidden={!shouldShowManualEntry}>
         <label htmlFor="state">What state is it in?</label>
         <select
           id="state"
@@ -54,14 +104,29 @@ export const AddSpotForm = ({
           <option value="">Select a State</option>
           <SelectStateOptions />
         </select>
-        {errors.state && <span>Enter a state</span>}
+        {errors.state && <Error>Enter a state</Error>}
       </div>
-      <div>
+      <div hidden={!shouldShowManualEntry}>
         <label htmlFor="city">What city?</label>
         <input id="city" {...register("city", { required: true })} />
-        {errors.name && <span>Enter a city</span>}
+        {errors.name && <Error>Enter a city</Error>}
       </div>
-      <button>Add spot</button>
+      <button disabled={!isValid}>Add spot</button>
+      {error && <Error>{error}</Error>}
+      <Space size="sm" />
+      <div hidden={!canUseGoogleMaps}>
+        <a
+          href="#"
+          onClick={() => {
+            setManualEntryToggle(!shouldShowManualEntry);
+            reset();
+          }}
+        >
+          {shouldShowManualEntry
+            ? `Want to search for the spot?`
+            : `Can't find the spot?`}
+        </a>
+      </div>
     </form>
   );
 };
