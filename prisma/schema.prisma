@@ -25,28 +25,28 @@ model Spot {
 }
 
 model Wing {
-  id           String     @id @default(cuid())
-  userId       String
-  spotId String
-  review       String
-  rating       Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  images       Image[]
-  user         User       @relation(fields: [userId], references: [id])
-  spot   Spot @relation(fields: [spotId], references: [id])
+  id        String   @id @default(cuid())
+  userId    String
+  spotId    String
+  review    String
+  rating    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  images    Image[]
+  user      User     @relation(fields: [userId], references: [id])
+  spot      Spot     @relation(fields: [spotId], references: [id])
 }
 
 model Image {
-  id           String     @id @default(cuid())
-  userId       String
-  spotId String
+  id         String   @id @default(cuid())
+  userId     String
+  spotId     String
   wingId     String
-  key          String
-  type         String
-  createdAt    DateTime   @default(now())
-  user         User       @relation(fields: [userId], references: [id])
-  restaurant   Spot @relation(fields: [spotId], references: [id])
+  key        String
+  type       String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  restaurant Spot     @relation(fields: [spotId], references: [id])
   wing       Wing     @relation(fields: [wingId], references: [id])
 }
 
@@ -78,9 +78,9 @@ model Session {
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?      @unique
+  email         String?   @unique
   emailVerified DateTime?
   accounts      Account[]
   sessions      Session[]
