@@ -158,33 +158,35 @@ export const SpotsDisplay = ({
             `}
           >
             {filteredSpots.map((spot) => (
-              <Card key={spot.id}>
-                <ImageDisplay
-                  imageKeys={spot.images.map((image) => image.key)}
-                />
-                <div
-                  css={`
-                    ${col}
-                    gap: var(--gap-list);
-                    justify-content: space-between;
-                    padding: var(--card-padding);
-                  `}
-                >
-                  <SpotInfo spot={spot} />
+              <div key={spot.id}>
+                <Card>
+                  <ImageDisplay
+                    imageKeys={spot.images.map((image) => image.key)}
+                  />
                   <div
                     css={`
-                      ${row}
+                      ${col}
+                      gap: var(--gap-list);
+                      justify-content: space-between;
+                      padding: var(--card-padding);
                     `}
                   >
-                    <Link href={`/spots/${spot.id}`}>
-                      <button>View</button>
-                    </Link>
-                    <Link href={`/spots/${spot.id}/addWing`}>
-                      <button>+ Add wing</button>
-                    </Link>
+                    <SpotInfo spot={spot} />
+                    <div
+                      css={`
+                        ${row}
+                      `}
+                    >
+                      <Link href={`/spots/${spot.id}`}>
+                        <button>View</button>
+                      </Link>
+                      <Link href={`/spots/${spot.id}/addWing`}>
+                        <button>+ Add wing</button>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             ))}
           </div>
         ) : (
