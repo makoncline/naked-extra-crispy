@@ -7,7 +7,7 @@ import { Loading } from "../../../components/Loading";
 import Link from "next/link";
 import { Layout } from "../../../components/Layout";
 import { Space } from "../../../components/Space";
-import { col } from "../../../styles/utils";
+import { col, row } from "../../../styles/utils";
 import { ImageDisplay } from "../../../components/ImageDisplay";
 import { Rating } from "../../../components/Rating";
 import { Card } from "../../../components/Card";
@@ -39,9 +39,24 @@ const Spot: NextPage = () => {
           `}
         >
           <div>
-            <p>
-              {spot.city}, {spot.state}
-            </p>
+            <div
+              css={`
+                ${row}
+              `}
+            >
+              <p>
+                {spot.city}, {spot.state}
+              </p>
+              {spot.place && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${spot.place.name}&query_place_id=${spot.place.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  📍
+                </a>
+              )}
+            </div>
             {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} wings</p>}
             <Space size="sm" />
             {spot.rating ? (

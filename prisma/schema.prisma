@@ -16,8 +16,22 @@ model Spot {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   images    Image[]
-  user      User     @relation(fields: [userId], references: [id])
+  place     Place?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   wings     Wing[]
+}
+
+model Place {
+  id        String   @id
+  name      String
+  city      String
+  state     String
+  lat       Float
+  lng       Float
+  spotId    String   @unique
+  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Wing {
@@ -29,8 +43,8 @@ model Wing {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   images    Image[]
-  spot      Spot     @relation(fields: [spotId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
 }
 
 model Image {
@@ -41,9 +55,9 @@ model Image {
   key        String
   type       String
   createdAt  DateTime @default(now())
-  restaurant Spot     @relation(fields: [spotId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
-  wing       Wing     @relation(fields: [wingId], references: [id])
+  restaurant Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  wing       Wing     @relation(fields: [wingId], references: [id], onDelete: Cascade)
 }
 
 model Account {

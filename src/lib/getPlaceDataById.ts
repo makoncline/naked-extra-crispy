@@ -26,13 +26,6 @@ export const getPlaceGeoDataById = async (
   if (!state) throw new Error(`No state found for placeId: ${placeId}`);
   if (!city) throw new Error(`No city found for placeId: ${placeId}`);
   const { lat, lng } = getLatLng(result);
-  console.log({
-    placeId,
-    state,
-    city,
-    lat,
-    lng,
-  });
   return {
     placeId,
     state,

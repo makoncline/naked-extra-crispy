@@ -13,15 +13,20 @@ export const authRouter = router({
         name: z.string(),
         state: z.string().min(1).max(2),
         city: z.string().min(1),
+        placeId: z.string().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const { placeId, lat, lng, name, city, state, userId } = input;
       const spot = await ctx.prisma.spot
         .create({
           data: {
-            ...input,
+            userId,
             name: input.name.trim(),
             city: input.city.trim(),
+            state,
           },
           select: {
             id: true,
@@ -39,12 +44,27 @@ export const authRouter = router({
             throw e;
           }
         });
+      if (placeId && lat && lng) {
+        await ctx.prisma.place.create({
+          data: {
+            spotId: spot.id,
+            id: placeId,
+            lat,
+            lng,
+            name,
+            city,
+            state,
+          },
+        });
+      }
       try {
         const message = `
-                %0aNew spot added by ${spot.user.name || spot.user.email}:
-                %0a${spot.name}
-                %0a${spot.city}, ${spot.state}
-                %0a${siteConfig.baseUrl}/spots/${spot.id}`;
+            %0aNew spot added by ${spot.user.name || spot.user.email}:
+            %0a${siteConfig.baseUrl}/spots/${spot.id}
+            %0a${spot.name}
+            %0a${spot.city}, ${spot.state}
+            %0a${siteConfig.baseUrl}/spots/${spot.id}
+          `;
         fetch(`${siteConfig.sendTextUrl}?message=${message}`);
       } catch (e) {
         // ignore
@@ -134,6 +154,7 @@ export const authRouter = router({
       try {
         const message = `
                 %0aNew wing added by ${wing.user.name || wing.user.email}:
+                %0a${siteConfig.baseUrl}/wings/${wing.id}
                 %0a${wing.spot.name}
                 %0a${wing.spot.city}, ${wing.spot.state}
                 %0a${wing.rating}/10

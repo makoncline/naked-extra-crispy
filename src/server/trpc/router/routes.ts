@@ -40,6 +40,7 @@ const defaultSpotSelect = Prisma.validator<Prisma.SpotArgs>()({
     state: true,
     city: true,
     createdAt: true,
+    place: true,
     wings: { ...defaultWingsSelect, orderBy: { createdAt: "desc" } },
     user: defaultUserSelect,
     images: {
