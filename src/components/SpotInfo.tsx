@@ -4,8 +4,10 @@ import { Rating } from "./Rating";
 
 export const SpotInfo = ({
   spot,
+  distance,
 }: {
   spot: RouterOutputs["public"]["getSpot"];
+  distance?: string | null;
 }) => {
   return (
     <div
@@ -27,16 +29,16 @@ export const SpotInfo = ({
           <p>
             {spot.city}, {spot.state}
           </p>
-          {spot.place && (
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${spot.place.name}&query_place_id=${spot.place.id}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              📍
-            </a>
-          )}
         </div>
+        {spot.place && (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${spot.place.name}&query_place_id=${spot.place.id}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            📍 {distance && `${distance}`}
+          </a>
+        )}
         {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} wings</p>}
       </div>
       {spot.rating ? (

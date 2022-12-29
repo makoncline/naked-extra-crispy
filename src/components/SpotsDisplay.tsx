@@ -8,8 +8,12 @@ import { ImageDisplay } from "./ImageDisplay";
 import { SpotInfo } from "./SpotInfo";
 import { Card } from "./Card";
 import { RouterOutputs } from "../utils/trpc";
+import { getDistance } from "geolib";
+import { useUserLocation } from "../hooks/useUserLocation";
+import { formatDistance } from "../lib/distance";
+import { Error } from "../styles/text";
 
-type SortOrder = "rating" | "name" | "numWings";
+type SortOrder = "distance" | "rating" | "name" | "numWings";
 
 export const SpotsDisplay = ({
   spots = [],
@@ -19,8 +23,20 @@ export const SpotsDisplay = ({
   const [nameFilter, setNameFilter] = React.useState<string>("");
   const [stateFilter, setStateFilter] = React.useState<string>("");
   const [cityFilter, setCityFilter] = React.useState<string>("");
-  const [sortBy, setSortBy] = React.useState<SortOrder>("rating");
   const [reverse, setReverse] = React.useState(true);
+  const sortedAfterLocationEnabled = React.useRef(false);
+  const handleUserLocationEnabled = () => {
+    if (!sortedAfterLocationEnabled.current) {
+      setSortBy("distance");
+      sortedAfterLocationEnabled.current = true;
+    }
+  };
+  const { userLocation, userLocationError, getUserLocation } = useUserLocation({
+    onUserLocationEnabled: handleUserLocationEnabled,
+  });
+
+  const defaultSortBy = userLocation ? "distance" : "rating";
+  const [sortBy, setSortBy] = React.useState<SortOrder>(defaultSortBy);
   const handleSelectState: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setStateFilter(e.target.value);
   };
@@ -34,9 +50,27 @@ export const SpotsDisplay = ({
     setNameFilter("");
     setStateFilter("");
     setCityFilter("");
-    setSortBy("rating");
+    setSortBy(defaultSortBy);
     setReverse(true);
   };
+
+  const spotDistancesMap =
+    userLocation &&
+    spots.reduce((map, spot) => {
+      if (!spot.place) {
+        return map;
+      }
+      const { lat: spotLat, lng: spotLng } = spot.place;
+      const { latitude: userLat, longitude: userLng } = userLocation.coords;
+      const distance = getDistance(
+        { latitude: userLat, longitude: userLng },
+        { latitude: spotLat, longitude: spotLng }
+      );
+      return Object.assign(map, {
+        [spot.id]: { distance, display: formatDistance(distance) },
+      });
+    }, {} as Record<string, { distance: number; display: string }>);
+
   const filteredSpots = spots
     .filter((spot) =>
       nameFilter
@@ -53,9 +87,20 @@ export const SpotsDisplay = ({
         result = spotA.name > spotB.name ? 1 : -1;
       } else if (sortBy === "numWings") {
         result = spotA.numWings > spotB.numWings ? -1 : 1;
+      } else if (sortBy === "distance") {
+        const spotADistance = spotDistancesMap?.[spotA.id]?.distance || null;
+        const spotBDistance = spotDistancesMap?.[spotB.id]?.distance || null;
+        if (userLocation && spotADistance && spotBDistance) {
+          result = spotADistance > spotBDistance ? 1 : -1;
+        } else if (spotADistance && !spotBDistance) {
+          result = -1;
+        } else if (!spotADistance && spotBDistance) {
+          result = 1;
+        }
       }
       return reverse ? result : result * -1;
     });
+
   const numFilteredSpots = filteredSpots.length;
   const SelectCityOptions = () => (
     <>
@@ -72,6 +117,23 @@ export const SpotsDisplay = ({
     <>
       <div>
         <h3>Search</h3>
+        <Space size="sm" />
+        {!userLocation && (
+          <div
+            css={`
+              ${col}
+              align-items: start;
+            `}
+          >
+            <button onClick={getUserLocation}>Find spots nearby</button>
+            {userLocationError && (
+              <Error>
+                Failed to get location. Enable location access in your web
+                browser and try again.
+              </Error>
+            )}
+          </div>
+        )}
         <Space size="sm" />
         <form>
           <div>
@@ -102,7 +164,14 @@ export const SpotsDisplay = ({
           <div>
             <label htmlFor="sort">Sort by</label>
             <select id="sort" value={sortBy} onChange={handleSelectSortOrder}>
-              <option value="rating">{reverse ? "Best" : "Worst"}</option>
+              {userLocation && (
+                <option value="distance">
+                  Distance - {reverse ? "Closest" : "Farthest"}
+                </option>
+              )}
+              <option value="rating">
+                Rating - {reverse ? "Best" : "Worst"}
+              </option>
               <option value="numWings">
                 {reverse ? "Most Popular" : "Least Popular"}
               </option>
@@ -125,7 +194,16 @@ export const SpotsDisplay = ({
             >
               Reverse {reverse ? "▲" : "▼"}
             </button>
-            <button type="reset" onClick={() => handleReset()}>
+            <button
+              type="button"
+              onClick={() => handleReset()}
+              css={`
+                color: var(--red-5);
+                &:hover {
+                  --_border: var(--red-5);
+                }
+              `}
+            >
               Reset ↺
             </button>
             <Link href="#results">
@@ -171,7 +249,10 @@ export const SpotsDisplay = ({
                       padding: var(--card-padding);
                     `}
                   >
-                    <SpotInfo spot={spot} />
+                    <SpotInfo
+                      spot={spot}
+                      distance={spotDistancesMap?.[spot.id]?.display}
+                    />
                     <div
                       css={`
                         ${row}
