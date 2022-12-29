@@ -1,4 +1,4 @@
-function convertMetersToMiles(meters: number): number {
+export function convertMetersToMiles(meters: number): number {
   return meters / 1609.344;
 }
 
