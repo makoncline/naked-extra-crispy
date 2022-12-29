@@ -6,6 +6,7 @@ import { PlacesAutocomplete } from "./PlacesAutocomplete";
 import { Space } from "./Space";
 import { GoogleMapsPlaceData } from "../lib/getPlaceDataById";
 import { Error } from "../styles/text";
+import { isGoogleMapsAvailable } from "../lib/isGoogleMapsAvailable";
 
 export type AddSpotFormInputs = {
   userId: string;
@@ -24,13 +25,12 @@ export type OnSelectPlaceData =
 export const AddSpotForm = ({
   userId,
   onSuccess,
-  canUseGoogleMaps,
 }: {
   userId: string;
   onSuccess: (spotId: string) => void;
-  canUseGoogleMaps: boolean;
 }) => {
   const [manualEntryToggle, setManualEntryToggle] = React.useState(false);
+  const canUseGoogleMaps = isGoogleMapsAvailable();
   const shouldShowManualEntry = manualEntryToggle || !canUseGoogleMaps;
   const [error, setError] = React.useState<string | null>(null);
   const {

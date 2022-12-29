@@ -6,12 +6,12 @@ import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 import React from "react";
 import Script from "next/script";
-import { clientEnv } from "../../env/schema.mjs";
+import { env } from "../../env/client.mjs";
+import { isGoogleMapsAvailable } from "../../lib/isGoogleMapsAvailable";
 
 const AddSpot = () => {
   const [googleMapsLoading, setGoogleMapsLoading] = React.useState(true);
-  const canUseGoogleMaps =
-    typeof google === "object" && typeof google.maps === "object";
+  const canUseGoogleMaps = isGoogleMapsAvailable();
   const router = useRouter();
   const { data: session, status } = useSession();
   if (status === "loading") {
@@ -25,7 +25,7 @@ const AddSpot = () => {
   return (
     <>
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${clientEnv.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        src={`https://maps.googleapis.com/maps/api/js?key=${env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
         strategy="lazyOnload"
         onLoad={() => setGoogleMapsLoading(false)}
       />
@@ -38,7 +38,6 @@ const AddSpot = () => {
           <AddSpotForm
             userId={userId}
             onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
-            canUseGoogleMaps={canUseGoogleMaps}
           />
         )}
       </Layout>

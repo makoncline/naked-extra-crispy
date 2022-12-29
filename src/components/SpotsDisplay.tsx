@@ -10,19 +10,33 @@ import { Card } from "./Card";
 import { RouterOutputs } from "../utils/trpc";
 import { getDistance } from "geolib";
 import { useUserLocation } from "../hooks/useUserLocation";
-import { formatDistance } from "../lib/distance";
+import { convertMetersToMiles, formatDistance } from "../lib/distance";
 import { Error } from "../styles/text";
+import { SpotMap } from "./SpotMap";
+import { isGoogleMapsAvailable } from "../lib/isGoogleMapsAvailable";
+import { ScrollToElement } from "./ScrollToElement";
 
 type SortOrder = "distance" | "rating" | "name" | "numWings";
-
+type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
+type FilterValues = {
+  name: string;
+  state: string;
+  city: string;
+  distance: DistanceFilterValues;
+};
+const defaultFilterValues = {
+  name: "",
+  state: "",
+  city: "",
+  distance: "any",
+} as const;
 export const SpotsDisplay = ({
   spots = [],
 }: {
   spots?: RouterOutputs["public"]["getAllSpots"];
 }) => {
-  const [nameFilter, setNameFilter] = React.useState<string>("");
-  const [stateFilter, setStateFilter] = React.useState<string>("");
-  const [cityFilter, setCityFilter] = React.useState<string>("");
+  const [filters, setFilters] =
+    React.useState<FilterValues>(defaultFilterValues);
   const [reverse, setReverse] = React.useState(true);
   const sortedAfterLocationEnabled = React.useRef(false);
   const handleUserLocationEnabled = () => {
@@ -37,20 +51,26 @@ export const SpotsDisplay = ({
 
   const defaultSortBy = userLocation ? "distance" : "rating";
   const [sortBy, setSortBy] = React.useState<SortOrder>(defaultSortBy);
+  const handleChangeName: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setFilters({ ...defaultFilterValues, name: e.target.value });
+  };
   const handleSelectState: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setStateFilter(e.target.value);
+    setFilters({ ...defaultFilterValues, state: e.target.value });
   };
   const handleSelectCity: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setCityFilter(e.target.value);
+    setFilters({ ...defaultFilterValues, city: e.target.value });
+  };
+  const handleSelectDistance: ChangeEventHandler<HTMLSelectElement> = (e) => {
+    setFilters({
+      ...defaultFilterValues,
+      distance: e.target.value as DistanceFilterValues,
+    });
   };
   const handleSelectSortOrder: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setSortBy(e.target.value as SortOrder);
   };
   const handleReset = () => {
-    setNameFilter("");
-    setStateFilter("");
-    setCityFilter("");
-    setSortBy(defaultSortBy);
+    setFilters(defaultFilterValues);
     setReverse(true);
   };
 
@@ -73,12 +93,27 @@ export const SpotsDisplay = ({
 
   const filteredSpots = spots
     .filter((spot) =>
-      nameFilter
-        ? spot.name.toLowerCase().includes(nameFilter.toLowerCase())
+      filters.name
+        ? spot.name.toLowerCase().includes(filters.name.toLowerCase())
         : true
     )
-    .filter((spot) => (stateFilter ? spot.state === stateFilter : true))
-    .filter((spot) => (cityFilter ? spot.city === cityFilter : true))
+    .filter((spot) => (filters.state ? spot.state === filters.state : true))
+    .filter((spot) => (filters.city ? spot.city === filters.city : true))
+    .filter((spot) => {
+      if (!userLocation) {
+        return true;
+      }
+      const spotDistanceMeters = spotDistancesMap?.[spot.id]?.distance || null;
+      if (!spotDistanceMeters) {
+        return false;
+      }
+      if (filters.distance === "any") {
+        return true;
+      }
+      const distanceFilterNumber = parseInt(filters.distance, 10);
+      const spotDistanceMiles = convertMetersToMiles(spotDistanceMeters);
+      return spotDistanceMiles <= distanceFilterNumber;
+    })
     .sort((spotA, spotB) => {
       let result = 0;
       if (sortBy === "rating") {
@@ -115,7 +150,8 @@ export const SpotsDisplay = ({
   );
   return (
     <>
-      <div>
+      <ScrollToElement id={"search"} />
+      <div id="search">
         <h3>Search</h3>
         <Space size="sm" />
         {!userLocation && (
@@ -142,25 +178,46 @@ export const SpotsDisplay = ({
               id="name"
               type="text"
               placeholder="What's it called?"
-              value={nameFilter}
-              onChange={(e) => setNameFilter(e.target.value)}
+              value={filters.name}
+              onChange={handleChangeName}
               autoComplete="off"
             />
           </div>
           <div>
             <label htmlFor="state">State</label>
-            <select id="state" value={stateFilter} onChange={handleSelectState}>
+            <select
+              id="state"
+              value={filters.state}
+              onChange={handleSelectState}
+            >
               <option value="">Pick a state</option>
               <SelectStateOptions />
             </select>
           </div>
           <div>
             <label htmlFor="city">City</label>
-            <select id="city" value={cityFilter} onChange={handleSelectCity}>
+            <select id="city" value={filters.city} onChange={handleSelectCity}>
               <option value="">Select a city</option>
               <SelectCityOptions />
             </select>
           </div>
+          {userLocation && (
+            <div>
+              <label htmlFor="distance">Within distance</label>
+              <select
+                id="distance"
+                value={filters.distance}
+                onChange={handleSelectDistance}
+              >
+                <option value="any">Any</option>
+                <option value="5">5 miles</option>
+                <option value="10">10 miles</option>
+                <option value="25">25 miles</option>
+                <option value="50">50 miles</option>
+                <option value="100">100 miles</option>
+              </select>
+            </div>
+          )}
           <div>
             <label htmlFor="sort">Sort by</label>
             <select id="sort" value={sortBy} onChange={handleSelectSortOrder}>
@@ -180,6 +237,7 @@ export const SpotsDisplay = ({
               </option>
             </select>
           </div>
+
           <div
             css={`
               ${row}
@@ -219,6 +277,26 @@ export const SpotsDisplay = ({
         </form>
       </div>
       <Space size="md" />
+      {isGoogleMapsAvailable() && (
+        <>
+          <div>
+            <h3>Map</h3>
+            <Space size="sm" />
+            <SpotMap
+              spots={filteredSpots}
+              userLocation={
+                userLocation
+                  ? {
+                      lat: userLocation?.coords.latitude,
+                      lng: userLocation?.coords.longitude,
+                    }
+                  : undefined
+              }
+            />
+          </div>
+          <Space size="md" />
+        </>
+      )}
       <div
         id="results"
         css={`
@@ -236,7 +314,7 @@ export const SpotsDisplay = ({
             `}
           >
             {filteredSpots.map((spot) => (
-              <div key={spot.id}>
+              <div key={spot.id} id={spot.id}>
                 <Card>
                   <ImageDisplay
                     imageKeys={spot.images.map((image) => image.key)}
