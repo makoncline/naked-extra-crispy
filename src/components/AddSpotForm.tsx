@@ -6,7 +6,7 @@ import { PlacesAutocomplete } from "./PlacesAutocomplete";
 import { Space } from "./Space";
 import { GoogleMapsPlaceData } from "../lib/getPlaceDataById";
 import { Error } from "../styles/text";
-import { isGoogleMapsAvailable } from "../lib/isGoogleMapsAvailable";
+import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 
 export type AddSpotFormInputs = {
   userId: string;
@@ -30,8 +30,8 @@ export const AddSpotForm = ({
   onSuccess: (spotId: string) => void;
 }) => {
   const [manualEntryToggle, setManualEntryToggle] = React.useState(false);
-  const canUseGoogleMaps = isGoogleMapsAvailable();
-  const shouldShowManualEntry = manualEntryToggle || !canUseGoogleMaps;
+  const { isGoogleMapsApiReady } = useGoogleMapsApi();
+  const shouldShowManualEntry = manualEntryToggle || !isGoogleMapsApiReady;
   const [error, setError] = React.useState<string | null>(null);
   const {
     register,
@@ -84,10 +84,10 @@ export const AddSpotForm = ({
       <input {...register("lng")} hidden />
 
       {!shouldShowManualEntry && (
-        <div>
+        <>
           <PlacesAutocomplete onSelectPlace={onSelectPlace} />
           {errors.name && <Error>You have to select a place!</Error>}
-        </div>
+        </>
       )}
       <div hidden={!shouldShowManualEntry}>
         <label htmlFor="name">What's the place's name?</label>
@@ -114,7 +114,7 @@ export const AddSpotForm = ({
       <button disabled={!isValid}>Add spot</button>
       {error && <Error>{error}</Error>}
       <Space size="sm" />
-      <div hidden={!canUseGoogleMaps}>
+      <div hidden={!isGoogleMapsApiReady}>
         <a
           href="#"
           onClick={() => {

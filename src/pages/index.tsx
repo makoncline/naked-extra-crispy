@@ -8,15 +8,14 @@ import { Space } from "../components/Space";
 import { Loading } from "../components/Loading";
 import { Contact } from "../components/Contact";
 import { useSession } from "next-auth/react";
-import { Wrapper } from "@googlemaps/react-wrapper";
-import { env } from "../env/client.mjs";
+import { GoogleMapsApiProvider } from "../components/GoogleMapsApiProvider";
 
 const Home: NextPage = () => {
   const { data: spots, status } = trpc.public.getAllSpots.useQuery();
   const { data: session } = useSession();
   const isLoading = status === "loading";
   return (
-    <Wrapper apiKey={env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+    <GoogleMapsApiProvider>
       <Layout>
         <Hero />
         <Space size="md" />
@@ -24,12 +23,13 @@ const Home: NextPage = () => {
         <div>
           <h2>Spots</h2>
           <Space size="md" />
+
           {isLoading ? <Loading /> : <SpotsDisplay spots={spots} />}
         </div>
         <Space size="lg" />
         <Contact userEmail={session?.user?.email || undefined} />
       </Layout>
-    </Wrapper>
+    </GoogleMapsApiProvider>
   );
 };
 
