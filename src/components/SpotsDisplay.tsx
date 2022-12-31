@@ -15,6 +15,7 @@ import { Error } from "../styles/text";
 import { SpotMap } from "./SpotMap";
 import { ScrollToElement } from "./ScrollToElement";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
+import { useRouter } from "next/router";
 
 type SortOrder = "distance" | "rating" | "name" | "numWings";
 type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
@@ -35,11 +36,8 @@ export const SpotsDisplay = ({
 }: {
   spots?: RouterOutputs["public"]["getAllSpots"];
 }) => {
-  const { isGoogleMapsApiReady } = useGoogleMapsApi();
-  const [filters, setFilters] =
-    React.useState<FilterValues>(defaultFilterValues);
-  const [reverse, setReverse] = React.useState(true);
-  const sortedAfterLocationEnabled = React.useRef(false);
+  const router = useRouter();
+
   const handleUserLocationEnabled = () => {
     if (!sortedAfterLocationEnabled.current) {
       setSortBy("distance");
@@ -49,9 +47,47 @@ export const SpotsDisplay = ({
   const { userLocation, userLocationError, getUserLocation } = useUserLocation({
     onUserLocationEnabled: handleUserLocationEnabled,
   });
-
   const defaultSortBy = userLocation ? "distance" : "rating";
-  const [sortBy, setSortBy] = React.useState<SortOrder>(defaultSortBy);
+
+  const filtersFromUrl = router.query.filters
+    ? JSON.parse(router.query.filters.toString())
+    : defaultFilterValues;
+  const reverseFromUrl = router.query.reverse
+    ? Boolean(router.query.reverse)
+    : true;
+  const sortByFromUrl = router.query.sortBy
+    ? (router.query.sortBy as SortOrder)
+    : defaultSortBy;
+
+  const [filters, setFilters] = React.useState<FilterValues>(filtersFromUrl);
+  const [reverse, setReverse] = React.useState(reverseFromUrl);
+  const [sortBy, setSortBy] = React.useState<SortOrder>(sortByFromUrl);
+
+  React.useEffect(() => {
+    const newQuery = {
+      filters: JSON.stringify(filters),
+      reverse: reverse.toString(),
+      sortBy: sortBy,
+    };
+    if (
+      !(
+        newQuery.filters === router.query.filters &&
+        newQuery.reverse === router.query.reverse &&
+        newQuery.sortBy === router.query.sortBy
+      )
+    ) {
+      router.replace(
+        {
+          query: newQuery,
+        },
+        undefined,
+        { scroll: false }
+      );
+    }
+  }, [filters, reverse, sortBy, router]);
+
+  const sortedAfterLocationEnabled = React.useRef(false);
+
   const handleChangeName: ChangeEventHandler<HTMLInputElement> = (e) => {
     setFilters({ ...defaultFilterValues, name: e.target.value });
   };
@@ -74,6 +110,7 @@ export const SpotsDisplay = ({
     setFilters(defaultFilterValues);
     setReverse(true);
   };
+  const { isGoogleMapsApiReady } = useGoogleMapsApi();
 
   const spotDistancesMap =
     userLocation &&
