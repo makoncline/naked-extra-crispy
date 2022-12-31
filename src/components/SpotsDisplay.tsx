@@ -13,8 +13,8 @@ import { useUserLocation } from "../hooks/useUserLocation";
 import { convertMetersToMiles, formatDistance } from "../lib/distance";
 import { Error } from "../styles/text";
 import { SpotMap } from "./SpotMap";
-import { isGoogleMapsAvailable } from "../lib/isGoogleMapsAvailable";
 import { ScrollToElement } from "./ScrollToElement";
+import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 
 type SortOrder = "distance" | "rating" | "name" | "numWings";
 type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
@@ -35,6 +35,7 @@ export const SpotsDisplay = ({
 }: {
   spots?: RouterOutputs["public"]["getAllSpots"];
 }) => {
+  const { isGoogleMapsApiReady } = useGoogleMapsApi();
   const [filters, setFilters] =
     React.useState<FilterValues>(defaultFilterValues);
   const [reverse, setReverse] = React.useState(true);
@@ -277,7 +278,7 @@ export const SpotsDisplay = ({
         </form>
       </div>
       <Space size="md" />
-      {isGoogleMapsAvailable() && (
+      {isGoogleMapsApiReady && (
         <>
           <div>
             <h3>Map</h3>
