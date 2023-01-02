@@ -16,6 +16,7 @@ import { SpotMap } from "./SpotMap";
 import { ScrollToElement } from "./ScrollToElement";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 import { useRouter } from "next/router";
+import { SpotAutocomplete } from "./SpotAutocomplete";
 
 type SortOrder = "distance" | "rating" | "name" | "numWings";
 type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
@@ -88,8 +89,8 @@ export const SpotsDisplay = ({
 
   const sortedAfterLocationEnabled = React.useRef(false);
 
-  const handleChangeName: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setFilters({ ...defaultFilterValues, name: e.target.value });
+  const handleChangeName = (value: string) => {
+    setFilters({ ...defaultFilterValues, name: value });
   };
   const handleSelectState: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setFilters({ ...defaultFilterValues, state: e.target.value });
@@ -210,17 +211,11 @@ export const SpotsDisplay = ({
         )}
         <Space size="sm" />
         <form>
-          <div>
-            <label htmlFor="name">Name</label>
-            <input
-              id="name"
-              type="text"
-              placeholder="What's it called?"
-              value={filters.name}
-              onChange={handleChangeName}
-              autoComplete="off"
-            />
-          </div>
+          <SpotAutocomplete
+            spots={filteredSpots}
+            value={filters.name}
+            setValue={handleChangeName}
+          />
           <div>
             <label htmlFor="state">State</label>
             <select
