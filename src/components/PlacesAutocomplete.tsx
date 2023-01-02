@@ -4,6 +4,7 @@ import { useCombobox } from "downshift";
 import React from "react";
 import { row } from "../styles/utils";
 import { OnSelectPlaceData } from "./AddSpotForm";
+import { Autocomplete } from "./AutocompleteStyles";
 
 export const PlacesAutocomplete = ({
   onSelectPlace,
@@ -77,15 +78,7 @@ export const PlacesAutocomplete = ({
           &#10007;
         </button>
       </div>
-      <ul
-        {...getMenuProps()}
-        css={`
-          list-style: none;
-          padding: 0;
-          background-color: hsla(var(--gray-1-hsl) / 5%);
-          border-radius: var(--radius-2);
-        `}
-      >
+      <Autocomplete.Container {...getMenuProps()}>
         {isOpen &&
           data.map((item, index) => {
             const {
@@ -93,20 +86,7 @@ export const PlacesAutocomplete = ({
               structured_formatting: { main_text, secondary_text },
             } = item;
             return (
-              <li
-                css={`
-                  background-color: ${highlightedIndex === index
-                    ? "hsla(var(--gray-1-hsl) / 10%)"
-                    : "unset"};
-                  padding: var(--size-1);
-                  cursor: pointer;
-                  &:first-child {
-                    border-radius: var(--radius-2) var(--radius-2) 0 0;
-                  }
-                  &:last-child {
-                    border-radius: 0 0 var(--radius-2) var(--radius-2);
-                  }
-                `}
+              <Autocomplete.Item
                 key={place_id}
                 {...getItemProps({
                   item,
@@ -114,10 +94,10 @@ export const PlacesAutocomplete = ({
                 })}
               >
                 <strong>{main_text}</strong> <small>{secondary_text}</small>
-              </li>
+              </Autocomplete.Item>
             );
           })}
-      </ul>
+      </Autocomplete.Container>
     </div>
   );
 };

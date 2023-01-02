@@ -2,6 +2,8 @@ import { useCombobox } from "downshift";
 import React from "react";
 import { row } from "../styles/utils";
 import { useRouter } from "next/router";
+import { Autocomplete } from "./AutocompleteStyles";
+import Link from "next/link";
 
 export const SpotAutocomplete = ({
   spots,
@@ -62,33 +64,13 @@ export const SpotAutocomplete = ({
           &#10007;
         </button>
       </div>
-      <ul
-        {...getMenuProps()}
-        css={`
-          list-style: none;
-          padding: 0;
-          background-color: hsla(var(--gray-1-hsl) / 5%);
-          border-radius: var(--radius-2);
-        `}
-      >
+      <Autocomplete.Container {...getMenuProps()}>
         {isOpen &&
           spots.map((spot, index) => {
             const { name, id } = spot;
             return (
-              <li
-                css={`
-                  background-color: ${highlightedIndex === index
-                    ? "hsla(var(--gray-1-hsl) / 10%)"
-                    : "unset"};
-                  padding: var(--size-1);
-                  cursor: pointer;
-                  &:first-child {
-                    border-radius: var(--radius-2) var(--radius-2) 0 0;
-                  }
-                  &:last-child {
-                    border-radius: 0 0 var(--radius-2) var(--radius-2);
-                  }
-                `}
+              <Autocomplete.Item
+                highlighted={highlightedIndex === index}
                 key={id}
                 {...getItemProps({
                   item: spot,
@@ -96,10 +78,18 @@ export const SpotAutocomplete = ({
                 })}
               >
                 {name}
-              </li>
+              </Autocomplete.Item>
             );
           })}
-      </ul>
+        {spots.length === 0 && (
+          <Autocomplete.Item highlighted={false}>
+            No spots found.{"  "}
+            <Link href="/spots/add" passHref>
+              <a>Add new spot?</a>
+            </Link>
+          </Autocomplete.Item>
+        )}
+      </Autocomplete.Container>
     </div>
   );
 };
