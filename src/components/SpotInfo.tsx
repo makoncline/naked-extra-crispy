@@ -42,7 +42,7 @@ export const SpotInfo = ({
         {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} wings</p>}
       </div>
       {spot.rating ? (
-        <Rating displayValue={spot.rating} />
+        <Rating displayValue={spot.rating} key={spot.id} />
       ) : (
         <span>🚫 No wings</span>
       )}

@@ -1,11 +1,15 @@
 import React from "react";
 
+export const scrollToId = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth" });
+  }
+};
+
 export const ScrollToElement = ({ id }: { id: string }) => {
   const handleClick = () => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    scrollToId(id);
   };
 
   return (
