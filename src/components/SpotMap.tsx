@@ -6,6 +6,7 @@ import { getCenter } from "geolib";
 type SpotWithLocation = RouterOutputs["public"]["getAllSpots"][number] & {
   place: Place;
 };
+const TEAL_MARKER = "/teal-marker.png";
 const defaultZoom = 3;
 const usCenterLocation = {
   lat: 39.8097343,
@@ -15,12 +16,19 @@ const usCenterLocation = {
 export const SpotMap = ({
   spots = [],
   userLocation,
+  onSelectSpot,
+  selectedSpotId,
 }: {
   spots?: RouterOutputs["public"]["getAllSpots"];
   userLocation?: { lat: number; lng: number };
+  onSelectSpot: (id: string) => void;
+  selectedSpotId: string | null;
 }) => {
   const spotsWithLocation = spots.filter(
     (spot): spot is SpotWithLocation => spot.place != null
+  );
+  const selectedSpot = spotsWithLocation.find(
+    (spot) => spot.id === selectedSpotId
   );
   const hasSpots = spotsWithLocation.length > 0;
   const bounds = new google.maps.LatLngBounds();
@@ -46,8 +54,22 @@ export const SpotMap = ({
     return usCenterLocation;
   })();
 
+  const handleSpotSelect = (id: string) => {
+    onSelectSpot(id);
+  };
   return (
-    <Map {...location} bounds={bounds}>
+    <Map
+      {...location}
+      bounds={bounds}
+      centerOverride={
+        selectedSpot
+          ? new google.maps.LatLng(
+              selectedSpot.place.lat,
+              selectedSpot.place.lng
+            )
+          : undefined
+      }
+    >
       {spotsWithLocation.map((spot) => (
         <Marker
           key={spot.id}
@@ -55,6 +77,8 @@ export const SpotMap = ({
           lng={spot.place.lng}
           title={spot.name}
           id={spot.id}
+          onSelect={handleSpotSelect}
+          selected={selectedSpotId === spot.id}
         />
       ))}
     </Map>
@@ -64,21 +88,33 @@ export const SpotMap = ({
 const Map = ({
   children,
   bounds,
+  centerOverride,
 }: {
   children?: React.ReactNode;
   bounds: google.maps.LatLngBounds;
+  centerOverride?: google.maps.LatLng;
 }) => {
   const ref = React.useRef(null);
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
   const isBoundsEmpty = bounds.isEmpty();
   const center = isBoundsEmpty ? usCenterLocation : bounds.getCenter().toJSON();
   const zoom = isBoundsEmpty ? defaultZoom : undefined;
-  if (!isBoundsEmpty) {
-    map?.fitBounds(bounds);
-  } else {
-    map?.setCenter(center);
-    map?.setZoom(defaultZoom);
-  }
+  React.useEffect(() => {
+    if (centerOverride) return;
+    if (!isBoundsEmpty) {
+      map?.fitBounds(bounds);
+    } else {
+      map?.setCenter(center);
+      map?.setZoom(defaultZoom);
+    }
+  }, [isBoundsEmpty, map, bounds, center, centerOverride]);
+
+  React.useEffect(() => {
+    if (centerOverride) {
+      map?.panTo(centerOverride);
+    }
+  }, [centerOverride, map]);
+
   React.useEffect(() => {
     if (ref.current && !map) {
       setMap(
@@ -118,12 +154,16 @@ const Marker = ({
   lng: lng,
   title,
   id,
+  onSelect,
+  selected,
 }: {
   lat: number;
   lng: number;
   title: string;
   map?: google.maps.MarkerOptions["map"];
   id: string;
+  onSelect: (id: string) => void;
+  selected: boolean;
 }) => {
   const [marker, setMarker] = React.useState<google.maps.Marker>();
 
@@ -146,12 +186,13 @@ const Marker = ({
         map,
         position: { lat, lng },
         title,
+        icon: selected ? undefined : TEAL_MARKER,
       });
       marker.addListener("click", () => {
-        window.open(`/spots/${id}`, "_blank");
+        onSelect(id);
       });
     }
-  }, [id, lat, lng, map, marker, title]);
+  }, [id, lat, lng, map, marker, onSelect, selected, title]);
 
   return null;
 };

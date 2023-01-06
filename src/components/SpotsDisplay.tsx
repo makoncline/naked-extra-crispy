@@ -13,7 +13,7 @@ import { useUserLocation } from "../hooks/useUserLocation";
 import { convertMetersToMiles, formatDistance } from "../lib/distance";
 import { Error } from "../styles/text";
 import { SpotMap } from "./SpotMap";
-import { ScrollToElement } from "./ScrollToElement";
+import { ScrollToElement, scrollToId } from "./ScrollToElement";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 import { useRouter } from "next/router";
 import { SpotAutocomplete } from "./SpotAutocomplete";
@@ -38,10 +38,18 @@ export const SpotsDisplay = ({
   spots?: RouterOutputs["public"]["getAllSpots"];
 }) => {
   const router = useRouter();
+  const [selectedSpotId, setSelectedSpotId] = React.useState<string | null>(
+    null
+  );
+  const selectedSpot = spots.find((spot) => spot.id === selectedSpotId);
 
   const handleUserLocationEnabled = () => {
     if (!sortedAfterLocationEnabled.current) {
       setSortBy("distance");
+      setFilters((filters) => ({
+        ...filters,
+        distance: "100",
+      }));
       sortedAfterLocationEnabled.current = true;
     }
   };
@@ -90,22 +98,27 @@ export const SpotsDisplay = ({
   const sortedAfterLocationEnabled = React.useRef(false);
 
   const handleChangeName = (value: string) => {
-    setFilters({ ...defaultFilterValues, name: value });
+    setFilters((filters) => ({ ...filters, name: value }));
+    setSelectedSpotId(null);
   };
   const handleSelectState: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilters({ ...defaultFilterValues, state: e.target.value });
+    setFilters((filters) => ({ ...filters, state: e.target.value }));
+    setSelectedSpotId(null);
   };
   const handleSelectCity: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilters({ ...defaultFilterValues, city: e.target.value });
+    setFilters((filters) => ({ ...filters, city: e.target.value }));
+    setSelectedSpotId(null);
   };
   const handleSelectDistance: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilters({
-      ...defaultFilterValues,
+    setFilters((filters) => ({
+      ...filters,
       distance: e.target.value as DistanceFilterValues,
-    });
+    }));
+    setSelectedSpotId(null);
   };
   const handleSelectSortOrder: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setSortBy(e.target.value as SortOrder);
+    setSelectedSpotId(null);
   };
   const handleReset = () => {
     setFilters(defaultFilterValues);
@@ -187,6 +200,11 @@ export const SpotsDisplay = ({
         ))}
     </>
   );
+
+  const handleSelectSpot = (spotId: string) => {
+    scrollToId("map");
+    setSelectedSpotId(spotId);
+  };
   return (
     <>
       <ScrollToElement id={"search"} />
@@ -311,24 +329,39 @@ export const SpotsDisplay = ({
       </div>
       <Space size="md" />
       {isGoogleMapsApiReady && (
-        <>
-          <div>
-            <h3>Map</h3>
-            <Space size="sm" />
-            <SpotMap
-              spots={filteredSpots}
-              userLocation={
-                userLocation
-                  ? {
-                      lat: userLocation?.coords.latitude,
-                      lng: userLocation?.coords.longitude,
-                    }
-                  : undefined
-              }
-            />
-          </div>
+        <div id="map">
+          <h3>Map</h3>
+          <Space size="sm" />
+          <SpotMap
+            spots={filteredSpots}
+            userLocation={
+              userLocation
+                ? {
+                    lat: userLocation?.coords.latitude,
+                    lng: userLocation?.coords.longitude,
+                  }
+                : undefined
+            }
+            onSelectSpot={handleSelectSpot}
+            selectedSpotId={selectedSpotId}
+          />
+          {selectedSpot && (
+            <>
+              <Space size="sm" />
+              <div>
+                <SpotInfo
+                  spot={selectedSpot}
+                  distance={spotDistancesMap?.[selectedSpot.id]?.display}
+                />
+                <Space size="sm" />
+                <Link href={`/spots/${selectedSpot.id}`}>
+                  <button>View</button>
+                </Link>
+              </div>
+            </>
+          )}
           <Space size="md" />
-        </>
+        </div>
       )}
       <div
         id="results"
@@ -385,9 +418,23 @@ export const SpotsDisplay = ({
           <div>
             <p>There are no spots matching this search...</p>
             <Space size="sm" />
-            <Link href="/spots/add">
-              <button>Add a spot</button>
-            </Link>
+            <div
+              css={`
+                ${row}
+              `}
+            >
+              <Link href="/spots/add">
+                <button>Add a spot</button>
+              </Link>
+              <button
+                onClick={() => {
+                  handleReset();
+                }}
+                type="reset"
+              >
+                Reset search and filters
+              </button>
+            </div>
           </div>
         )}
       </div>
