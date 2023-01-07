@@ -8,4 +8,5 @@ export const siteConfig = {
   cloudinaryCloudName: "makon-dev",
   sendEmailUrl: `${sendToMakonBaseUrl}/send-email`,
   sendTextUrl: `${sendToMakonBaseUrl}/send-text`,
+  twitterHandle: "@nakedxtracrispy",
 } as const;
