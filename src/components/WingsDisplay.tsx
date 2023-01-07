@@ -91,7 +91,17 @@ export const WingsDisplay = ({
               <Card.Body>
                 <p>{wing.review}</p>
                 <Rating displayValue={wing.rating} />
-                <Subtle>{wing.createdAt.toLocaleDateString()}</Subtle>
+                <div
+                  css={`
+                    ${row}
+                    justify-content: space-between;
+                  `}
+                >
+                  <Subtle>{wing.createdAt.toLocaleDateString()}</Subtle>
+                  <Link href={`/wings/${wing.id}`} passHref>
+                    <a>🔗</a>
+                  </Link>
+                </div>
               </Card.Body>
             </Card>
           ))}

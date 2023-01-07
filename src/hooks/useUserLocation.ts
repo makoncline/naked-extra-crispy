@@ -24,13 +24,15 @@ export const useUserLocation = ({
   }, [onUserLocationEnabled]);
 
   React.useEffect(() => {
-    navigator.permissions
-      .query({ name: "geolocation" })
-      .then((permissionStatus) => {
-        if (permissionStatus.state === "granted") {
-          getUserLocation();
-        }
-      });
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "granted") {
+            getUserLocation();
+          }
+        });
+    }
   }, [getUserLocation]);
   return { userLocation, userLocationError, getUserLocation };
 };

@@ -24,6 +24,9 @@ export const SpotAutocomplete = ({
     getItemProps,
     selectItem,
   } = useCombobox({
+    inputId: "spot-autocomplete",
+    labelId: "spot-autocomplete-label",
+    menuId: "spot-autocomplete-menu",
     items: spots,
     inputValue: value,
     onInputValueChange: ({ inputValue }) => {

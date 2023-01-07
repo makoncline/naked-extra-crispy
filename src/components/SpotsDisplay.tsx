@@ -90,7 +90,7 @@ export const SpotsDisplay = ({
           query: newQuery,
         },
         undefined,
-        { scroll: false }
+        { scroll: false, shallow: true }
       );
     }
   }, [filters, reverse, sortBy, router]);

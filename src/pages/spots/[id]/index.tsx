@@ -1,7 +1,12 @@
-import type { NextPage } from "next";
+import type {
+  GetStaticPaths,
+  GetStaticProps,
+  NextPage,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
 import React from "react";
 import { trpc } from "../../../utils/trpc";
-import { useRouter } from "next/router";
 import Error from "next/error";
 import { Loading } from "../../../components/Loading";
 import Link from "next/link";
@@ -15,10 +20,14 @@ import { WingsDisplay } from "../../../components/WingsDisplay";
 import { NextSeo } from "next-seo";
 import { toCloudinaryUrl } from "../../../lib/cloudinary";
 import { siteConfig } from "../../../siteConfig";
+import { prisma } from "../../../server/db/client";
+import { appRouter } from "../../../server/trpc/router/_app";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createContextInner } from "../../../server/trpc/context";
+import superjson from "superjson";
 
-const Spot: NextPage = () => {
-  const router = useRouter();
-  const spotId = router.query.id as string;
+const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const { id: spotId } = props;
   const { data: spot, isLoading } = trpc.public.getSpot.useQuery({ spotId });
   if (isLoading) {
     return <Loading />;
@@ -27,14 +36,19 @@ const Spot: NextPage = () => {
     return <Error statusCode={404} />;
   }
   const { name, wings } = spot;
+  const titlePartTwo = spot.place
+    ? `${spot.place.city}, ${spot.place.state}`
+    : siteConfig.title;
+  const title = `${name} - ${titlePartTwo}`;
+  const description = `Check out reviews and photos of wings from ${name}.`;
   return (
     <>
       <NextSeo
-        title={`${name} - Naked Extra Crispy`}
-        description={`See photos and review of ${name}'s wings`}
+        title={title}
+        description={description}
         openGraph={{
-          title: `${name} - Naked Extra Crispy`,
-          description: `See photos and review of ${name}'s wings`,
+          title,
+          description,
           images: [
             {
               url: spot.images[0]
@@ -110,6 +124,41 @@ const Spot: NextPage = () => {
       </Layout>
     </>
   );
+};
+
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContextInner({ session: null }),
+    transformer: superjson,
+  });
+  const spotId = context.params?.id as string;
+  await ssg.public.getSpot.prefetch({ spotId });
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id: spotId,
+    },
+    revalidate: 1,
+  };
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const spots = await prisma.spot.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return {
+    paths: spots.map((spot) => ({
+      params: {
+        id: spot.id,
+      },
+    })),
+    fallback: "blocking",
+  };
 };
 
 export default Spot;
