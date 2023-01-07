@@ -1,7 +1,10 @@
-import type { NextPage } from "next";
+import type {
+  GetStaticPaths,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
 import React from "react";
 import { trpc } from "../../utils/trpc";
-import { useRouter } from "next/router";
 import Error from "next/error";
 import { Loading } from "../../components/Loading";
 import Link from "next/link";
@@ -11,10 +14,14 @@ import { WingDisplay } from "../../components/WingDisplay";
 import { NextSeo } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
 import { siteConfig } from "../../siteConfig";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "../../server/trpc/router/_app";
+import { createContextInner } from "../../server/trpc/context";
+import { prisma } from "../../server/db/client";
+import superjson from "superjson";
 
-const Wing: NextPage = () => {
-  const router = useRouter();
-  const wingId = router.query.id as string;
+const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const { id: wingId } = props;
   const { data: wing, isLoading } = trpc.public.getWing.useQuery({ wingId });
   if (isLoading) {
     return <Loading />;
@@ -23,14 +30,16 @@ const Wing: NextPage = () => {
     return <Error statusCode={404} />;
   }
   const { spot } = wing;
+  const title = `${wing.spot.name} wing review - ${wing.rating}/10`;
+  const description = `${wing.review}`;
   return (
     <>
       <NextSeo
-        title={`${wing.spot.name} - Naked Extra Crispy`}
-        description={`Rating: ${wing.rating}/10\nReview:${wing.review}`}
+        title={title}
+        description={description}
         openGraph={{
-          title: `${wing.spot.name} - Naked Extra Crispy`,
-          description: `Rating: ${wing.rating}/10\nReview:${wing.review}`,
+          title,
+          description,
           images: [
             {
               url: wing.images[0]
@@ -56,6 +65,41 @@ const Wing: NextPage = () => {
       </Layout>
     </>
   );
+};
+
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContextInner({ session: null }),
+    transformer: superjson,
+  });
+  const wingId = context.params?.id as string;
+  await ssg.public.getWing.prefetch({ wingId });
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id: wingId,
+    },
+    revalidate: 1,
+  };
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const wings = await prisma.wing.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return {
+    paths: wings.map((wing) => ({
+      params: {
+        id: wing.id,
+      },
+    })),
+    fallback: "blocking",
+  };
 };
 
 export default Wing;

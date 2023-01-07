@@ -9,6 +9,10 @@ import { Loading } from "../components/Loading";
 import { Contact } from "../components/Contact";
 import { useSession } from "next-auth/react";
 import { GoogleMapsApiProvider } from "../components/GoogleMapsApiProvider";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createContextInner } from "../server/trpc/context";
+import { appRouter } from "../server/trpc/router/_app";
+import superjson from "superjson";
 
 const Home: NextPage = () => {
   const { data: spots, status } = trpc.public.getAllSpots.useQuery();
@@ -32,5 +36,20 @@ const Home: NextPage = () => {
     </GoogleMapsApiProvider>
   );
 };
+
+export async function getStaticProps() {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContextInner({ session: null }),
+    transformer: superjson,
+  });
+  await ssg.public.getAllSpots.prefetch();
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+    revalidate: 1,
+  };
+}
 
 export default Home;
