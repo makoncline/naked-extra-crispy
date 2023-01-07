@@ -26,7 +26,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           description: siteConfig.description,
           images: [
             {
-              url: `${siteConfig.baseUrl}/nxcLogo.webp`,
+              url: `${siteConfig.baseUrl}/nxcLogoWithBg.webp`,
               width: 400,
               height: 400,
               alt: `${siteConfig.title} logo`,
