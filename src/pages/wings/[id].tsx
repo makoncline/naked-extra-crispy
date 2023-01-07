@@ -8,6 +8,9 @@ import Link from "next/link";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
+import { NextSeo } from "next-seo";
+import { toCloudinaryUrl } from "../../lib/cloudinary";
+import { siteConfig } from "../../siteConfig";
 
 const Wing: NextPage = () => {
   const router = useRouter();
@@ -21,17 +24,37 @@ const Wing: NextPage = () => {
   }
   const { spot } = wing;
   return (
-    <Layout>
-      <h1>{spot.name}</h1>
-      <Space size="sm" />
-      <div>
-        <Link href={`/spots/${spot.id}`}>
-          <button>View spot</button>
-        </Link>
-      </div>
-      <Space size="md" />
-      <WingDisplay wing={wing} />
-    </Layout>
+    <>
+      <NextSeo
+        title={`${wing.spot.name} - Naked Extra Crispy`}
+        description={`Rating: ${wing.rating}/10\nReview:${wing.review}`}
+        openGraph={{
+          title: `${wing.spot.name} - Naked Extra Crispy`,
+          description: `Rating: ${wing.rating}/10\nReview:${wing.review}`,
+          images: [
+            {
+              url: wing.images[0]
+                ? toCloudinaryUrl(wing.images[0].key, 800)
+                : `${siteConfig.baseUrl}/wings.webp`,
+              width: 800,
+              height: 800,
+              alt: `${spot.name} wings`,
+            },
+          ],
+        }}
+      />
+      <Layout>
+        <h1>{spot.name}</h1>
+        <Space size="sm" />
+        <div>
+          <Link href={`/spots/${spot.id}`}>
+            <button>View spot</button>
+          </Link>
+        </div>
+        <Space size="md" />
+        <WingDisplay wing={wing} />
+      </Layout>
+    </>
   );
 };
 
