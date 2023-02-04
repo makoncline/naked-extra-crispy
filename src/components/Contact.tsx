@@ -41,14 +41,21 @@ export const Contact = ({ userEmail }: { userEmail: string | undefined }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           {!userEmail ? (
             <div>
-              <label htmlFor="email-input">Email:</label>
-              <input {...register("email", { required: true })} type="email" />
+              <label htmlFor="email">Email:</label>
+              <input
+                id="email"
+                {...register("email", { required: true })}
+                type="email"
+              />
               {errors.email && <Error>This field is required</Error>}
             </div>
           ) : null}
           <div>
-            <label htmlFor="message-input">Message:</label>
-            <textarea {...register("message", { required: true })} />
+            <label htmlFor="message">Message:</label>
+            <textarea
+              id="message"
+              {...register("message", { required: true })}
+            />
             {errors.message && <Error>This field is required</Error>}
           </div>
           <button type="submit">
