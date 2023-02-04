@@ -60,7 +60,6 @@ export const authRouter = router({
       try {
         const message = `
             %0aNew spot added by ${spot.user.name || spot.user.email}:
-            %0a${siteConfig.baseUrl}/spots/${spot.id}
             %0a${spot.name}
             %0a${spot.city}, ${spot.state}
             %0a${siteConfig.baseUrl}/spots/${spot.id}
@@ -154,16 +153,13 @@ export const authRouter = router({
       try {
         const message = `
                 %0aNew wing added by ${wing.user.name || wing.user.email}:
-                %0a${siteConfig.baseUrl}/wings/${wing.id}
                 %0a${wing.spot.name}
                 %0a${wing.spot.city}, ${wing.spot.state}
                 %0a${wing.rating}/10
                 %0a${wing.review}
                 %0a${siteConfig.baseUrl}/wings/${wing.id}
                 `;
-        fetch(
-          `https://send-to-makon.vercel.app/api/send-text?message=${message}`
-        );
+        fetch(`${siteConfig.sendTextUrl}?message=${message}`);
       } catch (e) {
         // ignore
       }
