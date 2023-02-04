@@ -12,10 +12,16 @@ export const GoogleMapsApiProvider = ({
   children: React.ReactNode;
 }) => {
   const [isReady, setIsReady] = React.useState(false);
+  const initMap = () => {
+    setIsReady(true);
+  };
+  React.useEffect(() => {
+    (window as any).initMap = initMap;
+  }, []);
   return (
     <>
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        src={`https://maps.googleapis.com/maps/api/js?key=${env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMap&libraries=places`}
         strategy="lazyOnload"
         onReady={() => setIsReady(true)}
       />
