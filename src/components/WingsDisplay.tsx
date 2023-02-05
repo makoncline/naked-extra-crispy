@@ -107,7 +107,7 @@ export const WingsDisplay = ({
           ))}
         </div>
       ) : (
-        <p>There are no wings for this spot...</p>
+        <p>There are no ratings for this spot...</p>
       )}
     </>
   );

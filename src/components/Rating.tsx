@@ -21,39 +21,49 @@ export const Rating = ({
   return (
     <ScRating>
       {checkboxes.map((i) => (
-        <button
-          key={i}
-          onClick={() => handleChange(i)}
-          type="button"
-          disabled={Boolean(displayValue)}
-        >
-          <div
-            css={`
-              ${col}
-              gap: 0;
-            `}
-          >
-            <span
-              css={`
-                font-size: var(--font-size-4);
-                ${i > rating && `filter: grayscale(100%);`}
-              `}
+        <>
+          {displayValue ? (
+            <Flame gray={i > rating} />
+          ) : (
+            <button
+              key={i}
+              onClick={() => handleChange(i)}
+              type="button"
+              disabled={Boolean(displayValue)}
             >
-              🔥
-            </span>
-            <p
-              css={`
-                font-size: var(--font-size-00);
-              `}
-            >
-              {i}
-            </p>
-          </div>
-        </button>
+              <div
+                css={`
+                  ${col}
+                  gap: 0;
+                `}
+              >
+                <Flame gray={i > rating} />
+                <p
+                  css={`
+                    font-size: var(--font-size-00);
+                  `}
+                >
+                  {i}
+                </p>
+              </div>
+            </button>
+          )}
+        </>
       ))}
     </ScRating>
   );
 };
+
+const Flame = ({ gray = false }: { gray?: boolean }) => (
+  <span
+    css={`
+      font-size: var(--font-size-4);
+      ${gray && `filter: grayscale(100%);`}
+    `}
+  >
+    🔥
+  </span>
+);
 
 const ScRating = styled.div`
   ${row}

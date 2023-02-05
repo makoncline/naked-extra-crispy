@@ -29,23 +29,23 @@ export const SpotInfo = ({
           <p>
             {spot.city}, {spot.state}
           </p>
+          {spot.place && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${spot.place.name}&query_place_id=${spot.place.id}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              📍 {distance && `${distance}`}
+            </a>
+          )}
         </div>
-        {spot.place && (
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${spot.place.name}&query_place_id=${spot.place.id}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            📍 {distance && `${distance}`}
-          </a>
+        {spot.rating ? (
+          <Rating displayValue={spot.rating} key={spot.id} />
+        ) : (
+          <span>🚫 No ratings</span>
         )}
-        {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} wings</p>}
+        {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} ratings</p>}
       </div>
-      {spot.rating ? (
-        <Rating displayValue={spot.rating} key={spot.id} />
-      ) : (
-        <span>🚫 No wings</span>
-      )}
     </div>
   );
 };

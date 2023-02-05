@@ -8,7 +8,7 @@ import { Space } from "../components/Space";
 import { Loading } from "../components/Loading";
 import { Contact } from "../components/Contact";
 import { useSession } from "next-auth/react";
-import { GoogleMapsApiProvider } from "../components/GoogleMapsApiProvider";
+
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { createContextInner } from "../server/trpc/context";
 import { appRouter } from "../server/trpc/router/_app";
@@ -19,21 +19,17 @@ const Home: NextPage = () => {
   const { data: session } = useSession();
   const isLoading = status === "loading";
   return (
-    <GoogleMapsApiProvider>
-      <Layout>
-        <Hero />
+    <Layout>
+      <Hero />
+      <Space size="md" />
+      <div>
+        <h2>Spots</h2>
         <Space size="md" />
-
-        <div>
-          <h2>Spots</h2>
-          <Space size="md" />
-
-          {isLoading ? <Loading /> : <SpotsDisplay spots={spots} />}
-        </div>
-        <Space size="lg" />
-        <Contact userEmail={session?.user?.email || undefined} />
-      </Layout>
-    </GoogleMapsApiProvider>
+        {isLoading ? <Loading /> : <SpotsDisplay spots={spots} />}
+      </div>
+      <Space size="lg" />
+      <Contact userEmail={session?.user?.email || undefined} />
+    </Layout>
   );
 };
 

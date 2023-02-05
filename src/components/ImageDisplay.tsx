@@ -39,6 +39,7 @@ export const ImageDisplay = ({
             objectFit="cover"
             width={imageSize}
             height={imageSize}
+            priority={priority}
           />
         </ImageWrapper>
       )}

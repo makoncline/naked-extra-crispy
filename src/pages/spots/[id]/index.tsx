@@ -93,14 +93,13 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   </a>
                 )}
               </div>
-              {spot.numWings > 0 && (
-                <p>{spot.numWings.toLocaleString()} wings</p>
-              )}
-              <Space size="sm" />
               {spot.rating ? (
                 <Rating displayValue={spot.rating} />
               ) : (
-                <span>🚫 No wings</span>
+                <span>🚫 No ratings</span>
+              )}
+              {spot.numWings > 0 && (
+                <p>{spot.numWings.toLocaleString()} ratings</p>
               )}
             </div>
             <div
@@ -112,7 +111,7 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 <button>Show me the wings</button>
               </Link>
               <Link href={`/spots/${spotId}/addWing`}>
-                <button>+ Add Wing</button>
+                <button>+ Add rating</button>
               </Link>
             </div>
           </Card.Body>
