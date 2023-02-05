@@ -14,9 +14,14 @@ import { convertMetersToMiles, formatDistance } from "../lib/distance";
 import { Error } from "../styles/text";
 import { SpotMap } from "./SpotMap";
 import { ScrollToElement, scrollToId } from "./ScrollToElement";
-import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
+import {
+  GoogleMapsApiProvider,
+  useGoogleMapsApi,
+} from "./GoogleMapsApiProvider";
 import { useRouter } from "next/router";
 import { SpotAutocomplete } from "./SpotAutocomplete";
+import mapPlaceholder from "../../public/map-placeholder.webp";
+import Image from "next/image";
 
 type SortOrder = "distance" | "rating" | "name" | "numWings";
 type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
@@ -32,6 +37,7 @@ const defaultFilterValues = {
   city: "",
   distance: "any",
 } as const;
+
 export const SpotsDisplay = ({
   spots = [],
 }: {
@@ -124,7 +130,7 @@ export const SpotsDisplay = ({
     setFilters(defaultFilterValues);
     setReverse(true);
   };
-  const { isGoogleMapsApiReady } = useGoogleMapsApi();
+  const [showMap, setShowMap] = React.useState(false);
 
   const spotDistancesMap =
     userLocation &&
@@ -328,41 +334,51 @@ export const SpotsDisplay = ({
         </form>
       </div>
       <Space size="md" />
-      {isGoogleMapsApiReady && (
-        <div id="map">
-          <h3>Map</h3>
-          <Space size="sm" />
-          <SpotMap
-            spots={filteredSpots}
-            userLocation={
-              userLocation
-                ? {
-                    lat: userLocation?.coords.latitude,
-                    lng: userLocation?.coords.longitude,
-                  }
-                : undefined
-            }
-            onSelectSpot={handleSelectSpot}
-            selectedSpotId={selectedSpotId}
+      <div id="map">
+        <h3>Map</h3>
+        <Space size="sm" />
+        {!showMap ? (
+          <Image
+            src={mapPlaceholder}
+            alt="Click to view wing map"
+            onClick={() => setShowMap(true)}
           />
-          {selectedSpot && (
-            <>
-              <Space size="sm" />
-              <div>
-                <SpotInfo
-                  spot={selectedSpot}
-                  distance={spotDistancesMap?.[selectedSpot.id]?.display}
-                />
+        ) : (
+          <>
+            <GoogleMapsApiProvider>
+              <SpotMap
+                spots={filteredSpots}
+                userLocation={
+                  userLocation
+                    ? {
+                        lat: userLocation?.coords.latitude,
+                        lng: userLocation?.coords.longitude,
+                      }
+                    : undefined
+                }
+                onSelectSpot={handleSelectSpot}
+                selectedSpotId={selectedSpotId}
+              />
+            </GoogleMapsApiProvider>
+            {selectedSpot && (
+              <>
                 <Space size="sm" />
-                <Link href={`/spots/${selectedSpot.id}`}>
-                  <button>View</button>
-                </Link>
-              </div>
-            </>
-          )}
-          <Space size="md" />
-        </div>
-      )}
+                <div>
+                  <SpotInfo
+                    spot={selectedSpot}
+                    distance={spotDistancesMap?.[selectedSpot.id]?.display}
+                  />
+                  <Space size="sm" />
+                  <Link href={`/spots/${selectedSpot.id}`}>
+                    <button>View</button>
+                  </Link>
+                </div>
+              </>
+            )}
+          </>
+        )}
+        <Space size="md" />
+      </div>
       <div
         id="results"
         css={`
@@ -406,7 +422,7 @@ export const SpotsDisplay = ({
                         <button>View</button>
                       </Link>
                       <Link href={`/spots/${spot.id}/addWing`}>
-                        <button>+ Add wing</button>
+                        <button>+ Add rating</button>
                       </Link>
                     </div>
                   </div>

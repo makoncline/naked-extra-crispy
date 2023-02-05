@@ -22,4 +22,18 @@ export default defineNextConfig({
     locales: ["en"],
     defaultLocale: "en",
   },
+  // async headers() {
+  //   return [
+  //     {
+  //       source: "/api/blur-image-proxy*",
+  //       locale: false,
+  //       headers: [
+  //         {
+  //           key: "Cache-Control",
+  //           value: "public, max-age=31536000",
+  //         },
+  //       ],
+  //     },
+  //   ];
+  // },
 });

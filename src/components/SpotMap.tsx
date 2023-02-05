@@ -2,6 +2,9 @@ import React from "react";
 import { RouterOutputs } from "../utils/trpc.js";
 import { Place } from "@prisma/client";
 import { getCenter } from "geolib";
+import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
+import { Spinner } from "./Spiner";
+import { css } from "styled-components";
 
 type SpotWithLocation = RouterOutputs["public"]["getAllSpots"][number] & {
   place: Place;
@@ -12,6 +15,11 @@ const usCenterLocation = {
   lat: 39.8097343,
   lng: -98.5556199,
 } as const;
+
+const mapSize = css`
+  height: 400px;
+  width: 100%;
+`;
 
 export const SpotMap = ({
   spots = [],
@@ -24,6 +32,21 @@ export const SpotMap = ({
   onSelectSpot: (id: string) => void;
   selectedSpotId: string | null;
 }) => {
+  const { isGoogleMapsApiReady } = useGoogleMapsApi();
+  if (!isGoogleMapsApiReady) {
+    return (
+      <div
+        css={`
+          ${mapSize}
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        `}
+      >
+        <Spinner />
+      </div>
+    );
+  }
   const spotsWithLocation = spots.filter(
     (spot): spot is SpotWithLocation => spot.place != null
   );
@@ -133,8 +156,7 @@ const Map = ({
     <div
       ref={ref}
       css={`
-        height: 400px;
-        width: 100%;
+        ${mapSize}
       `}
     >
       {React.Children.map(children, (child) => {

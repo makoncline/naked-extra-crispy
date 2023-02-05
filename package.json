@@ -32,6 +32,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.34.1",
     "react-query": "^3.39.2",
+    "sharp": "^0.31.3",
     "styled-components": "^5.3.6",
     "superjson": "1.9.1",
     "use-places-autocomplete": "^4.0.0",
