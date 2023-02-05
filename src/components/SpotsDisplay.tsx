@@ -192,7 +192,8 @@ export const SpotsDisplay = ({
         }
       }
       return reverse ? result : result * -1;
-    });
+    })
+    .filter((spot) => spot.numWings > 0);
 
   const numFilteredSpots = filteredSpots.length;
   const SelectCityOptions = () => (
