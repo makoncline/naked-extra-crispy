@@ -5,7 +5,6 @@ import "../styles/globals.css";
 import { trpc } from "../utils/trpc";
 import { DefaultSeo } from "next-seo";
 import { siteConfig } from "../siteConfig";
-// import {} from "styled-components/cssprop";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
