@@ -17,7 +17,7 @@ import { ImageDisplay } from "../../../components/ImageDisplay";
 import { Rating } from "../../../components/Rating";
 import { Card } from "../../../components/Card";
 import { WingsDisplay } from "../../../components/WingsDisplay";
-import { NextSeo } from "next-seo";
+import { LocalBusinessJsonLd, NextSeo } from "next-seo";
 import { toCloudinaryUrl } from "../../../lib/cloudinary";
 import { siteConfig } from "../../../siteConfig";
 import { prisma } from "../../../server/db/client";
@@ -41,12 +41,15 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     : siteConfig.title;
   const title = `${name} - ${titlePartTwo}`;
   const description = `Check out reviews and photos of wings from ${name}.`;
+  const url = `${siteConfig.baseUrl}/spots/${spotId}`;
   return (
     <>
       <NextSeo
         title={title}
         description={description}
+        canonical={url}
         openGraph={{
+          url,
           title,
           description,
           images: [
@@ -59,6 +62,43 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               alt: `${name} wings`,
             },
           ],
+        }}
+      />
+      <LocalBusinessJsonLd
+        type="Restaurant"
+        id={url}
+        name={name}
+        description={description}
+        url={url}
+        address={{
+          addressCountry: "US",
+          addressLocality: spot.place?.city,
+          addressRegion: spot.place?.state,
+        }}
+        geo={{
+          latitude: spot.place?.lat,
+          longitude: spot.place?.lng,
+        }}
+        images={spot.images.map((image) => toCloudinaryUrl(image.key, 800))}
+        rating={{
+          ratingValue: spot.rating,
+          ratingCount: spot.numWings,
+        }}
+        review={spot.wings.map((rating) => ({
+          author: rating.user.name,
+          datePublished: rating.createdAt.toLocaleDateString(),
+          reviewBody: rating.review,
+          reviewRating: {
+            bestRating: "10",
+            worstRating: "1",
+            ratingValue: rating.rating,
+          },
+        }))}
+        servesCuisine={["Chicken Wings", "Buffalo Wings"]}
+        action={{
+          actionName: "Add a review",
+          actionType: "ReviewAction",
+          target: `${url}/addWing`,
         }}
       />
       <Layout title={`${name} - Naked Extra Crispy`}>

@@ -11,7 +11,7 @@ import Link from "next/link";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
-import { NextSeo } from "next-seo";
+import { ArticleJsonLd, NextSeo } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
 import { siteConfig } from "../../siteConfig";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
@@ -32,12 +32,15 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { spot } = wing;
   const title = `${wing.spot.name} wing review - ${wing.rating}/10`;
   const description = `${wing.review}`;
+  const url = `${siteConfig.baseUrl}/wings/${wing.id}`;
   return (
     <>
       <NextSeo
         title={title}
         description={description}
+        canonical={url}
         openGraph={{
+          url,
           title,
           description,
           images: [
@@ -51,6 +54,23 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             },
           ],
         }}
+      />
+      <ArticleJsonLd
+        url={url}
+        title={title}
+        images={wing.images.map((image) => {
+          return toCloudinaryUrl(image.key, 800);
+        })}
+        datePublished={wing.createdAt.toLocaleDateString()}
+        authorName={[
+          {
+            name: wing.user.name,
+          },
+        ]}
+        publisherName="Makon Cline"
+        publisherLogo={siteConfig.baseUrl + "/logo.webp"}
+        description={description}
+        isAccessibleForFree={true}
       />
       <Layout>
         <h1>{spot.name}</h1>
