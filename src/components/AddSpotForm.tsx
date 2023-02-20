@@ -60,7 +60,6 @@ export const AddSpotForm = ({
     }
   };
   const onSelectPlace = (placeData: OnSelectPlaceData) => {
-    console.log("placeData", placeData);
     if (!placeData) {
       reset();
     } else {

@@ -61,12 +61,15 @@ export const authRouter = router({
       }
       try {
         const message = `
-            %0aNew spot added by ${spot.user.name || spot.user.email}:
-            %0a${spot.name}
-            %0a${spot.city}, ${spot.state}
-            %0a${siteConfig.baseUrl}/spots/${spot.id}
+          ${spot.name}<br>
+          ${spot.city}, ${spot.state}<br>
+          added by ${spot.user.name || spot.user.email}<br>
+          ${siteConfig.baseUrl}/spots/${spot.id}
           `;
-        fetch(`${siteConfig.sendTextUrl}?message=${message}`);
+        const queryParams = new URLSearchParams();
+        queryParams.set("subject", `${siteConfig.title} - New Spot`);
+        queryParams.set("message", message);
+        fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
       } catch (e) {
         // ignore
       }
@@ -154,14 +157,17 @@ export const authRouter = router({
       });
       try {
         const message = `
-                %0aNew wing added by ${wing.user.name || wing.user.email}:
-                %0a${wing.spot.name}
-                %0a${wing.spot.city}, ${wing.spot.state}
-                %0a${wing.rating}/10
-                %0a${wing.review}
-                %0a${siteConfig.baseUrl}/wings/${wing.id}
-                `;
-        fetch(`${siteConfig.sendTextUrl}?message=${message}`);
+          ${wing.spot.name}<br>
+          ${wing.spot.city}, ${wing.spot.state}<br>
+          added by ${wing.user.name || wing.user.email}<br>
+          ${wing.rating}/10 🔥<br>
+          ${wing.review}<br>
+          ${siteConfig.baseUrl}/wings/${wing.id}
+        `;
+        const queryParams = new URLSearchParams();
+        queryParams.set("subject", `${siteConfig.title} - New Rating`);
+        queryParams.set("message", message);
+        fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
       } catch (e) {
         // ignore
       }
