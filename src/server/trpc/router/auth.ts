@@ -16,10 +16,11 @@ export const authRouter = router({
         placeId: z.string().optional(),
         lat: z.number().optional(),
         lng: z.number().optional(),
+        address: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { placeId, lat, lng, name, city, state, userId } = input;
+      const { placeId, lat, lng, name, city, state, userId, address } = input;
       const spot = await ctx.prisma.spot
         .create({
           data: {
@@ -44,7 +45,7 @@ export const authRouter = router({
             throw e;
           }
         });
-      if (placeId && lat && lng) {
+      if (placeId && lat && lng && address) {
         await ctx.prisma.place.create({
           data: {
             spotId: spot.id,
@@ -54,6 +55,7 @@ export const authRouter = router({
             name,
             city,
             state,
+            address,
           },
         });
       }

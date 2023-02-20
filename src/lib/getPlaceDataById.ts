@@ -6,6 +6,7 @@ export type GoogleMapsPlaceData = {
   city: string;
   lat: number;
   lng: number;
+  address: string;
 };
 
 export const getPlaceGeoDataById = async (
@@ -14,7 +15,7 @@ export const getPlaceGeoDataById = async (
   const geocode = await getGeocode({ placeId: placeId });
   const result = geocode[0];
   if (!result) throw new Error(`No result found for placeId: ${placeId}`);
-  const { address_components: addressComponents } = result;
+  const { address_components: addressComponents, formatted_address } = result;
   const state = addressComponents.find((component) =>
     component.types.includes("administrative_area_level_1")
   )?.short_name;
@@ -32,5 +33,6 @@ export const getPlaceGeoDataById = async (
     city,
     lat,
     lng,
+    address: formatted_address,
   };
 };
