@@ -16,6 +16,7 @@ export type AddSpotFormInputs = {
   state: string;
   lat?: number;
   lng?: number;
+  address?: string;
 };
 
 export type OnSelectPlaceData =
@@ -59,6 +60,7 @@ export const AddSpotForm = ({
     }
   };
   const onSelectPlace = (placeData: OnSelectPlaceData) => {
+    console.log("placeData", placeData);
     if (!placeData) {
       reset();
     } else {
@@ -68,6 +70,7 @@ export const AddSpotForm = ({
       setValue("placeId", placeData.placeId);
       setValue("lat", placeData.lat);
       setValue("lng", placeData.lng);
+      setValue("address", placeData.address);
       trigger();
     }
     setError(null);

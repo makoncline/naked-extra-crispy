@@ -4,13 +4,19 @@ import { row } from "../styles/utils";
 import { useRouter } from "next/router";
 import { Autocomplete } from "./AutocompleteStyles";
 import Link from "next/link";
+import { RouterOutputs } from "../utils/trpc";
+
+type AutoCompleteSpot = Pick<
+  RouterOutputs["public"]["getAllSpots"][number],
+  "name" | "id" | "place"
+>;
 
 export const SpotAutocomplete = ({
   spots,
   value,
   setValue,
 }: {
-  spots: { name: string; id: string }[];
+  spots: AutoCompleteSpot[];
   value: string;
   setValue: (value: string) => void;
 }) => {
@@ -54,11 +60,7 @@ export const SpotAutocomplete = ({
           margin-bottom: var(--size-2);
         `}
       >
-        <input
-          {...getInputProps()}
-          placeholder="What's it called?"
-          autoComplete="off"
-        />
+        <input {...getInputProps()} placeholder="What's it called?" />
         <button
           aria-label="toggle menu"
           onClick={() => selectItem(null)}
@@ -70,7 +72,8 @@ export const SpotAutocomplete = ({
       <Autocomplete.Container {...getMenuProps()}>
         {isOpen &&
           spots.map((spot, index) => {
-            const { name, id } = spot;
+            const { name, id, place } = spot;
+            const { address } = place || {};
             return (
               <Autocomplete.Item
                 highlighted={highlightedIndex === index}
@@ -80,7 +83,8 @@ export const SpotAutocomplete = ({
                   index,
                 })}
               >
-                {name}
+                <strong>{name}</strong>{" "}
+                {address ? <small>{address}</small> : null}
               </Autocomplete.Item>
             );
           })}

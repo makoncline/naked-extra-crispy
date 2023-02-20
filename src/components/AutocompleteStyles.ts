@@ -13,7 +13,7 @@ const Item = styled.li<{ highlighted: boolean }>`
   }
 `;
 
-const Container = styled.div`
+const Container = styled.ul`
   list-style: none;
   padding: 0;
   background-color: hsla(var(--gray-1-hsl) / 5%);

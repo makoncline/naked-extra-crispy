@@ -28,6 +28,7 @@ model Place {
   state     String
   lat       Float
   lng       Float
+  address   String?
   spotId    String   @unique
   spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

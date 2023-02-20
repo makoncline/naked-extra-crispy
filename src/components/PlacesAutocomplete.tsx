@@ -83,17 +83,21 @@ export const PlacesAutocomplete = ({
           data.map((item, index) => {
             const {
               place_id,
-              structured_formatting: { main_text, secondary_text },
+              structured_formatting: {
+                main_text: name,
+                secondary_text: address,
+              },
             } = item;
             return (
               <Autocomplete.Item
+                highlighted={highlightedIndex === index}
                 key={place_id}
                 {...getItemProps({
                   item,
                   index,
                 })}
               >
-                <strong>{main_text}</strong> <small>{secondary_text}</small>
+                <strong>{name}</strong> <small>{address}</small>
               </Autocomplete.Item>
             );
           })}
