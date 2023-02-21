@@ -32,11 +32,12 @@ export const clientSchema = z.object({
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z.string(),
   NEXT_PUBLIC_BASE_URL: z.preprocess(
+    // use BASE_URL if it exists, otherwise use the VERCEL_URL, otherwise fail
     (str) =>
-      process.env.NEXT_PUBLIC_VERCEL_URL
+      str ??
+      (process.env.NEXT_PUBLIC_VERCEL_URL
         ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-        : str,
-    // VERCEL_URL doesn't include `https` so it cant be validated as a URL
+        : ""),
     z.string().url()
   ),
 });
