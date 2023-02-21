@@ -31,10 +31,7 @@ export const serverSchema = z.object({
 export const clientSchema = z.object({
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z.string(),
-  NEXT_PUBLIC_BASE_URL: z.preprocess(
-    (str) => process.env.NEXT_PUBLIC_VERCEL_URL ?? str,
-    process.env.VERCEL ? z.string() : z.string().url()
-  ),
+  NEXT_PUBLIC_BASE_URL: z.string(),
 });
 
 /**
