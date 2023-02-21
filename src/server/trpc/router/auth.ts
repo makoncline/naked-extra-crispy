@@ -2,33 +2,34 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { siteConfig } from "../../../siteConfig";
 import { env } from "../../../env/server.mjs";
+import { addSpotInputSchema } from "../../../components/AddSpotForm";
 
 export const authRouter = router({
   getSession: publicProcedure.query(({ ctx }) => {
     return ctx.session;
   }),
   createSpot: protectedProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-        name: z.string(),
-        state: z.string().min(1).max(2),
-        city: z.string().min(1),
-        placeId: z.string().optional(),
-        lat: z.number().optional(),
-        lng: z.number().optional(),
-        address: z.string().optional(),
-      })
-    )
+    .input(addSpotInputSchema)
     .mutation(async ({ input, ctx }) => {
       const { placeId, lat, lng, name, city, state, userId, address } = input;
-      const spot = await ctx.prisma.spot
-        .create({
+      try {
+        const spot = await ctx.prisma.spot.create({
           data: {
             userId,
             name: input.name.trim(),
             city: input.city.trim(),
             state,
+            place: {
+              create: {
+                id: placeId,
+                lat,
+                lng,
+                name,
+                city,
+                state,
+                address,
+              },
+            },
           },
           select: {
             id: true,
@@ -36,45 +37,49 @@ export const authRouter = router({
             name: true,
             state: true,
             city: true,
-            createdAt: true,
-          },
-        })
-        .catch((e) => {
-          if (e.code === "P2002") {
-            throw new Error("A spot with this name already exists!");
-          } else {
-            throw e;
-          }
-        });
-      if (placeId && lat && lng && address) {
-        await ctx.prisma.place.create({
-          data: {
-            spotId: spot.id,
-            id: placeId,
-            lat,
-            lng,
-            name,
-            city,
-            state,
-            address,
           },
         });
+        try {
+          // send myself an email
+          const message = `
+            ${spot.name}<br>
+            ${spot.city}, ${spot.state}<br>
+            added by ${spot.user.name || spot.user.email}<br>
+            ${env.NEXT_PUBLIC_BASE_URL}/spots/${spot.id}
+            `;
+          const queryParams = new URLSearchParams();
+          queryParams.set("subject", `${siteConfig.title} - New Spot`);
+          queryParams.set("message", message);
+          fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
+        } catch (e) {
+          // ignore
+        }
+        return { id: spot.id };
+      } catch (e: any) {
+        const genericError = new Error(
+          "Oops! Something went wrong. Please try again later."
+        );
+        if (e.code === "P2002") {
+          // if the sport already exists, find the existing spot and return it
+          const spotAlreadyExists = await ctx.prisma.spot
+            .findFirstOrThrow({
+              where: {
+                place: {
+                  id: placeId,
+                },
+              },
+              select: {
+                id: true,
+              },
+            })
+            .catch((e) => {
+              throw genericError;
+            });
+          return spotAlreadyExists;
+        } else {
+          throw genericError;
+        }
       }
-      try {
-        const message = `
-          ${spot.name}<br>
-          ${spot.city}, ${spot.state}<br>
-          added by ${spot.user.name || spot.user.email}<br>
-          ${env.NEXT_PUBLIC_BASE_URL}/spots/${spot.id}
-          `;
-        const queryParams = new URLSearchParams();
-        queryParams.set("subject", `${siteConfig.title} - New Spot`);
-        queryParams.set("message", message);
-        fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
-      } catch (e) {
-        // ignore
-      }
-      return spot;
     }),
   createWing: protectedProcedure
     .input(

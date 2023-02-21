@@ -1,23 +1,25 @@
 import { trpc } from "../utils/trpc";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form";
 import React from "react";
-import { SelectStateOptions } from "./SelectStateOptions";
 import { PlacesAutocomplete } from "./PlacesAutocomplete";
-import { Space } from "./Space";
 import { GoogleMapsPlaceData } from "../lib/getPlaceDataById";
 import { Error } from "../styles/text";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
+import { Spinner } from "./Spiner";
+import { z } from "zod";
+import { useZodForm } from "../hooks/useZodForm";
 
-export type AddSpotFormInputs = {
-  userId: string;
-  placeId?: string;
-  name: string;
-  city: string;
-  state: string;
-  lat?: number;
-  lng?: number;
-  address?: string;
-};
+export const addSpotInputSchema = z.object({
+  userId: z.string(),
+  name: z.string(),
+  state: z.string().min(1).max(2),
+  city: z.string().min(1),
+  placeId: z.string(),
+  lat: z.number(),
+  lng: z.number(),
+  address: z.string(),
+});
+type AddSpotInput = z.infer<typeof addSpotInputSchema>;
 
 export type OnSelectPlaceData =
   | (GoogleMapsPlaceData & { placeName: string })
@@ -30,9 +32,7 @@ export const AddSpotForm = ({
   userId: string;
   onSuccess: (spotId: string) => void;
 }) => {
-  const [manualEntryToggle, setManualEntryToggle] = React.useState(false);
   const { isGoogleMapsApiReady } = useGoogleMapsApi();
-  const shouldShowManualEntry = manualEntryToggle || !isGoogleMapsApiReady;
   const [error, setError] = React.useState<string | null>(null);
   const {
     register,
@@ -41,7 +41,8 @@ export const AddSpotForm = ({
     reset,
     setValue,
     trigger,
-  } = useForm<AddSpotFormInputs>({
+  } = useZodForm({
+    schema: addSpotInputSchema,
     defaultValues: { userId },
     reValidateMode: "onChange",
   });
@@ -51,7 +52,7 @@ export const AddSpotForm = ({
       utils.invalidate();
     },
   });
-  const onSubmit: SubmitHandler<AddSpotFormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<AddSpotInput> = async (data) => {
     try {
       const { id: spotId } = await createSpot.mutateAsync(data);
       onSuccess(spotId);
@@ -81,54 +82,33 @@ export const AddSpotForm = ({
         value={userId}
         hidden
       />
+      <input {...register("city")} hidden />
+      <input {...register("state")} hidden />
       <input {...register("placeId")} hidden />
       <input {...register("lat")} hidden />
       <input {...register("lng")} hidden />
+      <input {...register("address")} hidden />
 
-      {!shouldShowManualEntry && (
+      {isGoogleMapsApiReady ? (
         <>
           <PlacesAutocomplete onSelectPlace={onSelectPlace} />
           {errors.name && <Error>You have to select a place!</Error>}
+          <button disabled={!isValid}>Add spot</button>
+          {error && <Error>{error}</Error>}
         </>
+      ) : (
+        <div
+          css={`
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            width: 100%;
+          `}
+        >
+          <Spinner />
+        </div>
       )}
-      <div hidden={!shouldShowManualEntry}>
-        <label htmlFor="name">What's the place's name?</label>
-        <input id="name" {...register("name", { required: true })} />
-        {errors.name && <Error>What? This place has wings, but no name?</Error>}
-      </div>
-      <div hidden={!shouldShowManualEntry}>
-        <label htmlFor="state">What state is it in?</label>
-        <select
-          id="state"
-          {...register("state", { required: true })}
-          defaultValue=""
-        >
-          <option value="">Select a State</option>
-          <SelectStateOptions />
-        </select>
-        {errors.state && <Error>Enter a state</Error>}
-      </div>
-      <div hidden={!shouldShowManualEntry}>
-        <label htmlFor="city">What city?</label>
-        <input id="city" {...register("city", { required: true })} />
-        {errors.name && <Error>Enter a city</Error>}
-      </div>
-      <button disabled={!isValid}>Add spot</button>
-      {error && <Error>{error}</Error>}
-      <Space size="sm" />
-      <div hidden={!isGoogleMapsApiReady}>
-        <a
-          href="#"
-          onClick={() => {
-            setManualEntryToggle(!shouldShowManualEntry);
-            reset();
-          }}
-        >
-          {shouldShowManualEntry
-            ? `Want to search for the spot?`
-            : `Can't find the spot?`}
-        </a>
-      </div>
     </form>
   );
 };
