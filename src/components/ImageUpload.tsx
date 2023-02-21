@@ -1,24 +1,24 @@
 import React from "react";
 import { siteConfig } from "../siteConfig";
 import { Error } from "../styles/text";
-import { Spinner } from "./Spiner";
 import Image from "next/image";
 import { col, row } from "../styles/utils";
 import { toBase64 } from "../lib/toBase64";
 import { Loading } from "./Loading";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Space } from "./Space";
-import { toCloudinaryBlurUrl, toCloudinaryUrl } from "../lib/cloudinary";
 import { env } from "../env/client.mjs";
 
 export const ImageUpload = ({
   onUploadSuccess,
   children,
   id,
+  setUploading,
 }: {
   onUploadSuccess: (publicId: string) => void;
   children: React.ReactNode;
   id: string;
+  setUploading: (uploading: boolean) => void;
 }) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [previewImage, setPreviewImage] = React.useState<string | null>(null);
@@ -40,9 +40,11 @@ export const ImageUpload = ({
     e.preventDefault();
     setError(null);
     setStatus("uploading");
+    setUploading(true);
     try {
       if (!file) {
         setStatus("idle");
+        setUploading(false);
         setError("You must select a photo to upload");
         return;
       }
@@ -62,11 +64,13 @@ export const ImageUpload = ({
       const data = await res.json();
       formRef.current?.reset();
       setStatus("idle");
+      setUploading(false);
       setPublicId(data.public_id);
       onUploadSuccess(data.public_id);
     } catch (err) {
       console.error(err);
       setStatus("idle");
+      setUploading(false);
       setError("Something went wrong. Try again later.");
     }
   };
@@ -75,22 +79,40 @@ export const ImageUpload = ({
     setPreviewImage(null);
     setError(null);
     setStatus("idle");
+    setUploading(false);
     formRef.current?.reset();
   };
   const isUploading = status === "uploading";
+  const isUploaded = publicId;
   return (
     <>
-      {publicId ? (
-        <div>
-          <Image
-            src={toCloudinaryUrl(publicId, 300)}
-            placeholder="blur"
-            blurDataURL={toCloudinaryBlurUrl(publicId)}
-            width={300}
-            height={300}
-            objectFit="cover"
-            alt="wing image"
-          />
+      {isUploading || isUploaded ? (
+        <div
+          css={`
+            display: grid;
+            justify-content: start;
+            place-items: center;
+            & > * {
+              grid-area: 1/1;
+            }
+          `}
+        >
+          <div
+            css={`
+              ${isUploading && `filter: grayscale(80%);`}
+            `}
+          >
+            {previewImage && (
+              <Image
+                src={previewImage}
+                width={300}
+                height={300}
+                objectFit="cover"
+                alt="wing image"
+              />
+            )}
+          </div>
+          {isUploading && <Loading />}
         </div>
       ) : (
         <form
@@ -132,32 +154,15 @@ export const ImageUpload = ({
                 `}
               >
                 <div>
-                  <div
-                    css={`
-                      display: grid;
-                      place-items: center;
-                      & > * {
-                        grid-area: 1/1;
-                      }
-                    `}
-                  >
-                    <div
-                      css={`
-                        ${isUploading && `filter: grayscale(80%);`}
-                      `}
-                    >
-                      {previewImage && (
-                        <Image
-                          src={previewImage}
-                          width={300}
-                          height={300}
-                          objectFit="cover"
-                          alt="wing image"
-                        />
-                      )}
-                    </div>
-                    {isUploading && <Loading />}
-                  </div>
+                  {previewImage && (
+                    <Image
+                      src={previewImage}
+                      width={300}
+                      height={300}
+                      objectFit="cover"
+                      alt="wing image"
+                    />
+                  )}
                   {error && <Error>{error}</Error>}
                   <Space size="sm" />
                   <div
@@ -166,16 +171,10 @@ export const ImageUpload = ({
                       justify-content: center;
                     `}
                   >
-                    <button
-                      onClick={handleClear}
-                      type="button"
-                      disabled={isUploading}
-                    >
+                    <button onClick={handleClear} type="button">
                       Try Again
                     </button>
-                    <button type="submit" disabled={isUploading}>
-                      {isUploading ? <Spinner scale={0.3} /> : "Looks Good!"}
-                    </button>
+                    <button type="submit">Looks Good!</button>
                   </div>
                 </div>
               </Dialog.Content>

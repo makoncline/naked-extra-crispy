@@ -10,6 +10,7 @@ import { col } from "../styles/utils";
 import mainWing from "../../public/mainWing.webp";
 import drumWing from "../../public/drumWing.webp";
 import flatWing from "../../public/flatWing.webp";
+import { boolean } from "zod";
 
 export type AddWFormInputs = {
   userId: string;
@@ -32,10 +33,13 @@ export const AddWingForm = ({
   spotName: string;
   onSuccess: () => void;
 }) => {
+  const [isMainUploading, setIsMainUploading] = React.useState(false);
+  const [isDrumUploading, setIsDrumUploading] = React.useState(false);
+  const [isFlatUploading, setIsFlatUploading] = React.useState(false);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     setValue,
   } = useForm<AddWFormInputs>();
@@ -54,6 +58,7 @@ export const AddWingForm = ({
     createWing.mutate(data);
     onSuccess();
   };
+  const isUploading = isMainUploading || isDrumUploading || isFlatUploading;
   return (
     <>
       <form id="add-wing">
@@ -144,6 +149,7 @@ export const AddWingForm = ({
             onUploadSuccess={(id) => {
               setValue("mainImageId", id, { shouldValidate: true });
             }}
+            setUploading={(uploading) => setIsMainUploading(uploading)}
           >
             <ImageUploadLabel image={mainWing} type="Main" />
           </ImageUpload>
@@ -156,6 +162,7 @@ export const AddWingForm = ({
             onUploadSuccess={(id) => {
               setValue("drumImageId", id);
             }}
+            setUploading={(uploading) => setIsDrumUploading(uploading)}
           >
             <ImageUploadLabel image={drumWing} type="Drum" />
           </ImageUpload>
@@ -166,6 +173,7 @@ export const AddWingForm = ({
             onUploadSuccess={(id) => {
               setValue("flatImageId", id);
             }}
+            setUploading={(uploading) => setIsFlatUploading(uploading)}
           >
             <ImageUploadLabel image={flatWing} type="Flat" />
           </ImageUpload>
@@ -173,7 +181,12 @@ export const AddWingForm = ({
       </div>
       <Space size="sm" />
       <form>
-        <button type="submit" onClick={handleSubmit(onSubmit)} form="add-wing">
+        <button
+          type="submit"
+          onClick={handleSubmit(onSubmit)}
+          form="add-wing"
+          disabled={isUploading}
+        >
           Submit
         </button>
       </form>
