@@ -55,7 +55,7 @@ export const Navigation = () => {
         ) : isLoading ? (
           <Loading scale={0.5} />
         ) : (
-          <button onClick={() => signIn()}>Sign in</button>
+          <button onClick={() => signIn("google")}>Sign in</button>
         )}
       </div>
     </div>

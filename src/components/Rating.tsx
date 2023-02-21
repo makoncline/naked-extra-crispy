@@ -21,12 +21,11 @@ export const Rating = ({
   return (
     <ScRating>
       {checkboxes.map((i) => (
-        <>
+        <React.Fragment key={i}>
           {displayValue ? (
             <Flame gray={i > rating} />
           ) : (
             <button
-              key={i}
               onClick={() => handleChange(i)}
               type="button"
               disabled={Boolean(displayValue)}
@@ -48,7 +47,7 @@ export const Rating = ({
               </div>
             </button>
           )}
-        </>
+        </React.Fragment>
       ))}
     </ScRating>
   );
