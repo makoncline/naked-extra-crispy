@@ -15,7 +15,7 @@ const AddSpot = () => {
   }
   const userId = session?.user?.id;
   if (!userId) {
-    signIn();
+    signIn("google");
     return null;
   }
   return (

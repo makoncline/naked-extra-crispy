@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../server/db/client";
 import { env } from "../../env/server.mjs";
-import { siteConfig } from "../../siteConfig";
 
 export default async function handler(
   req: NextApiRequest,
@@ -48,7 +47,7 @@ export default async function handler(
 const getSitemapEntry = (path: string, lastmod: Date) => {
   return `
     <url>
-      <loc>${siteConfig.baseUrl}${path}</loc>
+      <loc>${env.NEXT_PUBLIC_BASE_URL}${path}</loc>
       <lastmod>${lastmod.toISOString().split("T")[0]}</lastmod>
     </url>
   `;

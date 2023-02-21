@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { siteConfig } from "../../../siteConfig";
+import { env } from "../../../env/server.mjs";
 
 export const authRouter = router({
   getSession: publicProcedure.query(({ ctx }) => {
@@ -64,7 +65,7 @@ export const authRouter = router({
           ${spot.name}<br>
           ${spot.city}, ${spot.state}<br>
           added by ${spot.user.name || spot.user.email}<br>
-          ${siteConfig.baseUrl}/spots/${spot.id}
+          ${env.NEXT_PUBLIC_BASE_URL}/spots/${spot.id}
           `;
         const queryParams = new URLSearchParams();
         queryParams.set("subject", `${siteConfig.title} - New Spot`);
@@ -162,7 +163,7 @@ export const authRouter = router({
           added by ${wing.user.name || wing.user.email}<br>
           ${wing.rating}/10 🔥<br>
           ${wing.review}<br>
-          ${siteConfig.baseUrl}/wings/${wing.id}
+          ${env.NEXT_PUBLIC_BASE_URL}/wings/${wing.id}
         `;
         const queryParams = new URLSearchParams();
         queryParams.set("subject", `${siteConfig.title} - New Rating`);

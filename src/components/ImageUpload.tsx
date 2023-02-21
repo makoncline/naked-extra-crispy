@@ -9,6 +9,7 @@ import { Loading } from "./Loading";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Space } from "./Space";
 import { toCloudinaryBlurUrl, toCloudinaryUrl } from "../lib/cloudinary";
+import { env } from "../env/client.mjs";
 
 export const ImageUpload = ({
   onUploadSuccess,
@@ -47,7 +48,10 @@ export const ImageUpload = ({
       }
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", siteConfig.cloudinaryImageUploadPreset);
+      formData.append(
+        "upload_preset",
+        env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+      );
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${siteConfig.cloudinaryCloudName}/image/upload`,
         {

@@ -25,6 +25,7 @@ import { appRouter } from "../../../server/trpc/router/_app";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { createContextInner } from "../../../server/trpc/context";
 import superjson from "superjson";
+import { env } from "../../../env/client.mjs";
 
 const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: spotId } = props;
@@ -41,7 +42,7 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     : siteConfig.title;
   const title = `${name} - ${titlePartTwo}`;
   const description = `Check out reviews and photos of wings from ${name}.`;
-  const url = `${siteConfig.baseUrl}/spots/${spotId}`;
+  const url = `${env.NEXT_PUBLIC_BASE_URL}/spots/${spotId}`;
   return (
     <>
       <NextSeo
@@ -56,7 +57,7 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             {
               url: spot.images[0]
                 ? toCloudinaryUrl(spot.images[0].key, 800)
-                : `${siteConfig.baseUrl}/wings.webp`,
+                : `${env.NEXT_PUBLIC_BASE_URL}/wings.webp`,
               width: 800,
               height: 800,
               alt: `${name} wings`,

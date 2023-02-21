@@ -13,12 +13,12 @@ import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
 import { ArticleJsonLd, NextSeo } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
-import { siteConfig } from "../../siteConfig";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../server/trpc/router/_app";
 import { createContextInner } from "../../server/trpc/context";
 import { prisma } from "../../server/db/client";
 import superjson from "superjson";
+import { env } from "../../env/client.mjs";
 
 const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: wingId } = props;
@@ -32,7 +32,7 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { spot } = wing;
   const title = `${wing.spot.name} wing review - ${wing.rating}/10`;
   const description = `${wing.review}`;
-  const url = `${siteConfig.baseUrl}/wings/${wing.id}`;
+  const url = `${env.NEXT_PUBLIC_BASE_URL}/wings/${wing.id}`;
   return (
     <>
       <NextSeo
@@ -47,7 +47,7 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             {
               url: wing.images[0]
                 ? toCloudinaryUrl(wing.images[0].key, 800)
-                : `${siteConfig.baseUrl}/wings.webp`,
+                : `${env.NEXT_PUBLIC_BASE_URL}/wings.webp`,
               width: 800,
               height: 800,
               alt: `${spot.name} wings`,
@@ -68,7 +68,7 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           },
         ]}
         publisherName="Makon Cline"
-        publisherLogo={siteConfig.baseUrl + "/logo.webp"}
+        publisherLogo={env.NEXT_PUBLIC_BASE_URL + "/logo.webp"}
         description={description}
         isAccessibleForFree={true}
       />
