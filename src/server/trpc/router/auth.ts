@@ -3,6 +3,7 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { siteConfig } from "../../../siteConfig";
 import { env } from "../../../env/server.mjs";
 import { addSpotInputSchema } from "../../../components/AddSpotForm";
+import { Image } from "@prisma/client";
 
 export const authRouter = router({
   getSession: publicProcedure.query(({ ctx }) => {
@@ -95,44 +96,36 @@ export const authRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { mainImageId, drumImageId, flatImageId, ...wingReview } = input;
-      const { id: wingId } = await ctx.prisma.wing.create({
-        data: wingReview,
-        select: {
-          id: true,
-        },
-      });
       const { userId, spotId } = wingReview;
-      const baseImageData = { userId, spotId, wingId };
-
-      if (mainImageId) {
-        await ctx.prisma.image.create({
-          data: {
-            ...baseImageData,
-            key: mainImageId,
-            type: "main",
-          },
-        });
-      }
+      const baseImageData = { userId, spotId };
+      let images = [
+        {
+          ...baseImageData,
+          key: mainImageId,
+          type: "main",
+        },
+      ];
       if (drumImageId) {
-        await ctx.prisma.image.create({
-          data: {
-            ...baseImageData,
-            key: drumImageId,
-            type: "drum",
-          },
+        images.push({
+          ...baseImageData,
+          key: drumImageId,
+          type: "drum",
         });
       }
       if (flatImageId) {
-        await ctx.prisma.image.create({
-          data: {
-            ...baseImageData,
-            key: flatImageId,
-            type: "flat",
-          },
+        images.push({
+          ...baseImageData,
+          key: flatImageId,
+          type: "flat",
         });
       }
-      const wing = await ctx.prisma.wing.findFirstOrThrow({
-        where: { id: wingId },
+      const wing = await ctx.prisma.wing.create({
+        data: {
+          ...wingReview,
+          images: {
+            create: images,
+          },
+        },
         select: {
           id: true,
           review: true,
@@ -162,6 +155,7 @@ export const authRouter = router({
         },
       });
       try {
+        // send myself an email
         const message = `
           ${wing.spot.name}<br>
           ${wing.spot.city}, ${wing.spot.state}<br>
