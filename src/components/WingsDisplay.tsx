@@ -7,6 +7,7 @@ import { ImageDisplay } from "./ImageDisplay";
 import { Rating } from "./Rating";
 import { Space } from "./Space";
 import { RouterOutputs } from "../utils/trpc";
+import { RatingDisplay } from "./RatingDisplay";
 
 export const WingsDisplay = ({
   wings,
@@ -90,7 +91,7 @@ export const WingsDisplay = ({
               <ImageDisplay imageKeys={wing.images.map((image) => image.key)} />
               <Card.Body>
                 <p>{wing.review}</p>
-                <Rating displayValue={wing.rating} />
+                <RatingDisplay rating={wing.rating} />
                 <div
                   css={`
                     ${row}
