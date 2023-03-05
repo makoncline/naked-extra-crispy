@@ -3,6 +3,7 @@ import { RouterOutputs } from "../utils/trpc";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
 import { Rating } from "./Rating";
+import { RatingDisplay } from "./RatingDisplay";
 
 export const WingDisplay = ({
   wing,
@@ -14,7 +15,7 @@ export const WingDisplay = ({
       <ImageDisplay imageKeys={wing.images.map((image) => image.key)} />
       <Card.Body>
         <p>{wing.review}</p>
-        <Rating displayValue={wing.rating} />
+        <RatingDisplay rating={wing.rating} />
         <Subtle>{wing.createdAt.toLocaleDateString()}</Subtle>
       </Card.Body>
     </Card>

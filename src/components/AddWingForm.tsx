@@ -11,6 +11,7 @@ import mainWing from "../../public/mainWing.webp";
 import drumWing from "../../public/drumWing.webp";
 import flatWing from "../../public/flatWing.webp";
 import { boolean } from "zod";
+import { getRatingDescription } from "../lib/getRatingDescription";
 
 export type AddWFormInputs = {
   userId: string;
@@ -101,18 +102,12 @@ export const AddWingForm = ({
         >
           <Rating aria-label="rating" onChange={handleRatingChange} />
           {!watchRating && !errors.rating && <span>Select your rating</span>}
-          {watchRating === 1 && <span>💩</span>}
-          {watchRating === 2 && <span>Bad</span>}
-          {watchRating === 3 && <span>Not good</span>}
-          {watchRating === 4 && <span>Could've been better</span>}
-          {watchRating === 5 && <span>OK</span>}
-          {watchRating === 6 && <span>Good</span>}
-          {watchRating === 7 && (
+          {watchRating && watchRating === 7 ? (
             <Error>Come on... choose a something besides 7.</Error>
+          ) : (
+            <span>{getRatingDescription(watchRating)}</span>
           )}
-          {watchRating === 8 && <span>Great</span>}
-          {watchRating === 9 && <span>OMG</span>}
-          {watchRating === 10 && <span>Will never have better</span>}
+
           {errors.rating && <Error>{errors.rating.message}</Error>}
         </div>
         <div>

@@ -26,6 +26,8 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { createContextInner } from "../../../server/trpc/context";
 import superjson from "superjson";
 import { env } from "../../../env/client.mjs";
+import { getRatingDescription } from "../../../lib/getRatingDescription";
+import { RatingDisplay } from "../../../components/RatingDisplay";
 
 const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: spotId } = props;
@@ -135,7 +137,7 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 )}
               </div>
               {spot.rating ? (
-                <Rating displayValue={spot.rating} />
+                <RatingDisplay rating={spot.rating} />
               ) : (
                 <span>🚫 No ratings</span>
               )}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { router, publicProcedure } from "../trpc";
+import { limitToOneDecimal } from "../../../lib/limitToDecimal";
 
 const defaultUserSelect = Prisma.validator<Prisma.UserArgs>()({
   select: {
@@ -60,7 +61,7 @@ export const routes = router({
       const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
       const numWings = spot.wings.length;
       const roundedRating =
-        numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
+        numWings > 0 ? limitToOneDecimal(totalRating / numWings) : 0;
       return { ...spot, rating: roundedRating, numWings };
     });
   }),
@@ -77,7 +78,7 @@ export const routes = router({
       const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
       const numWings = spot.wings.length;
       const roundedRating =
-        numWings > 0 ? Math.ceil(totalRating / numWings) : 0;
+        numWings > 0 ? limitToOneDecimal(totalRating / numWings) : 0;
       return { ...spot, rating: roundedRating, numWings };
     }),
   getSpotName: publicProcedure

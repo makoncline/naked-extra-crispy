@@ -1,6 +1,7 @@
 import { col, row } from "../styles/utils";
 import { RouterOutputs } from "../utils/trpc";
 import { Rating } from "./Rating";
+import { RatingDisplay } from "./RatingDisplay";
 
 export const SpotInfo = ({
   spot,
@@ -40,7 +41,7 @@ export const SpotInfo = ({
           )}
         </div>
         {spot.rating ? (
-          <Rating displayValue={spot.rating} key={spot.id} />
+          <RatingDisplay rating={spot.rating} />
         ) : (
           <span>🚫 No ratings</span>
         )}
