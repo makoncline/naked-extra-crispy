@@ -10,17 +10,17 @@ const ig = new IgApiClient();
 
 const loginToInstagram = async () => {
   ig.state.generateDevice(env.IG_USERNAME);
-  try {
-    ig.simulate.preLoginFlow();
-  } catch (e) {
-    // ignore
-  }
+  // try {
+  //   ig.simulate.preLoginFlow();
+  // } catch (e) {
+  //   // ignore
+  // }
   await ig.account.login(env.IG_USERNAME, env.IG_PASSWORD);
-  try {
-    ig.simulate.postLoginFlow();
-  } catch (e) {
-    // ignore
-  }
+  // try {
+  //   ig.simulate.postLoginFlow();
+  // } catch (e) {
+  //   // ignore
+  // }
 };
 
 export const socialRouter = router({
