@@ -3,15 +3,15 @@ import { env } from "../../../env/server.mjs";
 import { toCloudinaryUrlForIg } from "../../../lib/cloudinary";
 import { router, authTokenProtectedProcedure } from "../trpc";
 import { IgApiClient } from "instagram-private-api";
-import { getErrorMessage } from "../../lib/getErrorMessage";
 import { siteConfig } from "../../../siteConfig";
+import { getErrorMessage } from "../../lib/getErrorMessage";
 
 const ig = new IgApiClient();
 
 const loginToInstagram = async () => {
   ig.state.generateDevice(env.IG_USERNAME);
   try {
-    await ig.simulate.preLoginFlow();
+    ig.simulate.preLoginFlow();
   } catch (e) {
     // ignore
   }
@@ -25,6 +25,7 @@ const loginToInstagram = async () => {
 
 export const socialRouter = router({
   postInstagramPhoto: authTokenProtectedProcedure.query(async ({ ctx }) => {
+    const login = loginToInstagram();
     try {
       const type = "ig-post";
       const wing = await ctx.prisma.wing.findFirst({
@@ -89,11 +90,11 @@ export const socialRouter = router({
         return { error: "No place found for wing." };
       }
       const { lat, lng, name, city, state } = wing.spot.place;
-      await loginToInstagram();
+      await login;
       const locations = await ig.search.location(lat, lng, name);
       const location = locations[0];
 
-      let result = null;
+      let result: any = null;
       const caption = `Wings from ${name} in ${city}, ${state}. Check out the full review on NakedExtraCrispy! (link in bio)`;
       if (albumPhotoItems.length === 1) {
         result = await ig.publish.photo({
