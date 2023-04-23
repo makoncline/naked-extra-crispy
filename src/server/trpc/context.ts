@@ -7,6 +7,9 @@ import { prisma } from "../db/client";
 
 type CreateContextOptions = {
   session: Session | null;
+  headers?: {
+    authorization: string | undefined;
+  };
 };
 
 /** Use this helper for:
@@ -17,6 +20,7 @@ type CreateContextOptions = {
 export const createContextInner = async (opts: CreateContextOptions) => {
   return {
     session: opts.session,
+    headers: opts.headers,
     prisma,
   };
 };
@@ -31,8 +35,13 @@ export const createContext = async (opts: CreateNextContextOptions) => {
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerAuthSession({ req, res });
 
+  const headers = {
+    authorization: req.headers.authorization,
+  };
+
   return await createContextInner({
     session,
+    headers,
   });
 };
 

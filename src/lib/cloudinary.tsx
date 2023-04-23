@@ -1,10 +1,15 @@
 import { buildUrl } from "cloudinary-build-url";
+import { siteConfig } from "../siteConfig";
+
+const baseOptions = {
+  cloud: {
+    cloudName: siteConfig.cloudinaryCloudName,
+  },
+};
 
 export const toCloudinaryUrl = (imageId: string, size: number) =>
   buildUrl(imageId, {
-    cloud: {
-      cloudName: "makon-dev",
-    },
+    ...baseOptions,
     transformations: {
       resize: {
         type: "fill",
@@ -21,12 +26,18 @@ export const toCloudinaryUrl = (imageId: string, size: number) =>
 export const toCloudinaryBlurUrl = (imageId: string) =>
   "/api/blur-image-proxy?imageUrl=" +
   buildUrl(imageId, {
-    cloud: {
-      cloudName: "makon-dev",
-    },
+    ...baseOptions,
     transformations: {
       effect: { name: "blur", value: 1000 },
       quality: 1,
       format: "webp",
+    },
+  });
+
+export const toCloudinaryUrlForIg = (imageId: string) =>
+  buildUrl(imageId, {
+    ...baseOptions,
+    transformations: {
+      format: "jpg",
     },
   });

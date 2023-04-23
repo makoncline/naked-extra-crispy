@@ -36,16 +36,17 @@ model Place {
 }
 
 model Wing {
-  id        String   @id @default(cuid())
-  userId    String
-  spotId    String
-  review    String
-  rating    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  images    Image[]
-  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  id          String           @id @default(cuid())
+  userId      String
+  spotId      String
+  review      String
+  rating      Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  images      Image[]
+  spot        Spot             @relation(fields: [spotId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  socialPosts WingSocialPost[]
 }
 
 model Image {
@@ -59,6 +60,15 @@ model Image {
   restaurant Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   wing       Wing     @relation(fields: [wingId], references: [id], onDelete: Cascade)
+}
+
+model WingSocialPost {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  wingId    String
+  type      String
+  wing      Wing     @relation(fields: [wingId], references: [id])
 }
 
 model Account {
