@@ -17,7 +17,7 @@ const loginToInstagram = async () => {
   }
   await ig.account.login(env.IG_USERNAME, env.IG_PASSWORD);
   try {
-    await ig.simulate.postLoginFlow();
+    ig.simulate.postLoginFlow();
   } catch (e) {
     // ignore
   }
