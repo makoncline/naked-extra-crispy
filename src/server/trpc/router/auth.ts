@@ -49,7 +49,7 @@ export const authRouter = router({
             ${env.NEXT_PUBLIC_BASE_URL}/spots/${spot.id}
             `;
           const queryParams = new URLSearchParams();
-          queryParams.set("subject", `${siteConfig.title} - New Spot`);
+          queryParams.set("subject", `New Spot!`);
           queryParams.set("message", message);
           fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
         } catch (e) {
@@ -165,7 +165,7 @@ export const authRouter = router({
           ${env.NEXT_PUBLIC_BASE_URL}/wings/${wing.id}
         `;
         const queryParams = new URLSearchParams();
-        queryParams.set("subject", `${siteConfig.title} - New Rating`);
+        queryParams.set("subject", `New Rating!`);
         queryParams.set("message", message);
         fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
       } catch (e) {

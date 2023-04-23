@@ -52,7 +52,7 @@ const defaultSpotSelect = Prisma.validator<Prisma.SpotArgs>()({
   },
 });
 
-export const routes = router({
+export const publicRouter = router({
   getAllSpots: publicProcedure.query(async ({ ctx }) => {
     const spots = await ctx.prisma.spot.findMany(defaultSpotSelect);
 
