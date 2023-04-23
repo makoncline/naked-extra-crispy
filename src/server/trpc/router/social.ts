@@ -10,7 +10,11 @@ const ig = new IgApiClient();
 
 const loginToInstagram = async () => {
   ig.state.generateDevice(env.IG_USERNAME);
-  await ig.simulate.preLoginFlow();
+  try {
+    await ig.simulate.preLoginFlow();
+  } catch (e) {
+    // ignore
+  }
   await ig.account.login(env.IG_USERNAME, env.IG_PASSWORD);
   try {
     await ig.simulate.postLoginFlow();
@@ -120,12 +124,14 @@ export const socialRouter = router({
       fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
       return result;
     } catch (e) {
+      const message = getErrorMessage(e);
       const queryParams = new URLSearchParams();
       queryParams.set("subject", `IG Post Error!`);
-      queryParams.set("message", `${getErrorMessage(e)}`);
+      queryParams.set("message", `${message}`);
       fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
+      console.log(message);
       return new TRPCError({
-        message: getErrorMessage(e),
+        message: message,
         code: "INTERNAL_SERVER_ERROR",
       });
     }
