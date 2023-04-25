@@ -1,0 +1,16 @@
+{
+  "name": "naked-extra-crispy-scripts",
+  "version": "0.1.0",
+  "scripts": {
+    "build:post-to-instagram": "tsc src/post-to-instagram.ts --outDir dist"
+  },
+  "dependencies": {
+    "cross-fetch": "^3.1.5",
+    "dotenv": "^16.0.3",
+    "instagram-private-api": "^1.45.3",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}
