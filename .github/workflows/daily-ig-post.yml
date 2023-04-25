@@ -26,7 +26,7 @@ jobs:
         env:
           IG_USERNAME: ${{ secrets.IG_USERNAME }}
           IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          NAKEDEXTRACRISPY_AUTH_KEY: ${{ secrets.NAKEDEXTRACRISPY_AUTH_KEY }}
         working-directory: ./scripts
         run: |
           node dist/post-to-instagram.js
