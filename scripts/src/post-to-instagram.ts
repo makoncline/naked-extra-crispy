@@ -8,9 +8,6 @@ dotenv.config();
 const NAKED_EXTRA_CRISPY_URL = "https://nakedextracrispy.com";
 const DATA_URL = `${NAKED_EXTRA_CRISPY_URL}/api/social/next-post?type=ig-post`;
 const SEND_EMAIL_URL = "https://send-to-makon.vercel.app/api/send-email";
-const IG_USERNAME = process.env.IG_USERNAME;
-const IG_PASSWORD = process.env.IG_PASSWORD;
-const NAKEDEXTRACRISPY_AUTH_KEY = process.env.NAKEDEXTRACRISPY_AUTH_KEY;
 
 const postDataSchema = z.object({
   id: z.string(),
@@ -27,11 +24,12 @@ const postDataSchema = z.object({
   lng: z.number(),
 });
 
-if (!IG_USERNAME || !IG_PASSWORD || !NAKEDEXTRACRISPY_AUTH_KEY) {
-  throw new Error(
-    "IG_USERNAME, IG_PASSWORD, NAKEDEXTRACRISPY_AUTH_KEY env vars must be set"
-  );
-}
+const envSchema = z.object({
+  IG_USERNAME: z.string(),
+  IG_PASSWORD: z.string(),
+  NAKEDEXTRACRISPY_AUTH_KEY: z.string(),
+});
+const env = envSchema.parse(process.env);
 
 const ig = new IgApiClient();
 
@@ -83,13 +81,13 @@ const main = async () => {
 };
 
 const loginToInstagram = async () => {
-  ig.state.generateDevice(IG_USERNAME);
+  ig.state.generateDevice(env.IG_USERNAME);
   try {
     await ig.simulate.preLoginFlow();
   } catch (e) {
     // ignore
   }
-  await ig.account.login(IG_USERNAME, IG_PASSWORD);
+  await ig.account.login(env.IG_USERNAME, env.IG_PASSWORD);
   try {
     await ig.simulate.postLoginFlow();
   } catch (e) {
@@ -101,7 +99,7 @@ const getPostData = async () => {
   const data = await fetch(DATA_URL, {
     method: "GET",
     headers: {
-      Authorization: `${NAKEDEXTRACRISPY_AUTH_KEY}`,
+      Authorization: `${env.NAKEDEXTRACRISPY_AUTH_KEY}`,
     },
   }).then((res) => res.json());
   console.log(data);
