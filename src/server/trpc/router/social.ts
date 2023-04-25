@@ -2,32 +2,18 @@ import { TRPCError } from "@trpc/server";
 import { env } from "../../../env/server.mjs";
 import { toCloudinaryUrlForIg } from "../../../lib/cloudinary";
 import { router, authTokenProtectedProcedure } from "../trpc";
-import { IgApiClient } from "instagram-private-api";
 import { siteConfig } from "../../../siteConfig";
 import { getErrorMessage } from "../../lib/getErrorMessage";
+import { z } from "zod";
 
-const ig = new IgApiClient();
-
-const loginToInstagram = async () => {
-  ig.state.generateDevice(env.IG_USERNAME);
-  // try {
-  //   ig.simulate.preLoginFlow();
-  // } catch (e) {
-  //   // ignore
-  // }
-  await ig.account.login(env.IG_USERNAME, env.IG_PASSWORD);
-  // try {
-  //   ig.simulate.postLoginFlow();
-  // } catch (e) {
-  //   // ignore
-  // }
-};
+const socialPostTypes = ["ig-post", "ig-story"] as const;
+export const socialPostTypeSchema = z.enum(socialPostTypes);
 
 export const socialRouter = router({
-  postInstagramPhoto: authTokenProtectedProcedure.query(async ({ ctx }) => {
-    const login = loginToInstagram();
-    try {
-      const type = "ig-post";
+  getNextWingSocialPostData: authTokenProtectedProcedure
+    .input(z.object({ type: socialPostTypeSchema }))
+    .query(async ({ ctx, input }) => {
+      const { type } = input;
       const wing = await ctx.prisma.wing.findFirst({
         where: {
           socialPosts: {
@@ -65,76 +51,102 @@ export const socialRouter = router({
         },
       });
       if (!wing) {
-        return { error: "No wings found without an instagram post." };
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No nextPostData found.",
+        });
       }
-      const mainImakeKey = wing.images.find((image) => image.type === "main");
-      if (!mainImakeKey) {
-        return { error: "No main image found for wing." };
+      const mainImage = wing.images.find((image) => image.type === "main");
+      if (!mainImage) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No main image found for wing ${wing.id}.`,
+        });
       }
-      const otherImageKeys = wing.images.filter(
-        (image) => image.type !== "main"
-      );
-      const imageKeys = [mainImakeKey, ...otherImageKeys];
-      const imageUrls = imageKeys.map((image) => {
-        return toCloudinaryUrlForIg(image.key);
-      });
-      const photoArrayBuffers = await Promise.all(
-        imageUrls.map((url) => fetch(url).then((res) => res.arrayBuffer()))
-      );
-      const photoBuffers = photoArrayBuffers.map((buffer) =>
-        Buffer.from(buffer)
-      );
-      const albumPhotoItems = photoBuffers.map((buffer) => ({ file: buffer }));
-
+      const drumImage = wing.images.find((image) => image.type === "drum");
+      const flatImage = wing.images.find((image) => image.type === "flat");
+      const images = {
+        main: toCloudinaryUrlForIg(mainImage.key),
+        drum: drumImage ? toCloudinaryUrlForIg(drumImage.key) : null,
+        flat: flatImage ? toCloudinaryUrlForIg(flatImage.key) : null,
+      };
       if (!wing.spot.place) {
-        return { error: "No place found for wing." };
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No place data found for wing ${wing.id}.`,
+        });
       }
       const { lat, lng, name, city, state } = wing.spot.place;
-      await login;
-      const locations = await ig.search.location(lat, lng, name);
-      const location = locations[0];
 
-      let result: any = null;
-      const caption = `Wings from ${name} in ${city}, ${state}. Check out the full review on NakedExtraCrispy! (link in bio)`;
-      if (albumPhotoItems.length === 1) {
-        result = await ig.publish.photo({
-          file: albumPhotoItems[0]?.file!,
-          caption,
-          location,
-        });
-      } else {
-        result = await ig.publish.album({
-          items: albumPhotoItems,
-          caption,
-          location,
-        });
-      }
-
+      return {
+        id: wing.id,
+        name,
+        city,
+        state,
+        caption: getRandomCaption(name, city, state),
+        images,
+        lat,
+        lng,
+      };
+    }),
+  markPosted: authTokenProtectedProcedure
+    .input(
+      z.object({
+        type: socialPostTypeSchema,
+        wingId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { type, wingId } = input;
       await ctx.prisma.wingSocialPost.create({
         data: {
           type,
-          wingId: wing.id,
+          wingId,
         },
       });
-      const queryParams = new URLSearchParams();
-      queryParams.set("subject", `IG Post Success!`);
-      queryParams.set(
-        "message",
-        `${env.NEXT_PUBLIC_BASE_URL}/wings/${wing.id}`
-      );
-      fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
-      return result;
-    } catch (e) {
-      const message = getErrorMessage(e);
-      const queryParams = new URLSearchParams();
-      queryParams.set("subject", `IG Post Error!`);
-      queryParams.set("message", `${message}`);
-      fetch(`${siteConfig.sendEmailUrl}?${queryParams}`);
-      console.log(message);
-      return new TRPCError({
-        message: message,
-        code: "INTERNAL_SERVER_ERROR",
-      });
-    }
-  }),
+      return { success: true };
+    }),
 });
+
+const getRandomCaption = (name: string, city: string, state: string) => {
+  const emojiOptions = ["🍗", "🔥", "😍", "👀", "🤤"];
+  const getRandomEmoji = () => {
+    return emojiOptions[Math.floor(Math.random() * emojiOptions.length)];
+  };
+
+  const captionFormats = [
+    `Have you tried the wings at ${name} in ${city}, ${state}? ${getRandomEmoji()} Check out our review on NakedExtraCrispy! (link in bio)`,
+    `Where can you find the best wings in ${city}, ${state}? We tried them at ${name} and have the full scoop on NakedExtraCrispy. (link in bio) ${getRandomEmoji()}`,
+    `Are you a fan of wings? is ${name} in ${city}, ${state} is a must-try? Head to NakedExtraCrispy for our review! (link in bio)`,
+    `Looking for the perfect place to satisfy your wing craving? Maybe it's at ${name} in ${city}, ${state}. Check out our review on NakedExtraCrispy. (link in bio)`,
+    `${getRandomEmoji()} Craving wings? Can't stop thinking about the ones we had at ${name} in ${city}, ${state}? Head to NakedExtraCrispy for the full review. (link in bio)`,
+    `Have you been to ${name} in ${city}, ${state}? Are their wings are a game-changer? ${getRandomEmoji()} We've got the full scoop on NakedExtraCrispy. (link in bio)`,
+    `Do you know where to find the crispiest, juiciest wings in ${city}, ${state}? We might. Check out our review of ${name} on NakedExtraCrispy. (link in bio)`,
+    `${getRandomEmoji()} Craving wings but don't know where to go? We've got you covered. Check out our review of ${name} in ${city}, ${state} on NakedExtraCrispy. (link in bio)`,
+    `Have you checked out the wing scene in ${city}, ${state}? ${getRandomEmoji()} If not, maybe start with ${name}. Our review on NakedExtraCrispy has all the details. (link in bio)`,
+    `Looking for a spot to satisfy your wing craving? Swing by ${name} in ${city}, ${state}. Our review on NakedExtraCrispy has all the deets! (link in bio) ${getRandomEmoji()}`,
+    `Want to switch up your wing game? Check out ${name} in ${city}, ${state}. Our review on NakedExtraCrispy will give you the inside scoop. (link in bio)`,
+    `Feeling adventurous? Give the wings at ${name} in ${city}, ${state} a try. We've got the full review on NakedExtraCrispy! (link in bio) ${getRandomEmoji()}`,
+    `Are you a wing fanatic? Don't miss out on the experience at ${name} in ${city}, ${state}. Head to NakedExtraCrispy for our review. (link in bio)`,
+    `Ready for a wing-tastic experience? Swing by ${name} in ${city}, ${state}. Our review on NakedExtraCrispy has all the juicy details! (link in bio) ${getRandomEmoji()}`,
+    `Craving some wings? Check out our review of ${name} in ${city}, ${state} on NakedExtraCrispy to see if they hit the spot! (link in bio) ${getRandomEmoji()}`,
+    `Are you a wing lover? Try out the wings at ${name} in ${city}, ${state}. Check out our review on NakedExtraCrispy for the full scoop! (link in bio)`,
+    `Looking for a spot to grab some wings? Give ${name} in ${city}, ${state} a go. Our review on NakedExtraCrispy will give you the rundown. (link in bio)`,
+    `Want to try something new? Check out the wings at ${name} in ${city}, ${state}. Our review on NakedExtraCrispy will tell you what to expect. (link in bio) ${getRandomEmoji()}`,
+    `Ready for a wing adventure? Try the wings at ${name} in ${city}, ${state}. Our review on NakedExtraCrispy has all the details you need. (link in bio) ${getRandomEmoji()}`,
+    `Looking for a new spot to try in ${city}, ${state}? Don't miss out on the wings at ${name}! Our review on NakedExtraCrispy has all the details. (link in bio) ${getRandomEmoji()}`,
+    `Ready to spice up your wing game? ${name} in ${city}, ${state} could be the spot. Our review on NakedExtraCrispy has all the juicy details. (link in bio)`,
+    `Wing lovers, unite! has ${name} in ${city}, ${state} has got you covered? Check out our review on NakedExtraCrispy to see why. (link in bio)`,
+    `Crispy or saucy? Why not both? That's what you'll find at ${name} in ${city}, ${state}. Check out our review on NakedExtraCrispy. (link in bio)`,
+    `Wing connoisseurs, have you tried the offerings at ${name} in ${city}, ${state}? If not, you're missing out. Check out our review on NakedExtraCrispy. (link in bio)`,
+    `Ready to take your taste buds on a journey? Head to ${name} in ${city}, ${state} for a wing experience you won't forget. Our review on NakedExtraCrispy has all the details. (link in bio)`,
+    `Looking for a spot to watch the game and enjoy some wings? Check out ${name} in ${city}, ${state}. Our review on NakedExtraCrispy has all the info you need. (link in bio)`,
+    `Are you in the mood for something hot and crispy? Head to ${name} in ${city}, ${state} and try their wings. Our review on NakedExtraCrispy has all the details. (link in bio)`,
+  ];
+
+  const getRandomCaptionFormat = () => {
+    return captionFormats[Math.floor(Math.random() * captionFormats.length)];
+  };
+
+  return getRandomCaptionFormat() as string;
+};

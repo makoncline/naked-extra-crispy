@@ -1,0 +1,30 @@
+name: daily-ig-post
+
+on:
+  # schedule:
+  #   - cron: "0 21 * * *"
+  issue_comment:
+    types: [created]
+    # Run the job only if the comment contains the phrase "run daily-ig-post"
+    contains: "run daily-ig-post"
+
+jobs:
+  post-to-instagram:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Node.js and dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18.x"
+      - name: Compile TypeScript for post-to-instagram script
+        working-directory: ./script
+        run: npm run build:post-to-instagram
+      - name: Run post-to-instagram script
+        env:
+          IG_USERNAME: ${{ secrets.IG_USERNAME }}
+          IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: |
+          node script/dist/post-to-instagram.js
