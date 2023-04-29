@@ -1,9 +1,13 @@
 name: daily-ig-post
 
 on:
+  # Trigger the workflow when a new comment is created and it contains the phrase "run daily-ig-post"
   issue_comment:
     types: [created]
     condition: contains(github.event.comment.body, 'run daily-ig-post')
+  # Trigger the workflow every day at 5 PM Eastern Time
+  schedule:
+    - cron: "0 21 * * *" # 5 PM Eastern Time is 9 PM UTC
 
 jobs:
   post-to-instagram:
