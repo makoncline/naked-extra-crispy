@@ -3,14 +3,14 @@ import { appRouter } from "../../../server/trpc/router/_app";
 import { TRPCError } from "@trpc/server";
 import { getHTTPStatusCodeFromError } from "@trpc/server/http";
 import { createContext } from "../../../server/trpc/context";
-import { getNextWingSocialPostDataInputSchema } from "../../../server/trpc/router/social";
+import { markPostedInputSchema } from "../../../server/trpc/router/social";
 
-const nextPostHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { type } = getNextWingSocialPostDataInputSchema.parse(req.query);
+const markPostedHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { type, wingId } = markPostedInputSchema.parse(req.query);
   const ctx = await createContext({ req, res });
   const caller = appRouter.createCaller(ctx);
   try {
-    const resp = await caller.social.getNextWingSocialPostData({ type });
+    const resp = await caller.social.markPosted({ type, wingId });
     res.status(200).json(resp);
   } catch (cause) {
     if (cause instanceof TRPCError) {
@@ -24,4 +24,4 @@ const nextPostHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default nextPostHandler;
+export default markPostedHandler;

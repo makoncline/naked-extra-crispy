@@ -5,8 +5,10 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+const POST_TYPE = "ig-post";
 const NAKED_EXTRA_CRISPY_URL = "https://nakedextracrispy.com";
-const DATA_URL = `${NAKED_EXTRA_CRISPY_URL}/api/social/next-post?type=ig-post`;
+const GET_POST_DATA_URL = `${NAKED_EXTRA_CRISPY_URL}/api/social/next-post`;
+const MARK_POSTED_URL = `${NAKED_EXTRA_CRISPY_URL}/api/social/posted`;
 const SEND_EMAIL_URL = "https://send-to-makon.vercel.app/api/send-email";
 
 const postDataSchema = z.object({
@@ -50,6 +52,7 @@ const main = async () => {
     await loginToInstagram();
     const locations = await ig.search.location(lat, lng, name);
     const location = locations[0];
+    console.log("location", location);
     let result;
     if (albumPhotoItems.length === 1) {
       result = await ig.publish.photo({
@@ -57,26 +60,30 @@ const main = async () => {
         caption,
         location,
       });
+      console.log("ig publish photo", result);
     } else {
       result = await ig.publish.album({
         items: albumPhotoItems,
         caption,
         location,
       });
+      console.log("ig publish album", result);
     }
+    await markPosted(id);
 
     const queryParams = new URLSearchParams();
     queryParams.set("subject", `IG Post Success!`);
     queryParams.set("message", `${NAKED_EXTRA_CRISPY_URL}/wings/${id}`);
     fetch(`${SEND_EMAIL_URL}?${queryParams}`);
-    console.log(result);
+    console.log("sent success email");
   } catch (e) {
     const message = getErrorMessage(e);
+    console.error(message);
     const queryParams = new URLSearchParams();
     queryParams.set("subject", `IG Post Error!`);
     queryParams.set("message", `${message}`);
     fetch(`${SEND_EMAIL_URL}?${queryParams}`);
-    console.error(message);
+    console.log("sent error email");
   }
 };
 
@@ -93,18 +100,32 @@ const loginToInstagram = async () => {
   } catch (e) {
     // ignore
   }
+  console.log("logged in to instagram");
 };
 
 const getPostData = async () => {
-  const data = await fetch(DATA_URL, {
+  const data = await fetch(`${GET_POST_DATA_URL}?type=${POST_TYPE}`, {
     method: "GET",
     headers: {
       Authorization: `${env.NAKEDEXTRACRISPY_AUTH_KEY}`,
     },
   }).then((res) => res.json());
-  console.log(data);
-
+  console.log("post data", data);
   return postDataSchema.parse(data);
+};
+
+const markPosted = async (wingId: string) => {
+  const data = await fetch(
+    `${MARK_POSTED_URL}?type=${POST_TYPE}&wingId=${wingId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `${env.NAKEDEXTRACRISPY_AUTH_KEY}`,
+      },
+    }
+  ).then((res) => res.json());
+
+  console.log("mark posted", data);
 };
 
 const getErrorMessage = (error: unknown) => {

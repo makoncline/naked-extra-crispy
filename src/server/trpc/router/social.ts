@@ -7,11 +7,17 @@ import { getErrorMessage } from "../../lib/getErrorMessage";
 import { z } from "zod";
 
 const socialPostTypes = ["ig-post", "ig-story"] as const;
-export const socialPostTypeSchema = z.enum(socialPostTypes);
+export const getNextWingSocialPostDataInputSchema = z.object({
+  type: z.enum(socialPostTypes),
+});
+export const markPostedInputSchema = z.object({
+  type: z.enum(socialPostTypes),
+  wingId: z.string(),
+});
 
 export const socialRouter = router({
   getNextWingSocialPostData: authTokenProtectedProcedure
-    .input(z.object({ type: socialPostTypeSchema }))
+    .input(getNextWingSocialPostDataInputSchema)
     .query(async ({ ctx, input }) => {
       const { type } = input;
       const wing = await ctx.prisma.wing.findFirst({
@@ -90,12 +96,7 @@ export const socialRouter = router({
       };
     }),
   markPosted: authTokenProtectedProcedure
-    .input(
-      z.object({
-        type: socialPostTypeSchema,
-        wingId: z.string(),
-      })
-    )
+    .input(markPostedInputSchema)
     .query(async ({ ctx, input }) => {
       const { type, wingId } = input;
       await ctx.prisma.wingSocialPost.create({
