@@ -50,18 +50,24 @@ const main = async () => {
     const albumPhotoItems = photoBuffers.map((buffer) => ({ file: buffer }));
 
     await loginToInstagram();
-    const locations = await ig.search.location(lat, lng, name);
-    const location = locations[0];
-    console.log("location", location);
+    const location = await getLocation(lat, lng, name);
     let result;
     if (albumPhotoItems.length === 1) {
-      result = await ig.publish.photo({
+      const publishPhotoOptions = {
         file: albumPhotoItems[0]?.file!,
         caption,
         location,
-      });
+      };
+      console.log("publishing photo", publishPhotoOptions);
+      result = await ig.publish.photo(publishPhotoOptions);
       console.log("ig publish photo", result);
     } else {
+      const postAlbumOptions = {
+        items: albumPhotoItems,
+        caption,
+        location,
+      };
+      console.log("publishing album", postAlbumOptions);
       result = await ig.publish.album({
         items: albumPhotoItems,
         caption,
@@ -77,6 +83,7 @@ const main = async () => {
     fetch(`${SEND_EMAIL_URL}?${queryParams}`);
     console.log("sent success email");
   } catch (e) {
+    console.log("~error", e);
     const message = getErrorMessage(e);
     console.error(message);
     const queryParams = new URLSearchParams();
@@ -87,7 +94,27 @@ const main = async () => {
   }
 };
 
+const getLocation = async (lat: number, lng: number, name: string) => {
+  console.log(
+    "searching for location",
+    JSON.stringify({ lat, lng, name }, null, 2),
+    "..."
+  );
+  const locations = await ig.search.location(lat, lng, name);
+  const validLocations = locations.filter((location) => {
+    const { external_id, external_id_source, name, address, lat, lng } =
+      location;
+    if (external_id && external_id_source && name && address && lat && lng)
+      return true;
+    return false;
+  });
+  const location = validLocations[0];
+  console.log("location", location);
+  return location;
+};
+
 const loginToInstagram = async () => {
+  console.log("logging in to instagram...");
   ig.state.generateDevice(env.IG_USERNAME);
   try {
     await ig.simulate.preLoginFlow();
@@ -104,6 +131,7 @@ const loginToInstagram = async () => {
 };
 
 const getPostData = async () => {
+  console.log("getting post data...");
   const data = await fetch(`${GET_POST_DATA_URL}?type=${POST_TYPE}`, {
     method: "GET",
     headers: {
@@ -115,6 +143,7 @@ const getPostData = async () => {
 };
 
 const markPosted = async (wingId: string) => {
+  console.log("marking posted...");
   const data = await fetch(
     `${MARK_POSTED_URL}?type=${POST_TYPE}&wingId=${wingId}`,
     {
