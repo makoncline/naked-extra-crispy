@@ -1,8 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { col, row } from "../styles/utils";
-import logo from "../../public/logo.png";
 import { Loading } from "./Loading";
 import { DrumSvg } from "./DrumSvg";
 import { useRouter } from "next/router";

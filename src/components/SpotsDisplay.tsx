@@ -54,7 +54,7 @@ export const SpotsDisplay = ({
       setSortBy("distance");
       setFilters((filters) => ({
         ...filters,
-        distance: "100",
+        distance: "10",
       }));
       sortedAfterLocationEnabled.current = true;
     }
