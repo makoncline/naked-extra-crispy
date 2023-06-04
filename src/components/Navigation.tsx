@@ -17,50 +17,103 @@ export const Navigation = () => {
       css={`
         display: grid;
         grid-template-columns: auto 1fr;
-        align-items: center;
         padding-top: var(--size-2);
         width: 100%;
       `}
     >
-      <Link href="/" passHref>
-        <a>
-          <div
-            css={`
-              ${row}
-              align-items: center;
-            `}
-          >
-            <DrumSvg />
-            {showLogoText && (
-              <div
-                css={`
-                  ${col}
-                  gap: 0;
-                  color: var(--text-2);
-                  line-height: 1;
-                `}
-              >
-                <span
+      <div
+        css={`
+          ${row}
+          align-items: center;
+          gap: var(--space-sm);
+          @media (max-width: 420px) {
+            ${col}
+            align-items: flex-start;
+          }
+        `}
+      >
+        <Link href="/" passHref>
+          <a>
+            <div
+              css={`
+                ${row}
+                align-items: center;
+              `}
+            >
+              <DrumSvg />
+              {showLogoText && (
+                <div
                   css={`
-                    font-size: var(--font-size-4);
-                    font-weight: var(--font-weight-9);
+                    ${col}
+                    gap: 0;
+                    color: var(--text-2);
+                    line-height: 1;
                   `}
                 >
-                  Naked
-                </span>
-                <span
-                  css={`
-                    font-size: var(--font-size-0);
-                    font-weight: var(--font-weight-8);
-                  `}
-                >
-                  Extra Crispy
-                </span>
-              </div>
-            )}
-          </div>
-        </a>
-      </Link>
+                  <span
+                    css={`
+                      font-size: var(--font-size-4);
+                      font-weight: var(--font-weight-9);
+                    `}
+                  >
+                    Naked
+                  </span>
+                  <span
+                    css={`
+                      font-size: var(--font-size-0);
+                      font-weight: var(--font-weight-8);
+                    `}
+                  >
+                    Extra Crispy
+                  </span>
+                </div>
+              )}
+            </div>
+          </a>
+        </Link>
+        <div
+          css={`
+            ${row}
+          `}
+        >
+          <Link href="/spots" passHref>
+            <a
+              css={`
+                color: var(--text-2);
+                text-decoration: ${router.pathname === "/spots"
+                  ? "underline"
+                  : "none"};
+              `}
+            >
+              Spots
+            </a>
+          </Link>
+          <Link href="/ratings" passHref>
+            <a
+              css={`
+                color: var(--text-2);
+                text-decoration: ${router.pathname === "/ratings"
+                  ? "underline"
+                  : "none"};
+              `}
+            >
+              Ratings
+            </a>
+          </Link>
+          <Link href="/map" passHref>
+            <a
+              css={`
+                color: var(--text-2);
+                text-decoration: ${router.pathname === "/map"
+                  ? "underline"
+                  : "none"};
+              `}
+            >
+              Map
+            </a>
+          </Link>
+        </div>
+      </div>
       <div
         css={`
           justify-self: end;

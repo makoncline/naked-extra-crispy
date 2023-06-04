@@ -4,20 +4,15 @@ import { col } from "../styles/utils";
 import { SelectStateOptions } from "./SelectStateOptions";
 import { row } from "../styles/utils";
 import { Space } from "./Space";
-import { ImageDisplay } from "./ImageDisplay";
 import { SpotInfo } from "./SpotInfo";
-import { Card } from "./Card";
 import { RouterOutputs } from "../utils/trpc";
 import { getDistance } from "geolib";
 import { useUserLocation } from "../hooks/useUserLocation";
 import { convertMetersToMiles, formatDistance } from "../lib/distance";
 import { Error } from "../styles/text";
 import { SpotMap } from "./SpotMap";
-import { ScrollToElement, scrollToId } from "./ScrollToElement";
-import {
-  GoogleMapsApiProvider,
-  useGoogleMapsApi,
-} from "./GoogleMapsApiProvider";
+import { scrollToId } from "./ScrollToElement";
+import { GoogleMapsApiProvider } from "./GoogleMapsApiProvider";
 import { useRouter } from "next/router";
 import { SpotAutocomplete } from "./SpotAutocomplete";
 import mapPlaceholder from "../../public/map-placeholder.webp";
@@ -38,7 +33,7 @@ const defaultFilterValues = {
   distance: "any",
 } as const;
 
-export const SpotsDisplay = ({
+export const MapDisplay = ({
   spots = [],
 }: {
   spots?: RouterOutputs["public"]["getAllSpots"];
@@ -130,7 +125,6 @@ export const SpotsDisplay = ({
     setFilters(defaultFilterValues);
     setReverse(true);
   };
-  const [showMap, setShowMap] = React.useState(false);
 
   const spotDistancesMap =
     userLocation &&
@@ -213,7 +207,6 @@ export const SpotsDisplay = ({
   };
   return (
     <div>
-      <ScrollToElement id={"search"} />
       <div id="search">
         <h3>Search</h3>
         <Space size="sm" />
@@ -337,121 +330,35 @@ export const SpotsDisplay = ({
       <div id="map">
         <h3>Map</h3>
         <Space size="sm" />
-        {!showMap ? (
-          <Image
-            src={mapPlaceholder}
-            alt="Click to view wing map"
-            onClick={() => setShowMap(true)}
+        <GoogleMapsApiProvider>
+          <SpotMap
+            spots={filteredSpots}
+            userLocation={
+              userLocation
+                ? {
+                    lat: userLocation?.coords.latitude,
+                    lng: userLocation?.coords.longitude,
+                  }
+                : undefined
+            }
+            onSelectSpot={handleSelectSpot}
+            selectedSpotId={selectedSpotId}
           />
-        ) : (
+        </GoogleMapsApiProvider>
+        {selectedSpot && (
           <>
-            <GoogleMapsApiProvider>
-              <SpotMap
-                spots={filteredSpots}
-                userLocation={
-                  userLocation
-                    ? {
-                        lat: userLocation?.coords.latitude,
-                        lng: userLocation?.coords.longitude,
-                      }
-                    : undefined
-                }
-                onSelectSpot={handleSelectSpot}
-                selectedSpotId={selectedSpotId}
-              />
-            </GoogleMapsApiProvider>
-            {selectedSpot && (
-              <>
-                <Space size="sm" />
-                <div>
-                  <SpotInfo
-                    spot={selectedSpot}
-                    distance={spotDistancesMap?.[selectedSpot.id]?.display}
-                  />
-                  <Space size="sm" />
-                  <Link href={`/spots/${selectedSpot.id}`}>
-                    <button>View</button>
-                  </Link>
-                </div>
-              </>
-            )}
-          </>
-        )}
-        <Space size="md" />
-      </div>
-      <div
-        id="results"
-        css={`
-          min-height: 100vh;
-        `}
-      >
-        <h3>Results</h3>
-        <Space size="sm" />
-        {filteredSpots && filteredSpots.length ? (
-          <div
-            css={`
-              ${col}
-              align-items: flex-start;
-              gap: var(--gap-list);
-            `}
-          >
-            {filteredSpots.map((spot) => (
-              <div key={spot.id} id={spot.id}>
-                <Card>
-                  <ImageDisplay
-                    imageKeys={spot.images.map((image) => image.key)}
-                  />
-                  <div
-                    css={`
-                      ${col}
-                      gap: var(--gap-list);
-                      justify-content: space-between;
-                      padding: var(--card-padding);
-                    `}
-                  >
-                    <SpotInfo
-                      spot={spot}
-                      distance={spotDistancesMap?.[spot.id]?.display}
-                    />
-                    <div
-                      css={`
-                        ${row}
-                      `}
-                    >
-                      <Link href={`/spots/${spot.id}`}>
-                        <button>View</button>
-                      </Link>
-                      <Link href={`/spots/${spot.id}/addWing`}>
-                        <button>+ Add rating</button>
-                      </Link>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div>
-            <p>There are no spots matching this search...</p>
             <Space size="sm" />
-            <div
-              css={`
-                ${row}
-              `}
-            >
-              <Link href="/spots/add">
-                <button>Add a spot</button>
+            <div>
+              <SpotInfo
+                spot={selectedSpot}
+                distance={spotDistancesMap?.[selectedSpot.id]?.display}
+              />
+              <Space size="sm" />
+              <Link href={`/spots/${selectedSpot.id}`}>
+                <button>View</button>
               </Link>
-              <button
-                onClick={() => {
-                  handleReset();
-                }}
-                type="reset"
-              >
-                Reset search and filters
-              </button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

@@ -4,7 +4,6 @@ import { Subtle } from "../styles/text";
 import { row, col } from "../styles/utils";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
-import { Rating } from "./Rating";
 import { Space } from "./Space";
 import { RouterOutputs } from "../utils/trpc";
 import { RatingDisplay } from "./RatingDisplay";
@@ -14,7 +13,7 @@ export const WingsDisplay = ({
 }: {
   wings: RouterOutputs["public"]["getSpot"]["wings"];
 }) => {
-  const [sort, setSort] = React.useState<"date" | "rating">("rating");
+  const [sort, setSort] = React.useState<"date" | "rating">("date");
   const [reverse, setReverse] = React.useState(false);
   const sortedWings = wings.sort((a, b) => {
     let value = 0;

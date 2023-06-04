@@ -93,6 +93,12 @@ export const publicRouter = router({
         },
       });
     }),
+  getAllWings: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.wing.findMany({
+      ...defaultWingsSelect,
+      orderBy: { createdAt: "asc" },
+    });
+  }),
   getWings: publicProcedure
     .input(z.object({ spotId: z.string() }))
     .query(async ({ input, ctx }) => {
