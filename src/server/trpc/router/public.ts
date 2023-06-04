@@ -31,6 +31,15 @@ const defaultWingsSelect = Prisma.validator<Prisma.WingArgs>()({
       },
     },
     images: { ...defaultImagesSelect, orderBy: { createdAt: "asc" } },
+    spot: {
+      select: {
+        id: true,
+        name: true,
+        state: true,
+        city: true,
+        place: true,
+      },
+    },
   },
 });
 
@@ -118,15 +127,7 @@ export const publicRouter = router({
         where: {
           id: input.wingId,
         },
-        select: {
-          spot: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          ...defaultWingsSelect.select,
-        },
+        ...defaultWingsSelect,
       });
     }),
 });

@@ -10,8 +10,10 @@ import { RatingDisplay } from "./RatingDisplay";
 
 export const WingsDisplay = ({
   wings,
+  showSpotName = false,
 }: {
   wings: RouterOutputs["public"]["getSpot"]["wings"];
+  showSpotName?: boolean;
 }) => {
   const [sort, setSort] = React.useState<"date" | "rating">("date");
   const [reverse, setReverse] = React.useState(false);
@@ -89,6 +91,39 @@ export const WingsDisplay = ({
             <Card key={wing.id} id={wing.id}>
               <ImageDisplay imageKeys={wing.images.map((image) => image.key)} />
               <Card.Body>
+                {showSpotName && (
+                  <div
+                    css={`
+                      ${col}
+                      gap: var(--gap-list);
+                      p {
+                        color: var(--text-2);
+                      }
+                    `}
+                  >
+                    <div>
+                      <h4>{wing.spot.name}</h4>
+                      <div
+                        css={`
+                          ${row}
+                        `}
+                      >
+                        <p>
+                          {wing.spot.city}, {wing.spot.state}
+                        </p>
+                        {wing.spot.place && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${wing.spot.place.name}&query_place_id=${wing.spot.place.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            📍
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <p>{wing.review}</p>
                 <RatingDisplay rating={wing.rating} />
                 <div
