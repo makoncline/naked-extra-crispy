@@ -146,8 +146,16 @@ const getRandomCaption = (name: string, city: string, state: string) => {
   ];
 
   const getRandomCaptionFormat = () => {
-    return captionFormats[Math.floor(Math.random() * captionFormats.length)];
+    return captionFormats[
+      Math.floor(Math.random() * captionFormats.length)
+    ] as string;
   };
 
-  return getRandomCaptionFormat() as string;
+  return getRandomCaptionFormat() + hashTags;
 };
+
+const hashTags = `
+
+
+#buffalowings #hotwings #bestwings #spicywings #chickenwings #winglovers #beerandwings
+`;
