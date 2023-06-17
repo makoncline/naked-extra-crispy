@@ -15,19 +15,26 @@ export const WingsDisplay = ({
   wings: RouterOutputs["public"]["getSpot"]["wings"];
   showSpotName?: boolean;
 }) => {
+  const [show, setShow] = React.useState(10);
   const [sort, setSort] = React.useState<"date" | "rating">("date");
   const [reverse, setReverse] = React.useState(false);
-  const sortedWings = wings.sort((a, b) => {
-    let value = 0;
-    if (sort === "rating") {
-      value = b.rating - a.rating;
-    }
-    if (sort === "date") {
-      value = b.createdAt.valueOf() - a.createdAt.valueOf();
-    }
-    return reverse ? value * -1 : value;
-  });
+  const sortedWings = wings
+    .sort((a, b) => {
+      let value = 0;
+      if (sort === "rating") {
+        value = b.rating - a.rating;
+      }
+      if (sort === "date") {
+        value = b.createdAt.valueOf() - a.createdAt.valueOf();
+      }
+      return reverse ? value * -1 : value;
+    })
+    .slice(0, show);
   const numWings = wings.length;
+
+  const handleShowMore = () => {
+    setShow((prev) => prev + 10);
+  };
   return (
     <>
       <h3>Sort</h3>
@@ -144,6 +151,8 @@ export const WingsDisplay = ({
       ) : (
         <p>There are no ratings for this spot...</p>
       )}
+      <Space size="sm" />
+      <button onClick={handleShowMore}>Show More</button>
     </>
   );
 };
