@@ -86,9 +86,6 @@ export const Navigation = () => {
               Spots
             </a>
           </Link>
-
-          {/* 
-          disabled because this is crashing on mobile. need to paginate the query
           <Link href="/ratings" passHref>
             <a
               css={`
@@ -100,7 +97,7 @@ export const Navigation = () => {
             >
               Ratings
             </a>
-          </Link> */}
+          </Link>
           <Link href="/map" passHref>
             <a
               css={`

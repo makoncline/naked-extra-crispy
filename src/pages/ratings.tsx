@@ -22,7 +22,7 @@ const Wings = () => {
   }
   const title = `Buffalo wing reviews`;
   const description = `View all buffalo wing reviews`;
-  const url = `${env.NEXT_PUBLIC_BASE_URL}/wings`;
+  const url = `${env.NEXT_PUBLIC_BASE_URL}/ratings`;
   return (
     <>
       <NextSeo
@@ -38,7 +38,7 @@ const Wings = () => {
       <Layout>
         <h1>Wings</h1>
         <Space size="sm" />
-        <WingsDisplay wings={wings} showSpotName={true} />
+        <WingsDisplay wings={wings} showSpotName={true} blur={false} />
       </Layout>
     </>
   );

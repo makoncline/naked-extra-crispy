@@ -6,13 +6,20 @@ import wings from "../../public/wings.webp";
 export const ImageDisplay = ({
   imageKeys,
   priority = false,
+  blur = true,
 }: {
   imageKeys: string[];
   priority?: boolean;
+  blur?: boolean;
 }) => {
   const alt = "wing image";
   const hasImages = imageKeys.length > 0;
   const imageSize = 400;
+  const toBlurProps = (key: string) =>
+    ({
+      blurDataURL: toCloudinaryBlurUrl(key),
+      placeholder: "blur",
+    } as const);
   return (
     <ImageDisplayWrapper>
       {hasImages ? (
@@ -20,13 +27,12 @@ export const ImageDisplay = ({
           <ImageWrapper key={i}>
             <Image
               src={toCloudinaryUrl(key, imageSize)}
-              blurDataURL={toCloudinaryBlurUrl(key)}
-              placeholder="blur"
               alt={alt}
               objectFit="cover"
               priority={i === 0 && priority ? true : false}
               width={imageSize}
               height={imageSize}
+              {...(blur ? toBlurProps(key) : {})}
             />
           </ImageWrapper>
         ))
