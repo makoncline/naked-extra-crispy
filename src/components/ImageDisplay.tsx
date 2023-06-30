@@ -6,36 +6,33 @@ import wings from "../../public/wings.webp";
 export const ImageDisplay = ({
   imageKeys,
   priority = false,
-  blur = true,
 }: {
   imageKeys: string[];
   priority?: boolean;
-  blur?: boolean;
 }) => {
   const alt = "wing image";
   const hasImages = imageKeys.length > 0;
   const imageSize = 400;
-  const toBlurProps = (key: string) =>
-    ({
-      blurDataURL: toCloudinaryBlurUrl(key),
-      placeholder: "blur",
-    } as const);
   return (
     <ImageDisplayWrapper>
       {hasImages ? (
-        imageKeys.map((key, i) => (
-          <ImageWrapper key={i}>
-            <Image
-              src={toCloudinaryUrl(key, imageSize)}
-              alt={alt}
-              objectFit="cover"
-              priority={i === 0 && priority ? true : false}
-              width={imageSize}
-              height={imageSize}
-              {...(blur ? toBlurProps(key) : {})}
-            />
-          </ImageWrapper>
-        ))
+        imageKeys.map((key, i) => {
+          return (
+            <ImageWrapper key={i}>
+              <BlurImage src={toCloudinaryBlurUrl(key)} />
+              <Image
+                src={toCloudinaryUrl(key, imageSize)}
+                alt={alt}
+                objectFit="cover"
+                priority={i === 0 && priority ? true : false}
+                width={imageSize}
+                height={imageSize}
+                loading="lazy"
+                unoptimized
+              />
+            </ImageWrapper>
+          );
+        })
       ) : (
         <ImageWrapper>
           <Image
@@ -80,5 +77,15 @@ const ImageDisplayWrapper = styled.div`
 const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1/1;
+`;
+
+const BlurImage = styled.div<{ src: string }>`
+  position: absolute;
+  width: 100%;
+  aspect-ratio: 1/1;
+  ${({ src }) => src && `background-image: url(${src});`}
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
 `;

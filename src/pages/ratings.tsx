@@ -38,7 +38,7 @@ const Wings = () => {
       <Layout>
         <h1>Wings</h1>
         <Space size="sm" />
-        <WingsDisplay wings={wings} showSpotName={true} blur={false} />
+        <WingsDisplay wings={wings} showSpotName={true} />
       </Layout>
     </>
   );

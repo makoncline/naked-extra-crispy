@@ -11,11 +11,9 @@ import { RatingDisplay } from "./RatingDisplay";
 export const WingsDisplay = ({
   wings,
   showSpotName = false,
-  blur = true,
 }: {
   wings: RouterOutputs["public"]["getSpot"]["wings"];
   showSpotName?: boolean;
-  blur?: boolean;
 }) => {
   const [show, setShow] = React.useState(10);
   const [sort, setSort] = React.useState<"date" | "rating">("date");
@@ -98,10 +96,7 @@ export const WingsDisplay = ({
         >
           {sortedWings.map((wing) => (
             <Card key={wing.id} id={wing.id}>
-              <ImageDisplay
-                imageKeys={wing.images.map((image) => image.key)}
-                blur={blur}
-              />
+              <ImageDisplay imageKeys={wing.images.map((image) => image.key)} />
               <Card.Body>
                 {showSpotName && (
                   <div
