@@ -22,9 +22,7 @@ export const toCloudinaryUrl = (imageId: string, size: number) =>
     },
   });
 
-// proxy request to set custom Cache-Control header
 export const toCloudinaryBlurUrl = (imageId: string) =>
-  "/api/blur-image-proxy?imageUrl=" +
   buildUrl(imageId, {
     ...baseOptions,
     transformations: {
