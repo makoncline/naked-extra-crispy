@@ -1,15 +1,14 @@
+import { NextPage, GetServerSidePropsContext } from "next";
 import { useSession, signIn } from "next-auth/react";
-import { AddWingForm } from "../../../components/AddWingForm";
-import { Loading } from "../../../components/Loading";
 import { useRouter } from "next/router";
-import { NextPage } from "next";
+import { AddWingForm } from "../../../components/AddWingForm";
 import { Layout } from "../../../components/Layout";
-import { trpc } from "../../../utils/trpc";
+import { Loading } from "../../../components/Loading";
 import { Space } from "../../../components/Space";
+import { trpc } from "../../../utils/trpc";
 
-const AddWing: NextPage = () => {
+const AddWing: NextPage<{ spotId: string }> = ({ spotId }) => {
   const router = useRouter();
-  const spotId = router.query.id as string;
   const { data: spot } = trpc.public.getSpotName.useQuery({ spotId });
   const { data: session, status } = useSession();
   const isLoading = status === "loading" || !spot;
@@ -34,5 +33,17 @@ const AddWing: NextPage = () => {
     </Layout>
   );
 };
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { id } = context.params || {};
+
+  if (typeof id !== "string") {
+    return { notFound: true };
+  }
+
+  return {
+    props: { spotId: id },
+  };
+}
 
 export default AddWing;
