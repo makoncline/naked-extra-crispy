@@ -7,4 +7,8 @@ export const siteConfig = {
   sendEmailUrl: `${sendToMakonBaseUrl}/send-email`,
   sendTextUrl: `${sendToMakonBaseUrl}/send-text`,
   twitterHandle: "@nakedxtracrispy",
+  adminUserIds: [
+    "cl9bos7lo003409kxye1fi1dq", // makon
+    "cl9bp89e1074909mrlutzjdrs", // channing
+  ] satisfies string[],
 } as const;

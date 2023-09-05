@@ -27,6 +27,9 @@ export const socialRouter = router({
               type: type,
             },
           },
+          userId: {
+            in: siteConfig.adminUserIds,
+          },
         },
         select: {
           id: true,
