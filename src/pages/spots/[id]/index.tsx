@@ -22,7 +22,7 @@ import { toCloudinaryUrl } from "../../../lib/cloudinary";
 import { siteConfig } from "../../../siteConfig";
 import { prisma } from "../../../server/db/client";
 import { appRouter } from "../../../server/trpc/router/_app";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createServerSideHelpers } from "@trpc/react-query/server";
 import { createContextInner } from "../../../server/trpc/context";
 import superjson from "superjson";
 import { env } from "../../../env/client.mjs";
@@ -171,7 +171,7 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 export async function getStaticProps(
   context: GetStaticPropsContext<{ id: string }>
 ) {
-  const ssg = createProxySSGHelpers({
+  const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: await createContextInner({ session: null }),
     transformer: superjson,

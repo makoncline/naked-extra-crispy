@@ -13,7 +13,7 @@ import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
 import { ArticleJsonLd, NextSeo } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "../../server/trpc/router/_app";
 import { createContextInner } from "../../server/trpc/context";
 import { prisma } from "../../server/db/client";
@@ -90,7 +90,7 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 export async function getStaticProps(
   context: GetStaticPropsContext<{ id: string }>
 ) {
-  const ssg = createProxySSGHelpers({
+  const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: await createContextInner({ session: null }),
     transformer: superjson,
