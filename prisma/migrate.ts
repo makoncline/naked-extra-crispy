@@ -1,7 +1,17 @@
+// this script is used to migrate data from Postgres to SQLite
+// it is run with the following command:
 // dotenv -e .env.development -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'
+// need to have two separate Prisma clients for each database
+// because the generated client does not support multiple databases
+// if you want to run this again, you'd need to change to use two separte schemas again
+// import { PrismaClient as PostgresClient } from "./generated/postgres-client";
+// import { PrismaClient as SQLiteClient } from "./generated/sqlite-client";
 
-import { PrismaClient as PostgresClient } from "./generated/postgres-client";
-import { PrismaClient as SQLiteClient } from "./generated/sqlite-client";
+// this wort work, just here to stop type errors
+import { PrismaClient as PostgresClient } from "@prisma/client";
+import { PrismaClient as SQLiteClient } from "@prisma/client";
+// end
+
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { createClient } from "@libsql/client";
 

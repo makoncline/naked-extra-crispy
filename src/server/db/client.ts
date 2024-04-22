@@ -1,7 +1,7 @@
-import { PrismaClient } from "../../../prisma/generated/sqlite-client";
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { createClient } from "@libsql/client";
 import { env } from "../../env/server.mjs";
+import { PrismaClient } from "@prisma/client";
 
 const libsql = createClient({
   url: `${env.TURSO_DATABASE_URL}`,
