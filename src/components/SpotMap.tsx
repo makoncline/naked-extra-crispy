@@ -4,7 +4,7 @@ import { getCenter } from "geolib";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 import { Spinner } from "./Spiner";
 import { css } from "styled-components";
-import { Place } from "../../prisma/generated/sqlite-client";
+import { Place } from "@prisma/client";
 
 type SpotWithLocation = RouterOutputs["public"]["getAllSpots"][number] & {
   place: Place;

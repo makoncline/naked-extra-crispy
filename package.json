@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate --schema ./prisma/schema-sqlite.prisma",
+    "postinstall": "prisma generate",
     "turso:dev": "dotenv -e .env.development -- sh -c 'turso dev --db-file=$LOCAL_DB_FILE_PATH'",
     "migrate:dev": "dotenv -e .env.development -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'",
     "migrate:prod": "dotenv -e .env.production -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'"

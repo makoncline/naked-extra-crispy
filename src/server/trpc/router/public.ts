@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { Prisma } from "../../../../prisma/generated/sqlite-client";
 import { router, publicProcedure } from "../trpc";
 import { limitToOneDecimal } from "../../../lib/limitToDecimal";
+import { Prisma } from "@prisma/client";
 
 const defaultUserSelect = Prisma.validator<Prisma.UserArgs>()({
   select: {
