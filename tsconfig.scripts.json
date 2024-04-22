@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "es6", // or higher, such as es2019
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  },
+  "include": ["prisma/*"]
+}

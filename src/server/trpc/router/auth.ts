@@ -3,7 +3,6 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { siteConfig } from "../../../siteConfig";
 import { env } from "../../../env/server.mjs";
 import { addSpotInputSchema } from "../../../components/AddSpotForm";
-import { Image } from "@prisma/client";
 
 export const authRouter = router({
   getSession: publicProcedure.query(({ ctx }) => {

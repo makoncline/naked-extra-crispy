@@ -27,7 +27,7 @@ export const ImageDisplay = ({
                 priority={i === 0 && priority ? true : false}
                 width={imageSize}
                 height={imageSize}
-                loading="lazy"
+                loading={i === 0 && priority ? "eager" : "lazy"}
                 unoptimized
               />
             </ImageWrapper>

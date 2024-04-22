@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../../prisma/generated/sqlite-client";
 import { router, publicProcedure } from "../trpc";
 import { limitToOneDecimal } from "../../../lib/limitToDecimal";
 

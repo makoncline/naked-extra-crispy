@@ -9,7 +9,7 @@ import { Loading } from "../components/Loading";
 import { Contact } from "../components/Contact";
 import { useSession } from "next-auth/react";
 
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createServerSideHelpers } from "@trpc/react-query/server";
 import { createContextInner } from "../server/trpc/context";
 import { appRouter } from "../server/trpc/router/_app";
 import superjson from "superjson";
@@ -34,7 +34,7 @@ const Home: NextPage = () => {
 };
 
 export async function getStaticProps() {
-  const ssg = createProxySSGHelpers({
+  const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: await createContextInner({ session: null }),
     transformer: superjson,
