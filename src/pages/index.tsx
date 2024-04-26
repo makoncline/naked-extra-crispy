@@ -13,6 +13,7 @@ import { createServerSideHelpers } from "@trpc/react-query/server";
 import { createContextInner } from "../server/trpc/context";
 import { appRouter } from "../server/trpc/router/_app";
 import superjson from "superjson";
+import { siteConfig } from "../siteConfig";
 
 const Home: NextPage = () => {
   const { data: spots, status } = trpc.public.getAllSpots.useQuery();
@@ -44,7 +45,7 @@ export async function getStaticProps() {
     props: {
       trpcState: ssg.dehydrate(),
     },
-    revalidate: 1,
+    revalidate: siteConfig.revalidate,
   };
 }
 
