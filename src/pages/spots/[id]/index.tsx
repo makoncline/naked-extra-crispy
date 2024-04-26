@@ -183,7 +183,7 @@ export async function getStaticProps(
       trpcState: ssg.dehydrate(),
       id: spotId,
     },
-    revalidate: 1,
+    revalidate: siteConfig.revalidate,
   };
 }
 

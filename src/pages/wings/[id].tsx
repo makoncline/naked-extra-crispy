@@ -19,6 +19,7 @@ import { createContextInner } from "../../server/trpc/context";
 import { prisma } from "../../server/db/client";
 import superjson from "superjson";
 import { env } from "../../env/client.mjs";
+import { siteConfig } from "../../siteConfig";
 
 const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: wingId } = props;
@@ -102,7 +103,7 @@ export async function getStaticProps(
       trpcState: ssg.dehydrate(),
       id: wingId,
     },
-    revalidate: 1,
+    revalidate: siteConfig.revalidate,
   };
 }
 

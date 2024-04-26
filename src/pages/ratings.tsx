@@ -11,6 +11,7 @@ import { createContextInner } from "../server/trpc/context";
 import superjson from "superjson";
 import { env } from "../env/client.mjs";
 import { WingsDisplay } from "../components/WingsDisplay";
+import { siteConfig } from "../siteConfig";
 
 const Wings = () => {
   const { data: wings, isLoading } = trpc.public.getAllWings.useQuery();
@@ -55,7 +56,7 @@ export async function getStaticProps() {
     props: {
       trpcState: ssg.dehydrate(),
     },
-    revalidate: 1,
+    revalidate: siteConfig.revalidate,
   };
 }
 

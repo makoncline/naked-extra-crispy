@@ -10,6 +10,7 @@ import { createContextInner } from "../server/trpc/context";
 import { appRouter } from "../server/trpc/router/_app";
 import superjson from "superjson";
 import { MapDisplay } from "../components/MapDisplay";
+import { siteConfig } from "../siteConfig";
 
 const Map: NextPage = () => {
   const { data: spots, status } = trpc.public.getAllSpots.useQuery();
@@ -34,7 +35,7 @@ export async function getStaticProps() {
     props: {
       trpcState: ssg.dehydrate(),
     },
-    revalidate: 1,
+    revalidate: siteConfig.revalidate,
   };
 }
 
