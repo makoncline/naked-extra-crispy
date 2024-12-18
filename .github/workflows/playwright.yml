@@ -73,6 +73,38 @@ jobs:
           IG_PASSWORD="test-ig-pass"
           EOL
 
+      - name: Setup test database for build
+        run: |
+          # Push schema to database
+          npx prisma db push
+          # Create test data for static paths
+          node -e '
+          const { PrismaClient } = require("@prisma/client");
+          const prisma = new PrismaClient();
+          async function seed() {
+            await prisma.spot.create({
+              data: {
+                id: "test-spot",
+                name: "Test Spot",
+                city: "Test City",
+                state: "TS",
+                userId: "test-user-id",
+                user: {
+                  create: {
+                    id: "test-user-id",
+                    name: "Test User",
+                    email: "test@example.com",
+                  }
+                }
+              }
+            });
+          }
+          seed().then(() => process.exit(0)).catch((e) => {
+            console.error(e);
+            process.exit(1);
+          });
+          '
+
       - name: Build Next.js app
         run: npm run build
         env:
