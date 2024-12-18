@@ -14,11 +14,21 @@ async function createTestDatabase() {
   // Create new database with schema
   execSync("npx prisma db push", {
     stdio: "inherit",
-    env: { ...process.env, TURSO_DATABASE_URL: testDbUrl },
+    env: {
+      ...process.env,
+      DATABASE_URL: testDbUrl,
+      TURSO_DATABASE_URL: testDbUrl,
+    },
   });
 
   // Create new client
-  prisma = new PrismaClient({ datasourceUrl: testDbUrl });
+  prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: testDbUrl,
+      },
+    },
+  });
 }
 
 async function cleanupDatabase() {

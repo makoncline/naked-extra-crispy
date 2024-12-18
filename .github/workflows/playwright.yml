@@ -41,11 +41,18 @@ jobs:
 
       - name: Setup test database
         run: |
-          npx prisma db push
+          # Verify environment variables
+          echo "Using DATABASE_URL: $DATABASE_URL"
+          echo "Using TURSO_DATABASE_URL: $TURSO_DATABASE_URL"
+
+          # Push schema from prisma directory
+          npx prisma db push --schema=./prisma/schema.prisma
+
+          # Setup test database
           npx tsx e2e/setup/setup-test-db.ts
+
           # Verify database setup
-          npx prisma db pull
-          cat schema.prisma
+          cat prisma/schema.prisma
 
       - name: Build Next.js app
         run: npm run build
