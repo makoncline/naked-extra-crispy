@@ -8,7 +8,11 @@ const testDbUrl = `file:${testDbPath}`;
 
 // Create a new client for our setup
 const prisma = new PrismaClient({
-  datasourceUrl: testDbUrl,
+  datasources: {
+    db: {
+      url: testDbUrl,
+    },
+  },
 });
 
 async function verifyDatabaseSetup() {
