@@ -1,27 +1,25 @@
-import { PlaywrightTestConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
-const config: PlaywrightTestConfig = {
+export default defineConfig({
   testDir: "./e2e/tests",
-  timeout: 30000,
-  workers: process.env.CI ? 2 : undefined,
-  reporter: process.env.CI ? "github" : "list",
-
-  webServer: {
-    command: process.env.CI ? "npm run start" : "npm run dev:test",
-    port: 3000,
-    timeout: 120000,
-    reuseExistingServer: !process.env.CI,
-    env: {
-      NODE_ENV: "test",
-      DOTENV_CONFIG_PATH: ".env.e2e",
-    },
-  },
-
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: 1,
+  reporter: "html",
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-    browserName: "chromium",
   },
-};
-
-export default config;
+  webServer: {
+    command: "npm run start",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
+});
