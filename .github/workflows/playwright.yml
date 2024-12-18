@@ -11,6 +11,16 @@ on:
         type: boolean
         default: false
 
+env:
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "test-maps-key"
+  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: "test-preset"
+  NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
+  TURSO_DATABASE_URL: "file:./test.db"
+  NEXTAUTH_SECRET: "test-secret"
+  NEXTAUTH_URL: "http://localhost:3000"
+  GOOGLE_CLIENT_ID: "mock-client-id"
+  GOOGLE_CLIENT_SECRET: "mock-client-secret"
+
 jobs:
   test:
     name: Run Playwright Tests
@@ -56,12 +66,13 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          CI: true
 
       - name: Run Playwright tests
         env:
           DEBUG: ${{ inputs.debug && 'pw:api' || '' }}
           CI: true
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "test-maps-key"
         run: npx playwright test
 
       - name: Upload test results
