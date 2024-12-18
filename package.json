@@ -10,7 +10,10 @@
     "postinstall": "prisma generate",
     "turso:dev": "dotenv -e .env.development -- sh -c 'turso dev --db-file=$LOCAL_DB_FILE_PATH'",
     "migrate:dev": "dotenv -e .env.development -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'",
-    "migrate:prod": "dotenv -e .env.production -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'"
+    "migrate:prod": "dotenv -e .env.production -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'",
+    "dev:test": "dotenv -e .env.e2e -- next dev",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@googlemaps/react-wrapper": "^1.1.35",
@@ -46,6 +49,7 @@
   },
   "devDependencies": {
     "@cld-apis/types": "^0.1.6",
+    "@playwright/test": "^1.49.1",
     "@types/node": "^18.0.0",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
@@ -56,6 +60,7 @@
     "eslint": "^8.26.0",
     "eslint-config-next": "13.0.2",
     "prisma": "^5.12.1",
+    "tsx": "^4.19.2",
     "typescript": "^4.8.4"
   },
   "ct3aMetadata": {
