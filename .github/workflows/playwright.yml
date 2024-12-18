@@ -18,8 +18,8 @@ env:
   NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
 
   # Server-side variables
-  DATABASE_URL: "file:./test.db"
-  TURSO_DATABASE_URL: "file:./test.db"
+  DATABASE_URL: "file:./.next/test.db"
+  TURSO_DATABASE_URL: "file:./.next/test.db"
   TURSO_DATABASE_TOKEN: "test-token"
   NODE_ENV: "test"
   NEXTAUTH_SECRET: "test-secret"
@@ -60,8 +60,8 @@ jobs:
           NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 
           # Server-side variables
-          DATABASE_URL="file:./test.db"
-          TURSO_DATABASE_URL="file:./test.db"
+          DATABASE_URL="file:./.next/test.db"
+          TURSO_DATABASE_URL="file:./.next/test.db"
           TURSO_DATABASE_TOKEN="test-token"
           NODE_ENV="test"
           NEXTAUTH_SECRET="test-secret"
