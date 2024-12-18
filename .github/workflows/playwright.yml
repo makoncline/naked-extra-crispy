@@ -49,11 +49,19 @@ jobs:
           # Cloudinary (mocked values)
           NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="test-preset"
           NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+
+          # Google Maps
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="test-maps-key"
           EOL
+
+      - name: Build Next.js app
+        run: npm run build
 
       - name: Run Playwright tests
         env:
           DEBUG: ${{ inputs.debug && 'pw:api' || '' }}
+          CI: true
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "test-maps-key"
         run: npx playwright test
 
       - name: Upload test results

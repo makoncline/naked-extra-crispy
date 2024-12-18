@@ -7,8 +7,9 @@ const config: PlaywrightTestConfig = {
   reporter: process.env.CI ? "github" : "list",
 
   webServer: {
-    command: "npm run dev:test",
+    command: process.env.CI ? "npm run start" : "npm run dev:test",
     port: 3000,
+    timeout: 120000,
     reuseExistingServer: !process.env.CI,
     env: {
       NODE_ENV: "test",
