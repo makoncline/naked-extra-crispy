@@ -4,37 +4,25 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      debug:
-        description: "Enable debug mode"
-        required: false
-        type: boolean
-        default: false
 
 env:
-  # Client-side variables
-  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "test-maps-key"
-  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: "test-preset"
-  NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
-
-  # Server-side variables
   DATABASE_URL: "file:./test.db"
   TURSO_DATABASE_URL: "file:./test.db"
   TURSO_DATABASE_TOKEN: "test-token"
   NODE_ENV: "test"
   NEXTAUTH_SECRET: "test-secret"
   NEXTAUTH_URL: "http://localhost:3000"
-  GOOGLE_CLIENT_ID: "mock-client-id"
-  GOOGLE_CLIENT_SECRET: "mock-client-secret"
-  AUTH_TOKEN: "test-auth-token"
-  IG_USERNAME: "test-ig-user"
-  IG_PASSWORD: "test-ig-pass"
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "test-key"
+  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: "test-preset"
+  NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
 
 jobs:
   test:
     name: Run Playwright Tests
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-jammy
 
     steps:
       - uses: actions/checkout@v4
@@ -48,52 +36,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Create test env file
-        run: |
-          cat > .env.e2e << EOL
-          # Client-side variables
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="test-maps-key"
-          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="test-preset"
-          NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-
-          # Server-side variables
-          DATABASE_URL="file:./test.db"
-          TURSO_DATABASE_URL="file:./test.db"
-          TURSO_DATABASE_TOKEN="test-token"
-          NODE_ENV="test"
-          NEXTAUTH_SECRET="test-secret"
-          NEXTAUTH_URL="http://localhost:3000"
-          GOOGLE_CLIENT_ID="mock-client-id"
-          GOOGLE_CLIENT_SECRET="mock-client-secret"
-          AUTH_TOKEN="test-auth-token"
-          IG_USERNAME="test-ig-user"
-          IG_PASSWORD="test-ig-pass"
-          EOL
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Setup test database
         run: |
-          # Create .next directory
-          mkdir -p .next
-          # Ensure write permissions
-          chmod -R 777 .next
-          # Setup database
+          npx prisma db push
           npx tsx e2e/setup/setup-test-db.ts
-
-      - name: Update browserslist db
-        run: npx browserslist@latest --update-db
+          # Verify database setup
+          npx prisma db pull
+          cat schema.prisma
 
       - name: Build Next.js app
         run: npm run build
         env:
           CI: true
+          NODE_ENV: test
+          DATABASE_URL: "file:./test.db"
+          TURSO_DATABASE_URL: "file:./test.db"
 
       - name: Run Playwright tests
-        env:
-          DEBUG: ${{ inputs.debug && 'pw:api' || '' }}
-          CI: true
         run: npx playwright test
 
       - name: Upload test results
