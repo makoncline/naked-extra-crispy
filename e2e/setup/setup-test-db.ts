@@ -6,18 +6,14 @@ import fs from "fs";
 const testDbPath = path.join(process.cwd(), "test.db");
 const testDbUrl = `file:${testDbPath}`;
 
-// Create a new client for our setup
 const prisma = new PrismaClient({
   datasources: {
-    db: {
-      url: testDbUrl,
-    },
+    db: { url: testDbUrl },
   },
 });
 
 async function verifyDatabaseSetup() {
   try {
-    // Try to query all required tables
     await Promise.all([
       prisma.user.findFirst(),
       prisma.spot.findFirst(),
@@ -25,66 +21,54 @@ async function verifyDatabaseSetup() {
       prisma.image.findFirst(),
     ]);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
 
 async function setupTestDatabase() {
-  try {
-    console.log("🔄 Setting up test database...");
+  console.log("🔄 Setting up test database...");
 
-    // Clean up any existing database
-    if (fs.existsSync(testDbPath)) {
-      console.log("🗑️  Removing existing database");
-      fs.unlinkSync(testDbPath);
-    }
-
-    // Re-create database with schema
-    console.log("📝 Pushing schema to new database...");
-    execSync(
-      `npx prisma db push --schema=${path.join(
-        process.cwd(),
-        "prisma",
-        "schema.prisma"
-      )}`,
-      {
-        stdio: "inherit",
-        env: {
-          ...process.env,
-          DATABASE_URL: testDbUrl,
-          TURSO_DATABASE_URL: testDbUrl,
-        },
-      }
-    );
-
-    // Verify database setup
-    const isSetup = await verifyDatabaseSetup();
-    if (!isSetup) {
-      throw new Error("Database verification failed");
-    }
-    console.log("✅ Verified database setup");
-
-    // Seed test data
-    await seedTestDb();
-    console.log("✅ Seeded test data");
-
-    // Final verification
-    const finalCheck = await verifyDatabaseSetup();
-    if (!finalCheck) {
-      throw new Error("Final database verification failed");
-    }
-    console.log("✅ Final verification passed");
-  } catch (error) {
-    console.error("❌ Database setup failed:", error);
-    process.exit(1);
-  } finally {
-    await prisma.$disconnect();
+  // Clean up existing DB
+  if (fs.existsSync(testDbPath)) {
+    console.log("🗑 Removing existing database");
+    fs.unlinkSync(testDbPath);
   }
+
+  // Push schema
+  console.log("📝 Pushing schema...");
+  execSync(
+    `npx prisma db push --schema=${path.join(
+      process.cwd(),
+      "prisma",
+      "schema.prisma"
+    )}`,
+    {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        DATABASE_URL: testDbUrl,
+        TURSO_DATABASE_URL: testDbUrl,
+      },
+    }
+  );
+
+  // Verify schema
+  if (!(await verifyDatabaseSetup()))
+    throw new Error("Database verification failed");
+  console.log("✅ Schema verified");
+
+  // Seed database
+  await seedTestDb();
+  console.log("✅ Seeded test data");
+
+  // Final verification
+  if (!(await verifyDatabaseSetup()))
+    throw new Error("Final verification failed");
+  console.log("✅ Final verification passed");
 }
 
 async function seedTestDb() {
-  // Create test user
   const user = await prisma.user.create({
     data: {
       id: "test-user-id",
@@ -93,66 +77,38 @@ async function seedTestDb() {
     },
   });
 
-  // Create test spot
   const spot = await prisma.spot.create({
     data: {
       id: "test-spot",
       name: "Test Spot",
       city: "Test City",
       state: "TS",
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
+      user: { connect: { id: user.id } },
     },
   });
 
-  // Create test wing
   const wing = await prisma.wing.create({
     data: {
       id: "test-wing",
       review: "Test Review",
       rating: 5,
-      spot: {
-        connect: {
-          id: spot.id,
-        },
-      },
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
+      spot: { connect: { id: spot.id } },
+      user: { connect: { id: user.id } },
     },
   });
 
-  // Create test image
   await prisma.image.create({
     data: {
       id: "test-image",
       key: "test-key",
       type: "wing",
-      restaurant: {
-        connect: {
-          id: spot.id,
-        },
-      },
-      wing: {
-        connect: {
-          id: wing.id,
-        },
-      },
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
+      restaurant: { connect: { id: spot.id } },
+      wing: { connect: { id: wing.id } },
+      user: { connect: { id: user.id } },
     },
   });
 }
 
-// Run if called directly
 if (require.main === module) {
   setupTestDatabase()
     .then(() => {
@@ -165,4 +121,4 @@ if (require.main === module) {
     });
 }
 
-export { setupTestDatabase, seedTestDb };
+export { setupTestDatabase };

@@ -24,8 +24,6 @@ env:
 
 jobs:
   test:
-    name: Run Playwright Tests
-    timeout-minutes: 10
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.49.1-jammy
@@ -42,23 +40,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
+      # Setup and seed the database inside setup-test-db.ts
       - name: Setup test database
-        run: |
-          # Verify environment variables
-          echo "Using DATABASE_URL: $DATABASE_URL"
-          echo "Using TURSO_DATABASE_URL: $TURSO_DATABASE_URL"
-
-          # Push schema from prisma directory
-          npx prisma db push --schema=./prisma/schema.prisma
-
-          # Setup test database
-          npx tsx e2e/setup/setup-test-db.ts
-
-          # Verify database setup
-          cat prisma/schema.prisma
+        run: npx tsx e2e/setup/setup-test-db.ts
 
       - name: Build Next.js app
         run: npm run build
