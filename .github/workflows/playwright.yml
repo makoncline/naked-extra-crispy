@@ -1,0 +1,65 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: "Enable debug mode"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Create test env file
+        run: |
+          cat > .env.e2e << EOL
+          # Database
+          TURSO_DATABASE_URL="file:./test.db"
+
+          # Next Auth
+          NEXTAUTH_SECRET="test-secret"
+          NEXTAUTH_URL="http://localhost:3000"
+
+          # Google OAuth (mocked values)
+          GOOGLE_CLIENT_ID="mock-client-id"
+          GOOGLE_CLIENT_SECRET="mock-client-secret"
+
+          # Cloudinary (mocked values)
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="test-preset"
+          NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+          EOL
+
+      - name: Run Playwright tests
+        env:
+          DEBUG: ${{ inputs.debug && 'pw:api' || '' }}
+        run: npx playwright test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
