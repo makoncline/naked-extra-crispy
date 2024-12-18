@@ -73,12 +73,18 @@ jobs:
           IG_PASSWORD="test-ig-pass"
           EOL
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: Setup test database for build
         run: |
           # Push schema to database
           npx prisma db push
           # Seed test data
           npx tsx e2e/setup/seed-test-db.ts
+
+      - name: Update browserslist db
+        run: npx browserslist@latest --update-db
 
       - name: Build Next.js app
         run: npm run build
