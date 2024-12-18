@@ -12,14 +12,23 @@ on:
         default: false
 
 env:
+  # Client-side variables
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "test-maps-key"
   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: "test-preset"
   NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
+
+  # Server-side variables
+  DATABASE_URL: "file:./test.db"
   TURSO_DATABASE_URL: "file:./test.db"
+  TURSO_DATABASE_TOKEN: "test-token"
+  NODE_ENV: "test"
   NEXTAUTH_SECRET: "test-secret"
   NEXTAUTH_URL: "http://localhost:3000"
   GOOGLE_CLIENT_ID: "mock-client-id"
   GOOGLE_CLIENT_SECRET: "mock-client-secret"
+  AUTH_TOKEN: "test-auth-token"
+  IG_USERNAME: "test-ig-user"
+  IG_PASSWORD: "test-ig-pass"
 
 jobs:
   test:
@@ -45,23 +54,23 @@ jobs:
       - name: Create test env file
         run: |
           cat > .env.e2e << EOL
-          # Database
-          TURSO_DATABASE_URL="file:./test.db"
-
-          # Next Auth
-          NEXTAUTH_SECRET="test-secret"
-          NEXTAUTH_URL="http://localhost:3000"
-
-          # Google OAuth (mocked values)
-          GOOGLE_CLIENT_ID="mock-client-id"
-          GOOGLE_CLIENT_SECRET="mock-client-secret"
-
-          # Cloudinary (mocked values)
+          # Client-side variables
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="test-maps-key"
           NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="test-preset"
           NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 
-          # Google Maps
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="test-maps-key"
+          # Server-side variables
+          DATABASE_URL="file:./test.db"
+          TURSO_DATABASE_URL="file:./test.db"
+          TURSO_DATABASE_TOKEN="test-token"
+          NODE_ENV="test"
+          NEXTAUTH_SECRET="test-secret"
+          NEXTAUTH_URL="http://localhost:3000"
+          GOOGLE_CLIENT_ID="mock-client-id"
+          GOOGLE_CLIENT_SECRET="mock-client-secret"
+          AUTH_TOKEN="test-auth-token"
+          IG_USERNAME="test-ig-user"
+          IG_PASSWORD="test-ig-pass"
           EOL
 
       - name: Build Next.js app
