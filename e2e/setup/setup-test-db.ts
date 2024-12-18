@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { execSync } from "child_process";
 import path from "path";
 import fs from "fs";
 
@@ -39,28 +38,6 @@ async function setupTestDatabase() {
       console.log("🗑️  Removing existing database");
       fs.unlinkSync(testDbPath);
     }
-
-    // Generate Prisma Client
-    execSync("npx prisma generate", { stdio: "inherit" });
-    console.log("✅ Generated Prisma Client");
-
-    // Push schema
-    execSync(
-      `npx prisma db push --schema=${path.join(
-        process.cwd(),
-        "prisma",
-        "schema.prisma"
-      )}`,
-      {
-        stdio: "inherit",
-        env: {
-          ...process.env,
-          DATABASE_URL: testDbUrl,
-          TURSO_DATABASE_URL: testDbUrl,
-        },
-      }
-    );
-    console.log("✅ Pushed schema to database");
 
     // Verify database setup
     const isSetup = await verifyDatabaseSetup();

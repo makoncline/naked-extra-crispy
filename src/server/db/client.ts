@@ -26,14 +26,7 @@ const createPrismaClient = () => {
   });
 
   const adapter = new PrismaLibSQL(libsql);
-  return new PrismaClient({
-    adapter,
-    datasources: {
-      db: {
-        url: env.TURSO_DATABASE_URL,
-      },
-    },
-  });
+  return new PrismaClient({ adapter });
 };
 
 export const prisma = global.prisma || createPrismaClient();
