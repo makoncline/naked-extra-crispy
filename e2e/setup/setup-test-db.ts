@@ -75,17 +75,6 @@ async function setupTestDatabase() {
       throw new Error("Final database verification failed");
     }
     console.log("✅ Final verification passed");
-
-    // Create a symlink to ensure the database is accessible from the build directory
-    const buildDbPath = path.join(process.cwd(), ".next", "test.db");
-    if (!fs.existsSync(path.dirname(buildDbPath))) {
-      fs.mkdirSync(path.dirname(buildDbPath), { recursive: true });
-    }
-    if (fs.existsSync(buildDbPath)) {
-      fs.unlinkSync(buildDbPath);
-    }
-    fs.copyFileSync(testDbPath, buildDbPath);
-    console.log("✅ Created database copy for build process");
   } catch (error) {
     console.error("❌ Database setup failed:", error);
     process.exit(1);
