@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { setupDatabase } from "../setup/setup";
 
-let cleanup: () => Promise<void>;
+let cleanup: () => Promise<void> = async () => {};
 
 test.beforeEach(async () => {
   const setup = await setupDatabase();

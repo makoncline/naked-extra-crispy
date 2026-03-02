@@ -1,31 +1,22 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSQL } from "@prisma/adapter-libsql";
-import { createClient } from "@libsql/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { env } from "../../env/server.mjs";
 
 declare global {
-  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
 // Use SQLite for tests, Turso for everything else
 const createPrismaClient = () => {
-  if (process.env.NODE_ENV === "test") {
-    return new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-    });
-  }
-
-  const libsql = createClient({
-    url: env.TURSO_DATABASE_URL,
-    authToken: env.TURSO_DATABASE_TOKEN,
+  const isTest = process.env.NODE_ENV === "test";
+  const url = isTest
+    ? process.env.DATABASE_URL ?? process.env.TURSO_DATABASE_URL
+    : env.TURSO_DATABASE_URL;
+  if (!url) throw new Error("Missing database URL");
+  const adapter = new PrismaLibSql({
+    url,
+    authToken: isTest ? process.env.TURSO_DATABASE_TOKEN : env.TURSO_DATABASE_TOKEN,
   });
-
-  const adapter = new PrismaLibSQL(libsql);
   return new PrismaClient({ adapter });
 };
 

@@ -18,7 +18,7 @@ import { siteConfig } from "../siteConfig";
 const Home: NextPage = () => {
   const { data: spots, status } = trpc.public.getAllSpots.useQuery();
   const { data: session } = useSession();
-  const isLoading = status === "loading";
+  const isLoading = status === "pending";
   return (
     <Layout>
       <Hero />

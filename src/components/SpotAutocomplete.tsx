@@ -91,9 +91,7 @@ export const SpotAutocomplete = ({
         {spots.length === 0 && (
           <Autocomplete.Item highlighted={false}>
             No spots found.{"  "}
-            <Link href="/spots/add" passHref>
-              <a>Add new spot?</a>
-            </Link>
+            <Link href="/spots/add">Add new spot?</Link>
           </Autocomplete.Item>
         )}
       </Autocomplete.Container>

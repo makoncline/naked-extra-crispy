@@ -14,7 +14,7 @@ import { siteConfig } from "../siteConfig";
 
 const Map: NextPage = () => {
   const { data: spots, status } = trpc.public.getAllSpots.useQuery();
-  const isLoading = status === "loading";
+  const isLoading = status === "pending";
   return (
     <Layout>
       <h1>Wing Map</h1>

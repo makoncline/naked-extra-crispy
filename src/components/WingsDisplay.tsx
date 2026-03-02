@@ -140,9 +140,7 @@ export const WingsDisplay = ({
                   `}
                 >
                   <Subtle>{wing.createdAt.toLocaleDateString()}</Subtle>
-                  <Link href={`/wings/${wing.id}`} passHref>
-                    <a>🔗</a>
-                  </Link>
+                  <Link href={`/wings/${wing.id}`}>🔗</Link>
                 </div>
               </Card.Body>
             </Card>

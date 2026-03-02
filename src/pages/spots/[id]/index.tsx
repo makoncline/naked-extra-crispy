@@ -17,7 +17,7 @@ import { ImageDisplay } from "../../../components/ImageDisplay";
 import { Rating } from "../../../components/Rating";
 import { Card } from "../../../components/Card";
 import { WingsDisplay } from "../../../components/WingsDisplay";
-import { LocalBusinessJsonLd, NextSeo } from "next-seo";
+import { LocalBusinessJsonLd } from "next-seo";
 import { toCloudinaryUrl } from "../../../lib/cloudinary";
 import { siteConfig } from "../../../siteConfig";
 import { prisma } from "../../../server/db/client";
@@ -28,6 +28,7 @@ import superjson from "superjson";
 import { env } from "../../../env/client.mjs";
 import { getRatingDescription } from "../../../lib/getRatingDescription";
 import { RatingDisplay } from "../../../components/RatingDisplay";
+import { NextSeo } from "../../../components/Seo";
 
 const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: spotId } = props;
@@ -45,6 +46,12 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const title = `${name} - ${titlePartTwo}`;
   const description = `Check out reviews and photos of wings from ${name}.`;
   const url = `${env.NEXT_PUBLIC_BASE_URL}/spots/${spotId}`;
+  const geo = spot.place
+    ? {
+        latitude: spot.place.lat,
+        longitude: spot.place.lng,
+      }
+    : undefined;
   return (
     <>
       <NextSeo
@@ -69,7 +76,6 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       />
       <LocalBusinessJsonLd
         type="Restaurant"
-        id={url}
         name={name}
         description={description}
         url={url}
@@ -78,17 +84,14 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           addressLocality: spot.place?.city,
           addressRegion: spot.place?.state,
         }}
-        geo={{
-          latitude: spot.place?.lat,
-          longitude: spot.place?.lng,
-        }}
-        images={spot.images.map((image) => toCloudinaryUrl(image.key, 800))}
-        rating={{
+        {...(geo ? { geo } : {})}
+        image={spot.images.map((image) => toCloudinaryUrl(image.key, 800))}
+        aggregateRating={{
           ratingValue: spot.rating,
           ratingCount: spot.numWings,
         }}
         review={spot.wings.map((rating) => ({
-          author: rating.user.name,
+          author: rating.user.name ?? "Anonymous",
           datePublished: rating.createdAt.toLocaleDateString(),
           reviewBody: rating.review,
           reviewRating: {
@@ -98,11 +101,6 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           },
         }))}
         servesCuisine={["Chicken Wings", "Buffalo Wings"]}
-        action={{
-          actionName: "Add a review",
-          actionType: "ReviewAction",
-          target: `${url}/addWing`,
-        }}
       />
       <Layout title={`${name} - Naked Extra Crispy`}>
         <h1>{spot.name}</h1>

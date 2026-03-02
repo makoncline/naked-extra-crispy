@@ -3,7 +3,7 @@ import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
 import { trpc } from "../utils/trpc";
-import { DefaultSeo } from "next-seo";
+import { DefaultSeo } from "../components/Seo";
 import { siteConfig } from "../siteConfig";
 import { env } from "../env/client.mjs";
 
