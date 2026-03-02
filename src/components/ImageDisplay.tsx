@@ -23,7 +23,7 @@ export const ImageDisplay = ({
               <Image
                 src={toCloudinaryUrl(key, imageSize)}
                 alt={alt}
-                objectFit="cover"
+                style={{ objectFit: "cover" }}
                 priority={i === 0 && priority ? true : false}
                 width={imageSize}
                 height={imageSize}
@@ -39,7 +39,7 @@ export const ImageDisplay = ({
             src={wings}
             placeholder="blur"
             alt={alt}
-            objectFit="cover"
+            style={{ objectFit: "cover" }}
             width={imageSize}
             height={imageSize}
             priority={priority}
@@ -80,11 +80,12 @@ const ImageWrapper = styled.div`
   aspect-ratio: 1/1;
 `;
 
-const BlurImage = styled.div<{ src: string }>`
+const BlurImage = styled.div.attrs<{ src: string }>(({ src }) => ({
+  style: src ? { backgroundImage: `url(${src})` } : undefined,
+}))<{ src: string }>`
   position: absolute;
   width: 100%;
   aspect-ratio: 1/1;
-  ${({ src }) => src && `background-image: url(${src});`}
   background-size: cover;
   background-position: center;
   z-index: -1;

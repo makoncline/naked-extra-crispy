@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { execSync } from "child_process";
-import path from "path";
 import fs from "fs";
+import path from "path";
 
 const testDbPath = path.join(process.cwd(), "test.db");
 const testDbUrl = `file:${testDbPath}`;
@@ -12,32 +13,29 @@ async function createTestDatabase() {
   await cleanupDatabase();
 
   // Create new database with schema
-  execSync("npx prisma db push", {
+  execSync("npx prisma db push --schema=prisma/schema.prisma", {
     stdio: "inherit",
     env: {
       ...process.env,
       DATABASE_URL: testDbUrl,
       TURSO_DATABASE_URL: testDbUrl,
+      // Prisma 7 schema engine intermittently fails here without trace logging.
+      RUST_LOG: "trace",
     },
   });
 
-  // Create new client
   prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url: testDbUrl,
-      },
-    },
+    adapter: new PrismaLibSql({
+      url: testDbUrl,
+    }),
   });
 }
 
 async function cleanupDatabase() {
-  // Disconnect any existing client
   if (prisma) {
     await prisma.$disconnect();
   }
 
-  // Remove database file if it exists
   if (fs.existsSync(testDbPath)) {
     fs.unlinkSync(testDbPath);
   }

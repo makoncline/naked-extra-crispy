@@ -32,7 +32,7 @@ export const ImageUploadLabel = ({
           placeholder="blur"
           width={size - offset}
           height={size - offset}
-          objectFit="cover"
+          style={{ objectFit: "cover" }}
           alt={type}
         />
       </div>

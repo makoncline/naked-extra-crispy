@@ -107,7 +107,7 @@ export const ImageUpload = ({
                 src={previewImage}
                 width={300}
                 height={300}
-                objectFit="cover"
+                style={{ objectFit: "cover" }}
                 alt="wing image"
               />
             )}
@@ -159,7 +159,7 @@ export const ImageUpload = ({
                       src={previewImage}
                       width={300}
                       height={300}
-                      objectFit="cover"
+                      style={{ objectFit: "cover" }}
                       alt="wing image"
                     />
                   )}

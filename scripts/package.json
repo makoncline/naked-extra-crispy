@@ -2,15 +2,15 @@
   "name": "naked-extra-crispy-scripts",
   "version": "0.1.0",
   "scripts": {
-    "build:post-to-instagram": "tsc src/post-to-instagram.ts --outDir dist"
+    "build:post-to-instagram": "tsc src/post-to-instagram.ts --outDir dist --skipLibCheck --esModuleInterop"
   },
   "dependencies": {
-    "cross-fetch": "^3.1.5",
-    "dotenv": "^16.0.3",
-    "instagram-private-api": "^1.45.3",
-    "zod": "^3.21.4"
+    "cross-fetch": "^4.1.0",
+    "dotenv": "^17.3.1",
+    "instagram-private-api": "^1.46.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "typescript": "^4.8.4"
+    "typescript": "^5.9.3"
   }
 }

@@ -11,7 +11,7 @@ import Link from "next/link";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
-import { ArticleJsonLd, NextSeo } from "next-seo";
+import { ArticleJsonLd } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "../../server/trpc/router/_app";
@@ -20,6 +20,7 @@ import { prisma } from "../../server/db/client";
 import superjson from "superjson";
 import { env } from "../../env/client.mjs";
 import { siteConfig } from "../../siteConfig";
+import { NextSeo } from "../../components/Seo";
 
 const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: wingId } = props;
@@ -58,18 +59,20 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       />
       <ArticleJsonLd
         url={url}
-        title={title}
-        images={wing.images.map((image) => {
+        headline={title}
+        image={wing.images.map((image) => {
           return toCloudinaryUrl(image.key, 800);
         })}
-        datePublished={wing.createdAt.toLocaleDateString()}
-        authorName={[
+        datePublished={wing.createdAt.toISOString()}
+        author={[
           {
-            name: wing.user.name,
+            name: wing.user.name ?? "Anonymous",
           },
         ]}
-        publisherName="Makon Cline"
-        publisherLogo={env.NEXT_PUBLIC_BASE_URL + "/logo.webp"}
+        publisher={{
+          name: "Makon Cline",
+          logo: env.NEXT_PUBLIC_BASE_URL + "/logo.webp",
+        }}
         description={description}
         isAccessibleForFree={true}
       />

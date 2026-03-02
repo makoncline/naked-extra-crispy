@@ -41,7 +41,7 @@ export const AddSpotForm = ({
     reset,
     setValue,
     trigger,
-  } = useZodForm({
+  } = useZodForm<AddSpotInput>({
     schema: addSpotInputSchema,
     defaultValues: { userId },
     reValidateMode: "onChange",

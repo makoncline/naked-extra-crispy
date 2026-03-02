@@ -12,14 +12,12 @@ import { PrismaClient as PostgresClient } from "@prisma/client";
 import { PrismaClient as SQLiteClient } from "@prisma/client";
 // end
 
-import { PrismaLibSQL } from "@prisma/adapter-libsql";
-import { createClient } from "@libsql/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const libsql = createClient({
+const adapter = new PrismaLibSql({
   url: `${process.env.TURSO_DATABASE_URL}`,
   authToken: `${process.env.TURSO_DATABASE_TOKEN}`,
 });
-const adapter = new PrismaLibSQL(libsql);
 
 const postgres = new PostgresClient();
 const sqlite = new SQLiteClient({ adapter });

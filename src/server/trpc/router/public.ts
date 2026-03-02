@@ -3,14 +3,14 @@ import { router, publicProcedure } from "../trpc";
 import { limitToOneDecimal } from "../../../lib/limitToDecimal";
 import { Prisma } from "@prisma/client";
 
-const defaultUserSelect = Prisma.validator<Prisma.UserArgs>()({
+const defaultUserSelect = Prisma.validator<Prisma.UserDefaultArgs>()({
   select: {
     id: true,
     name: true,
   },
 });
 
-const defaultImagesSelect = Prisma.validator<Prisma.ImageArgs>()({
+const defaultImagesSelect = Prisma.validator<Prisma.ImageDefaultArgs>()({
   select: {
     id: true,
     key: true,
@@ -18,7 +18,7 @@ const defaultImagesSelect = Prisma.validator<Prisma.ImageArgs>()({
   },
 });
 
-const defaultWingsSelect = Prisma.validator<Prisma.WingArgs>()({
+const defaultWingsSelect = Prisma.validator<Prisma.WingDefaultArgs>()({
   select: {
     id: true,
     review: true,
@@ -43,7 +43,7 @@ const defaultWingsSelect = Prisma.validator<Prisma.WingArgs>()({
   },
 });
 
-const defaultSpotSelect = Prisma.validator<Prisma.SpotArgs>()({
+const defaultSpotSelect = Prisma.validator<Prisma.SpotDefaultArgs>()({
   select: {
     id: true,
     name: true,

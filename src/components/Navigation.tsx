@@ -30,52 +30,50 @@ export const Navigation = () => {
           }
         `}
       >
-        <Link href="/" passHref>
-          <a>
-            <div
-              css={`
-                ${row}
-                align-items: center;
-              `}
-            >
-              <DrumSvg />
-              {showLogoText && (
-                <div
+        <Link href="/">
+          <div
+            css={`
+              ${row}
+              align-items: center;
+            `}
+          >
+            <DrumSvg />
+            {showLogoText && (
+              <div
+                css={`
+                  ${col}
+                  gap: 0;
+                  color: var(--text-2);
+                  line-height: 1;
+                `}
+              >
+                <span
                   css={`
-                    ${col}
-                    gap: 0;
-                    color: var(--text-2);
-                    line-height: 1;
+                    font-size: var(--font-size-4);
+                    font-weight: var(--font-weight-9);
                   `}
                 >
-                  <span
-                    css={`
-                      font-size: var(--font-size-4);
-                      font-weight: var(--font-weight-9);
-                    `}
-                  >
-                    Naked
-                  </span>
-                  <span
-                    css={`
-                      font-size: var(--font-size-0);
-                      font-weight: var(--font-weight-8);
-                    `}
-                  >
-                    Extra Crispy
-                  </span>
-                </div>
-              )}
-            </div>
-          </a>
+                  Naked
+                </span>
+                <span
+                  css={`
+                    font-size: var(--font-size-0);
+                    font-weight: var(--font-weight-8);
+                  `}
+                >
+                  Extra Crispy
+                </span>
+              </div>
+            )}
+          </div>
         </Link>
         <div
           css={`
             ${row}
           `}
         >
-          <Link href="/spots" passHref>
-            <a
+          <Link href="/spots">
+            <span
               css={`
                 color: var(--text-2);
                 text-decoration: ${router.pathname === "/spots"
@@ -84,10 +82,10 @@ export const Navigation = () => {
               `}
             >
               Spots
-            </a>
+            </span>
           </Link>
-          <Link href="/ratings" passHref>
-            <a
+          <Link href="/ratings">
+            <span
               css={`
                 color: var(--text-2);
                 text-decoration: ${router.pathname === "/ratings"
@@ -96,10 +94,10 @@ export const Navigation = () => {
               `}
             >
               Ratings
-            </a>
+            </span>
           </Link>
-          <Link href="/map" passHref>
-            <a
+          <Link href="/map">
+            <span
               css={`
                 color: var(--text-2);
                 text-decoration: ${router.pathname === "/map"
@@ -108,7 +106,7 @@ export const Navigation = () => {
               `}
             >
               Map
-            </a>
+            </span>
           </Link>
         </div>
       </div>

@@ -4,7 +4,7 @@ import Error from "next/error";
 import { Loading } from "../components/Loading";
 import { Layout } from "../components/Layout";
 import { Space } from "../components/Space";
-import { NextSeo } from "next-seo";
+import { NextSeo } from "../components/Seo";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "../server/trpc/router/_app";
 import { createContextInner } from "../server/trpc/context";
