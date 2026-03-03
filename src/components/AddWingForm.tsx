@@ -146,42 +146,75 @@ export const AddWingForm = ({
       <h2 className="text-xl font-semibold">Attach Photos</h2>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="grid gap-2">
-          <ImageUpload
+          <ImageUpload.Root
             id="main"
             onUploadSuccess={(id) => {
               setValue("mainImageId", id, { shouldValidate: true });
             }}
             setUploading={(uploading) => setIsMainUploading(uploading)}
           >
-            <ImageUploadLabel image={mainWing} type="Main" />
-          </ImageUpload>
+            <ImageUpload.Preview />
+            <ImageUpload.Idle>
+              <ImageUpload.Trigger>
+                <ImageUploadLabel image={mainWing} type="Main" />
+              </ImageUpload.Trigger>
+              <ImageUpload.Input />
+            </ImageUpload.Idle>
+            <ImageUpload.Dialog>
+              <ImageUpload.Crop />
+              <ImageUpload.Error />
+              <ImageUpload.Actions />
+            </ImageUpload.Dialog>
+          </ImageUpload.Root>
           {errors.mainImageId && (
             <p className="text-sm text-destructive">{errors.mainImageId.message}</p>
           )}
         </div>
 
         <div>
-          <ImageUpload
+          <ImageUpload.Root
             id="drum"
             onUploadSuccess={(id) => {
               setValue("drumImageId", id);
             }}
             setUploading={(uploading) => setIsDrumUploading(uploading)}
           >
-            <ImageUploadLabel image={drumWing} type="Drum" />
-          </ImageUpload>
+            <ImageUpload.Preview />
+            <ImageUpload.Idle>
+              <ImageUpload.Trigger>
+                <ImageUploadLabel image={drumWing} type="Drum" />
+              </ImageUpload.Trigger>
+              <ImageUpload.Input />
+            </ImageUpload.Idle>
+            <ImageUpload.Dialog>
+              <ImageUpload.Crop />
+              <ImageUpload.Error />
+              <ImageUpload.Actions />
+            </ImageUpload.Dialog>
+          </ImageUpload.Root>
         </div>
 
         <div>
-          <ImageUpload
+          <ImageUpload.Root
             id="flat"
             onUploadSuccess={(id) => {
               setValue("flatImageId", id);
             }}
             setUploading={(uploading) => setIsFlatUploading(uploading)}
           >
-            <ImageUploadLabel image={flatWing} type="Flat" />
-          </ImageUpload>
+            <ImageUpload.Preview />
+            <ImageUpload.Idle>
+              <ImageUpload.Trigger>
+                <ImageUploadLabel image={flatWing} type="Flat" />
+              </ImageUpload.Trigger>
+              <ImageUpload.Input />
+            </ImageUpload.Idle>
+            <ImageUpload.Dialog>
+              <ImageUpload.Crop />
+              <ImageUpload.Error />
+              <ImageUpload.Actions />
+            </ImageUpload.Dialog>
+          </ImageUpload.Root>
         </div>
       </div>
 
