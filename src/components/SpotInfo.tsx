@@ -21,6 +21,7 @@ export const SpotInfo = ({
               href={`https://www.google.com/maps/search/?api=1&query=${spot.place.name}&query_place_id=${spot.place.id}`}
               target="_blank"
               rel="noreferrer"
+              aria-label={`Open ${spot.name} in Google Maps`}
             >
               📍 {distance && `${distance}`}
             </a>

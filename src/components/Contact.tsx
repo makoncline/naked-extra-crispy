@@ -49,6 +49,8 @@ export const Contact = ({ userEmail }: { userEmail: string | undefined }) => {
                 id="email"
                 {...register("email", { required: true })}
                 type="email"
+                autoComplete="email"
+                spellCheck={false}
               />
               {errors.email && (
                 <p className="text-sm text-destructive">This field is required</p>

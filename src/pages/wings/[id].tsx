@@ -117,7 +117,7 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               disabled={deleteWing.isPending}
               className="h-auto p-0 text-xs text-muted-foreground underline underline-offset-2"
             >
-              {deleteWing.isPending ? "Deleting rating..." : "Delete rating"}
+              {deleteWing.isPending ? "Deleting rating…" : "Delete rating"}
             </Button>
           </div>
         )}

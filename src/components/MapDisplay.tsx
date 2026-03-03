@@ -330,7 +330,7 @@ export const MapDisplay = ({
         </form>
       </section>
 
-      <section id="map" className="grid gap-4">
+      <section id="map" className="grid gap-4 scroll-mt-24">
         <h3 className="text-xl font-semibold">Map</h3>
         <GoogleMapsApiProvider>
           <SpotMap

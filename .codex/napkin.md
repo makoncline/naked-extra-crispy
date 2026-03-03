@@ -42,6 +42,10 @@
 | 2026-03-03 | self | Assumed `dotenv -e` syntax from `dotenv-cli`, but this environment uses python-dotenv (`-f` + `run`) | Check `dotenv --help` before using flags in this repo shell |
 | 2026-03-03 | self | Tried to pass port args to `pnpm run start` (`-- --port` / `-- -p`), which Next interpreted as project-directory args | For this repo’s `start` script, set `PORT=<port>` in env instead of passing CLI args |
 | 2026-03-03 | self | Treated `distance=any` as the only default when serializing search filters, so geolocation auto-default (`distance=10`) leaked into URL on first load | Use context-aware default filters (location-aware) for both query parsing and serialization |
+| 2026-03-03 | self | Repeated an unquoted bracket-route path (`src/pages/wings/[id].tsx`) and triggered `zsh: no matches found` | Always quote dynamic-route paths in shell commands (`'src/pages/wings/[id].tsx'`) |
+| 2026-03-03 | self | Typed copied router query as `Record<string, string | string[]>` and broke TS due optional query values | Keep copied `router.query` untyped (or include `undefined`) when mutating query params |
+| 2026-03-03 | self | Re-ran `rg` checks with unquoted bracket-route file paths in arguments and hit zsh glob errors | Quote bracket-route paths even inside multi-file `rg` commands (`'src/pages/spots/[id]/index.tsx'`) |
+| 2026-03-03 | self | Repeated unquoted bracket-route paths in verification commands (`git diff`, `rg`) and lost time to avoidable zsh errors | For any command with `[id]` routes, quote paths first before adding patterns/options |
 
 ## User Preferences
 
