@@ -15,6 +15,24 @@ const usCenterLocation = {
   lng: -98.5556199,
 } as const;
 
+const getSafeBoundsCenter = (bounds: google.maps.LatLngBounds) => {
+  const center = bounds.getCenter();
+  if (!center || typeof center.toJSON !== "function") {
+    return undefined;
+  }
+
+  const centerJson = center.toJSON();
+  if (
+    !centerJson ||
+    !Number.isFinite(centerJson.lat) ||
+    !Number.isFinite(centerJson.lng)
+  ) {
+    return undefined;
+  }
+
+  return centerJson;
+};
+
 export const SpotMap = ({
   spots = [],
   userLocation,
@@ -110,18 +128,20 @@ const Map = ({
   const ref = React.useRef<HTMLDivElement | null>(null);
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
   const isBoundsEmpty = bounds.isEmpty();
-  const center = isBoundsEmpty ? usCenterLocation : bounds.getCenter().toJSON();
-  const zoom = isBoundsEmpty ? defaultZoom : undefined;
+  const boundsCenter = !isBoundsEmpty ? getSafeBoundsCenter(bounds) : undefined;
+  const shouldFitBounds = !isBoundsEmpty && Boolean(boundsCenter);
+  const center = boundsCenter ?? usCenterLocation;
+  const zoom = shouldFitBounds ? undefined : defaultZoom;
 
   React.useEffect(() => {
     if (centerOverride) return;
-    if (!isBoundsEmpty) {
+    if (shouldFitBounds) {
       map?.fitBounds(bounds);
     } else {
       map?.setCenter(center);
       map?.setZoom(defaultZoom);
     }
-  }, [isBoundsEmpty, map, bounds, center, centerOverride]);
+  }, [map, bounds, center, centerOverride, shouldFitBounds]);
 
   React.useEffect(() => {
     if (centerOverride) {
