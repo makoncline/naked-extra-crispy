@@ -32,6 +32,7 @@
 | 2026-03-03 | self | Ran Playwright against stale `.next` output (`npm run start` webServer) and saw old markup in assertions | Run `npm run build` after UI edits before start-based e2e checks |
 | 2026-03-03 | self | Ran `prisma db push` and `npm run build` in parallel; build executed before schema sync and failed on missing tables | Keep dependent validation steps sequential (`db push` then `build`) even when parallelization is preferred |
 | 2026-03-03 | self | Ran `rg` across `git diff --name-only` paths including deleted files and got noisy IO errors | Filter with `--diff-filter=ACMRT` before bulk scans on changed files |
+| 2026-03-03 | self | Assumed PR checks built branch tip; GitHub Actions for `pull_request` checked out `refs/pull/<id>/merge`, which included newer `origin/main` code not in local `main` | When debugging CI failures, inspect `origin/main` and the PR merge ref (`pull/<id>/merge`) rather than only local branch files |
 
 ## User Preferences
 
