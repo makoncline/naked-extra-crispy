@@ -18,8 +18,8 @@ export IG_PASSWORD="test-ig-pass"
 
 # Setup database
 echo "Setting up test database..."
-npx tsx e2e/setup/setup-test-db.ts
+pnpm exec tsx e2e/setup/setup-test-db.ts
 
 # Build the app
 echo "Building the app..."
-npm run build 
+pnpm run build

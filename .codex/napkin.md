@@ -45,6 +45,7 @@
 - Write tests, but keep count low and prefer integration tests.
 - Do not write tests for behavior already guaranteed by the type system.
 - Reference React guidance: `https://react.dev/learn/you-might-not-need-an-effect`.
+- Use `pnpm` (not `npm`/`npx`) for installs, scripts, and CI commands.
 
 ## Patterns That Work
 
@@ -55,6 +56,7 @@
 - `npm run dev` now boots Turso + Next together; if homepage load returns `200` on `/api/trpc/public.getAllSpots`, the local DB wiring is healthy.
 - For text search fields that must avoid browser/password-manager suggestions, set anti-autofill attributes on both the `<form>` and the `<input>` (including `data-lpignore` for LastPass).
 - For Playwright + SQLite under `next start`, use unique IDs per seeded test data and avoid full-table cleanup during each test to prevent lock-related flake.
+- For package-manager migrations, run `pnpm import` in each package directory to convert existing `package-lock.json` files, then switch scripts/workflows to `pnpm` and delete the npm lockfiles.
 
 ## Patterns That Don't Work
 

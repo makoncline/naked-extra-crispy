@@ -2,6 +2,7 @@
   "name": "naked-extra-crispy",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "dev": "./scripts/dev.sh",
     "build": "next build",
@@ -9,8 +10,8 @@
     "lint": "eslint .",
     "postinstall": "prisma generate",
     "turso:dev": "dotenv -e .env.development -- sh -c 'turso dev --db-file=$LOCAL_DB_FILE_PATH'",
-    "migrate:dev": "dotenv -e .env.development -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'",
-    "migrate:prod": "dotenv -e .env.production -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'",
+    "migrate:dev": "dotenv -e .env.development -- sh -c 'pnpm exec tsx --tsconfig tsconfig.scripts.json prisma/migrate.ts'",
+    "migrate:prod": "dotenv -e .env.production -- sh -c 'pnpm exec tsx --tsconfig tsconfig.scripts.json prisma/migrate.ts'",
     "dev:test": "dotenv -e .env.e2e -- next dev",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

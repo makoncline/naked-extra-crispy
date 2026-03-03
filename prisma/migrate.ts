@@ -1,6 +1,6 @@
 // this script is used to migrate data from Postgres to SQLite
 // it is run with the following command:
-// dotenv -e .env.development -- sh -c 'npx ts-node --project tsconfig.scripts.json prisma/migrate.ts'
+// dotenv -e .env.development -- sh -c 'pnpm exec tsx --tsconfig tsconfig.scripts.json prisma/migrate.ts'
 // need to have two separate Prisma clients for each database
 // because the generated client does not support multiple databases
 // if you want to run this again, you'd need to change to use two separte schemas again

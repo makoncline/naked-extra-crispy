@@ -1,6 +1,7 @@
 {
   "name": "naked-extra-crispy-scripts",
   "version": "0.1.0",
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "build:post-to-instagram": "tsc src/post-to-instagram.ts --outDir dist --skipLibCheck --esModuleInterop"
   },

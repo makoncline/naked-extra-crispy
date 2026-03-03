@@ -31,24 +31,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       # Setup and seed the database inside setup-test-db.ts
       - name: Setup test database
-        run: npx tsx e2e/setup/setup-test-db.ts
+        run: pnpm exec tsx e2e/setup/setup-test-db.ts
 
       - name: Build Next.js app
-        run: npm run build
+        run: pnpm run build
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: pnpm exec playwright test
 
       - name: Upload test results
         if: always()
