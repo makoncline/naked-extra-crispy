@@ -4,6 +4,9 @@
 
 | Date | Source | What Went Wrong | What To Do Instead |
 | ---- | ------ | --------------- | ------------------ |
+| 2026-03-02 | self | Ran `npx eslint` before dependencies were installed and it pulled `eslint@10`, which broke this repo's lint setup | Install project deps first and use repo-local tooling (`./node_modules/.bin/eslint` or `npm run lint`) |
+| 2026-03-02 | self | Playwright initially reused a different app already running on `localhost:3000`, so test snapshots were from the wrong project | For local validation, run Playwright with an isolated port/config or disable `reuseExistingServer` |
+| 2026-03-02 | self | Ran shell commands against paths like `src/pages/wings/[id].tsx` without quoting and zsh treated brackets as globs | Quote bracketed Next.js route paths (`'src/pages/wings/[id].tsx'`) in shell commands |
 | 2026-03-02 | self | Tried `@trpc/server@latest` before upgrading TypeScript and hit peer conflict (`typescript >= 5.7.2`) | Upgrade shared toolchain peers (TypeScript, React, Next ESLint config) before framework packages that require them |
 | 2026-03-02 | user | Workspace state was changed mid-upgrade via stash | Re-check current git and dependency state before continuing queue |
 | 2026-03-02 | self | Running `next dev` after upgrading to Next 16 auto-modified `tsconfig.json` and regenerated `next-env.d.ts` | Always re-check generated config files after first Next 16 boot |

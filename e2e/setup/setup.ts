@@ -45,17 +45,105 @@ async function setupDatabase() {
   await createTestDatabase();
 
   // Create test user
-  const user = await prisma.user.upsert({
-    where: { email: "test@example.com" },
-    update: {},
-    create: {
+  const user = await prisma.user.create({
+    data: {
       id: "test-user-id",
       email: "test@example.com",
       name: "Test User",
     },
   });
 
-  return { user, cleanup: cleanupDatabase };
+  const spot = await prisma.spot.create({
+    data: {
+      id: "test-spot",
+      name: "Test Spot",
+      city: "Test City",
+      state: "TS",
+      userId: user.id,
+    },
+  });
+
+  const wing = await prisma.wing.create({
+    data: {
+      id: "test-wing",
+      userId: user.id,
+      spotId: spot.id,
+      review: "Test review",
+      rating: 7,
+    },
+  });
+
+  const sessionToken = "test-session-token";
+  const session = await prisma.session.create({
+    data: {
+      sessionToken,
+      userId: user.id,
+      expires: new Date(Date.now() + 1000 * 60 * 60),
+    },
+  });
+
+  await prisma.$disconnect();
+  return { user, spot, wing, sessionToken, session, cleanup: cleanupDatabase };
 }
 
-export { setupDatabase };
+async function setupOtherUserSessionDatabase() {
+  await createTestDatabase();
+
+  const creator = await prisma.user.create({
+    data: {
+      id: "creator-user-id",
+      email: "creator@example.com",
+      name: "Creator User",
+    },
+  });
+
+  const otherUser = await prisma.user.create({
+    data: {
+      id: "other-user-id",
+      email: "other@example.com",
+      name: "Other User",
+    },
+  });
+
+  const spot = await prisma.spot.create({
+    data: {
+      id: "test-spot",
+      name: "Test Spot",
+      city: "Test City",
+      state: "TS",
+      userId: creator.id,
+    },
+  });
+
+  const wing = await prisma.wing.create({
+    data: {
+      id: "test-wing",
+      userId: creator.id,
+      spotId: spot.id,
+      review: "Test review",
+      rating: 7,
+    },
+  });
+
+  const sessionToken = "other-user-session-token";
+  const session = await prisma.session.create({
+    data: {
+      sessionToken,
+      userId: otherUser.id,
+      expires: new Date(Date.now() + 1000 * 60 * 60),
+    },
+  });
+
+  await prisma.$disconnect();
+  return {
+    creator,
+    otherUser,
+    spot,
+    wing,
+    sessionToken,
+    session,
+    cleanup: cleanupDatabase,
+  };
+}
+
+export { setupDatabase, setupOtherUserSessionDatabase };
