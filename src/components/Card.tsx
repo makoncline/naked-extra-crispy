@@ -1,34 +1,19 @@
 import React from "react";
-import styled from "styled-components";
-import { above } from "../styles/breakpoints";
-import { cardWidth, col } from "../styles/utils";
+import { cn } from "@/lib/utils";
 
-const Card = ({
-  children,
-  hover,
-  ...rest
-}: {
+type CardProps = {
   children: React.ReactNode;
   hover?: boolean;
   id?: string;
-}) => {
+};
+
+const Card = ({ children, hover, ...rest }: CardProps) => {
   return (
     <article
-      css={`
-        display: grid;
-        background-color: rgba(255, 255, 255, 0.01);
-        ${hover &&
-        `
-          &:hover {
-              background-color: rgba(255, 255, 255, 0.02);
-              cursor: pointer;
-          }
-        `}
-        ${cardWidth}
-        ${above["md"]`
-            grid-template-columns: 1fr 1fr;
-        `}
-      `}
+      className={cn(
+        "grid overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm md:grid-cols-2",
+        hover && "transition-colors hover:bg-card/80"
+      )}
       {...rest}
     >
       {children}
@@ -36,11 +21,17 @@ const Card = ({
   );
 };
 
-const Body = styled.div`
-  ${col}
-  gap: var(--gap-list);
-  padding: var(--card-padding);
-`;
+const Body = ({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<"div">) => {
+  return (
+    <div className={cn("flex flex-col gap-4 p-4 md:p-6", className)} {...props}>
+      {children}
+    </div>
+  );
+};
 
 Card.Body = Body;
 

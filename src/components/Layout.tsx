@@ -1,6 +1,5 @@
 import { Header } from "./Header";
 import { Navigation } from "./Navigation";
-import { Space } from "./Space";
 
 export const Layout = ({
   title,
@@ -12,23 +11,12 @@ export const Layout = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div
-      css={`
-        display: grid;
-        justify-items: start;
-        max-width: var(--size-md);
-        margin: 0 auto;
-        padding: 0 var(--size-2);
-        & > * {
-          width: 100%;
-        }
-      `}
-    >
+    <div className="mx-auto grid w-full max-w-3xl justify-items-start px-4">
       <Header title={title} description={description} />
       <Navigation />
-      <Space size="md" />
-      {children}
-      <Space size="lg" />
+      <div className="h-8" />
+      <div className="w-full">{children}</div>
+      <div className="h-12" />
     </div>
   );
 };

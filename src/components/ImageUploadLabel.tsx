@@ -1,5 +1,4 @@
 import Image, { StaticImageData } from "next/image";
-import { center } from "../styles/utils";
 
 export const ImageUploadLabel = ({
   image,
@@ -12,21 +11,10 @@ export const ImageUploadLabel = ({
   const offset = 8;
   return (
     <div
-      css={`
-        width: ${size}px;
-        height: ${size}px;
-        display: grid;
-        justify-items: stretch;
-        & > * {
-          grid-area: 1/1;
-        }
-      `}
+      className="relative grid overflow-hidden rounded-md border"
+      style={{ width: size, height: size }}
     >
-      <div
-        css={`
-          ${center}
-        `}
-      >
+      <div className="flex items-center justify-center">
         <Image
           src={image}
           placeholder="blur"
@@ -36,22 +24,7 @@ export const ImageUploadLabel = ({
           alt={type}
         />
       </div>
-      <div
-        css={`
-          z-index: var(--layer-1);
-          display: grid;
-          grid-template-rows: 3fr 1fr;
-          justify-items: center;
-          color: white;
-          background-image: linear-gradient(
-            rgba(0, 0, 0, 0) 50%,
-            rgba(0, 0, 0, 0.8) 100%
-          );
-          & > * {
-            grid-area: 2/1;
-          }
-        `}
-      >
+      <div className="absolute inset-0 z-10 grid content-end justify-items-center bg-gradient-to-t from-black/85 to-transparent pb-1 text-sm text-white">
         <span>+ {type}</span>
       </div>
     </div>

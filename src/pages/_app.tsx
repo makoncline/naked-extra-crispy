@@ -6,6 +6,7 @@ import { trpc } from "../utils/trpc";
 import { DefaultSeo } from "../components/Seo";
 import { siteConfig } from "../siteConfig";
 import { env } from "../env/client.mjs";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -41,7 +42,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
         }}
       />
       <SessionProvider session={session}>
-        <Component {...pageProps} />
+        <TooltipProvider delayDuration={0}>
+          <Component {...pageProps} />
+        </TooltipProvider>
       </SessionProvider>
     </>
   );

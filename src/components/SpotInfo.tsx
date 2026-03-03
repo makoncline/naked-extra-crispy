@@ -1,6 +1,4 @@
-import { col, row } from "../styles/utils";
 import { RouterOutputs } from "../utils/trpc";
-import { Rating } from "./Rating";
 import { RatingDisplay } from "./RatingDisplay";
 
 export const SpotInfo = ({
@@ -11,23 +9,11 @@ export const SpotInfo = ({
   distance?: string | null;
 }) => {
   return (
-    <div
-      css={`
-        ${col}
-        gap: var(--gap-list);
-        p {
-          color: var(--text-2);
-        }
-      `}
-    >
+    <div className="flex flex-col gap-4">
       <div>
-        <h4>{spot.name}</h4>
-        <div
-          css={`
-            ${row}
-          `}
-        >
-          <p>
+        <h4 className="text-lg font-semibold">{spot.name}</h4>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-muted-foreground">
             {spot.city}, {spot.state}
           </p>
           {spot.place && (
@@ -40,12 +26,12 @@ export const SpotInfo = ({
             </a>
           )}
         </div>
-        {spot.rating ? (
-          <RatingDisplay rating={spot.rating} />
-        ) : (
-          <span>🚫 No ratings</span>
+        {spot.rating ? <RatingDisplay rating={spot.rating} /> : <span>🚫 No ratings</span>}
+        {spot.numWings > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {spot.numWings.toLocaleString()} ratings
+          </p>
         )}
-        {spot.numWings > 0 && <p>{spot.numWings.toLocaleString()} ratings</p>}
       </div>
     </div>
   );

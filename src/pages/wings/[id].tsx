@@ -11,7 +11,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Layout } from "../../components/Layout";
-import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
 import { ArticleJsonLd } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
@@ -23,6 +22,7 @@ import superjson from "superjson";
 import { env } from "../../env/client.mjs";
 import { siteConfig } from "../../siteConfig";
 import { NextSeo } from "../../components/Seo";
+import { Button } from "@/components/ui/button";
 
 const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: wingId } = props;
@@ -100,38 +100,25 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         isAccessibleForFree={true}
       />
       <Layout>
-        <h1>{spot.name}</h1>
-        <Space size="sm" />
-        <div>
-          <Link href={`/spots/${spot.id}`}>
-            <button>View spot</button>
-          </Link>
-        </div>
-        <Space size="md" />
+        <h1 className="text-3xl font-black">{spot.name}</h1>
+        <div className="h-4" />
+        <Button asChild>
+          <Link href={`/spots/${spot.id}`}>View spot</Link>
+        </Button>
+        <div className="h-8" />
         <WingDisplay wing={wing} />
-        <Space size="lg" />
+        <div className="h-8" />
         {isCreator && (
-          <div
-            css={`
-              display: flex;
-              justify-content: flex-end;
-            `}
-          >
-            <button
+          <div className="flex justify-end">
+            <Button
               type="button"
-              className="link"
               onClick={handleDelete}
+              variant="ghost"
               disabled={deleteWing.isPending}
-              css={`
-                color: var(--text-2);
-                font-size: var(--font-size-00);
-                opacity: 0.65;
-                text-decoration: underline;
-                text-underline-offset: 2px;
-              `}
+              className="h-auto p-0 text-xs text-muted-foreground underline underline-offset-2"
             >
               {deleteWing.isPending ? "Deleting rating..." : "Delete rating"}
-            </button>
+            </Button>
           </div>
         )}
       </Layout>

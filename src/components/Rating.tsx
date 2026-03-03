@@ -1,6 +1,5 @@
 import React from "react";
-import styled from "styled-components";
-import { col, row } from "../styles/utils";
+import { cn } from "@/lib/utils";
 
 export const Rating = ({
   onChange = () => {},
@@ -11,66 +10,40 @@ export const Rating = ({
 }) => {
   const [rating, setRating] = React.useState(displayValue || 0);
   const maxRating = 10;
-  const checkboxes = Array.from({ length: maxRating }, (_, i) => i + 1);
-  const handleChange = (rating: number) => {
+  const values = Array.from({ length: maxRating }, (_, i) => i + 1);
+
+  const handleChange = (nextRating: number) => {
     if (!displayValue) {
-      setRating(rating);
-      onChange(rating);
+      setRating(nextRating);
+      onChange(nextRating);
     }
   };
+
   return (
-    <ScRating>
-      {checkboxes.map((i) => (
-        <React.Fragment key={i}>
+    <div className="flex flex-wrap items-end gap-2">
+      {values.map((value) => (
+        <React.Fragment key={value}>
           {displayValue ? (
-            <Flame gray={i > rating} />
+            <Flame gray={value > rating} />
           ) : (
             <button
-              onClick={() => handleChange(i)}
+              onClick={() => handleChange(value)}
               type="button"
               disabled={Boolean(displayValue)}
+              className="rounded-sm p-0.5"
             >
-              <div
-                css={`
-                  ${col}
-                  gap: 0;
-                `}
-              >
-                <Flame gray={i > rating} />
-                <p
-                  css={`
-                    font-size: var(--font-size-00);
-                  `}
-                >
-                  {i}
-                </p>
+              <div className="flex flex-col items-center gap-0">
+                <Flame gray={value > rating} />
+                <span className="text-xs text-muted-foreground">{value}</span>
               </div>
             </button>
           )}
         </React.Fragment>
       ))}
-    </ScRating>
+    </div>
   );
 };
 
 const Flame = ({ gray = false }: { gray?: boolean }) => (
-  <span
-    css={`
-      font-size: var(--font-size-4);
-      ${gray && `filter: grayscale(100%);`}
-    `}
-  >
-    🔥
-  </span>
+  <span className={cn("text-2xl", gray && "grayscale")}>🔥</span>
 );
-
-const ScRating = styled.div`
-  ${row}
-  button {
-    background: none;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    cursor: unset;
-  }
-`;

@@ -29,6 +29,10 @@
 | 2026-03-02 | self | `prisma db push` for SQLite intermittently fails with generic Prisma 7 schema-engine error unless tracing is enabled | For e2e setup scripts, set `RUST_LOG=trace` in the `db push` environment |
 | 2026-03-02 | self | Playwright workflow container browser version lagged behind repo Playwright package | Keep `.github/workflows/playwright.yml` image version aligned with `@playwright/test` version |
 | 2026-03-02 | self | `npm run build` fails fast when required DB env vars are unset in the shell | Validate builds with explicit env (or `.env` values) so Next config/env parsing has required keys |
+| 2026-03-03 | self | Ran Playwright against stale `.next` output (`npm run start` webServer) and saw old markup in assertions | Run `npm run build` after UI edits before start-based e2e checks |
+| 2026-03-03 | self | Ran `prisma db push` and `npm run build` in parallel; build executed before schema sync and failed on missing tables | Keep dependent validation steps sequential (`db push` then `build`) even when parallelization is preferred |
+| 2026-03-03 | self | Ran `rg` across `git diff --name-only` paths including deleted files and got noisy IO errors | Filter with `--diff-filter=ACMRT` before bulk scans on changed files |
+| 2026-03-03 | self | Assumed PR checks built branch tip; GitHub Actions for `pull_request` checked out `refs/pull/<id>/merge`, which included newer `origin/main` code not in local `main` | When debugging CI failures, inspect `origin/main` and the PR merge ref (`pull/<id>/merge`) rather than only local branch files |
 
 ## User Preferences
 
@@ -44,6 +48,7 @@
 - For `scripts/` with TS 5 + Zod 4, `tsc` build is stable with `--skipLibCheck --esModuleInterop`.
 - Use repeated `npm run build` passes after each fix to surface the next upgrade regression quickly.
 - `npm run dev` now boots Turso + Next together; if homepage load returns `200` on `/api/trpc/public.getAllSpots`, the local DB wiring is healthy.
+- For text search fields that must avoid browser/password-manager suggestions, set anti-autofill attributes on both the `<form>` and the `<input>` (including `data-lpignore` for LastPass).
 
 ## Patterns That Don't Work
 
@@ -57,3 +62,7 @@
 - `scripts/build:post-to-instagram` now fails on TS 5 + Zod 4 without compatibility flags (`esModuleInterop` and/or `skipLibCheck`).
 - Upgrading to Prisma 7 introduced install-time breakage in `postinstall` (`prisma generate`) due schema format changes.
 - Prisma 7 expects database URLs in `prisma.config.ts` (not in the `datasource` block of `schema.prisma`).
+| 2026-03-03 | self | Unquoted paths with bracketed routes (e.g. `src/pages/spots/[id]/...`) failed in zsh due glob expansion | Always quote dynamic-route paths in shell commands (`'src/pages/spots/[id]/index.tsx'`) |
+| 2026-03-03 | self | Combined `rm` + install command was blocked by policy in this environment | Use `apply_patch` for deletions and run package-manager commands separately |
+| 2026-03-03 | self | `next build` failed on SSG data collection when test SQLite existed but schema tables were absent | Run `prisma db push` against the build DB URL before build validation when using local SQLite files |
+| 2026-03-03 | self | Playwright initially validated the wrong app because port `3000` was occupied and config reused existing server in non-CI mode | Run e2e with `CI=1` and ensure `:3000` is free (or owned by this repo) before test execution |

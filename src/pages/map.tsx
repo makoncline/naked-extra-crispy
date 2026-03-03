@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import { trpc } from "../utils/trpc";
 import React from "react";
 import { Layout } from "../components/Layout";
-import { Space } from "../components/Space";
 import { Loading } from "../components/Loading";
 
 import { createServerSideHelpers } from "@trpc/react-query/server";
@@ -17,8 +16,8 @@ const Map: NextPage = () => {
   const isLoading = status === "pending";
   return (
     <Layout>
-      <h1>Wing Map</h1>
-      <Space size="sm" />
+      <h1 className="text-3xl font-black">Wing Map</h1>
+      <div className="h-4" />
       {isLoading ? <Loading /> : <MapDisplay spots={spots} />}
     </Layout>
   );

@@ -1,9 +1,5 @@
 import Link from "next/link";
-import React, { ChangeEventHandler } from "react";
-import { col } from "../styles/utils";
-import { SelectStateOptions } from "./SelectStateOptions";
-import { row } from "../styles/utils";
-import { Space } from "./Space";
+import React from "react";
 import { ImageDisplay } from "./ImageDisplay";
 import { SpotInfo } from "./SpotInfo";
 import { Card } from "./Card";
@@ -11,17 +7,23 @@ import { RouterOutputs } from "../utils/trpc";
 import { getDistance } from "geolib";
 import { useUserLocation } from "../hooks/useUserLocation";
 import { convertMetersToMiles, formatDistance } from "../lib/distance";
-import { Error } from "../styles/text";
 import { SpotMap } from "./SpotMap";
 import { ScrollToElement, scrollToId } from "./ScrollToElement";
-import {
-  GoogleMapsApiProvider,
-  useGoogleMapsApi,
-} from "./GoogleMapsApiProvider";
+import { GoogleMapsApiProvider } from "./GoogleMapsApiProvider";
 import { useRouter } from "next/router";
 import { SpotAutocomplete } from "./SpotAutocomplete";
 import mapPlaceholder from "../../public/map-placeholder.webp";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { STATE_OPTIONS } from "./SelectStateOptions";
 
 type SortOrder = "distance" | "rating" | "name" | "numWings";
 type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
@@ -37,6 +39,8 @@ const defaultFilterValues = {
   city: "",
   distance: "any",
 } as const;
+const EMPTY_STATE_VALUE = "__empty_state__";
+const EMPTY_CITY_VALUE = "__empty_city__";
 
 export const SpotsDisplay = ({
   spots = [],
@@ -91,7 +95,7 @@ export const SpotsDisplay = ({
         newQuery.sortBy === router.query.sortBy
       )
     ) {
-      router.replace(
+      void router.replace(
         {
           query: newQuery,
         },
@@ -104,26 +108,32 @@ export const SpotsDisplay = ({
   const sortedAfterLocationEnabled = React.useRef(false);
 
   const handleChangeName = (value: string) => {
-    setFilters((filters) => ({ ...filters, name: value }));
+    setFilters((prev) => ({ ...prev, name: value }));
     setSelectedSpotId(null);
   };
-  const handleSelectState: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilters((filters) => ({ ...filters, state: e.target.value }));
-    setSelectedSpotId(null);
-  };
-  const handleSelectCity: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilters((filters) => ({ ...filters, city: e.target.value }));
-    setSelectedSpotId(null);
-  };
-  const handleSelectDistance: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilters((filters) => ({
-      ...filters,
-      distance: e.target.value as DistanceFilterValues,
+  const handleSelectState = (state: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      state: state === EMPTY_STATE_VALUE ? "" : state,
     }));
     setSelectedSpotId(null);
   };
-  const handleSelectSortOrder: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setSortBy(e.target.value as SortOrder);
+  const handleSelectCity = (city: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      city: city === EMPTY_CITY_VALUE ? "" : city,
+    }));
+    setSelectedSpotId(null);
+  };
+  const handleSelectDistance = (distance: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      distance: distance as DistanceFilterValues,
+    }));
+    setSelectedSpotId(null);
+  };
+  const handleSelectSortOrder = (nextSortBy: string) => {
+    setSortBy(nextSortBy as SortOrder);
     setSelectedSpotId(null);
   };
   const handleReset = () => {
@@ -195,153 +205,148 @@ export const SpotsDisplay = ({
     });
 
   const numFilteredSpots = filteredSpots.length;
-  const SelectCityOptions = () => (
-    <>
-      {Array.from(new Set(spots.map((spot) => spot.city.trim())))
-        .sort()
-        .map((city, i) => (
-          <option value={city} key={i}>
-            {city}
-          </option>
-        ))}
-    </>
-  );
+  const cityOptions = Array.from(new Set(spots.map((spot) => spot.city.trim()))).sort();
 
   const handleSelectSpot = (spotId: string) => {
     scrollToId("map");
     setSelectedSpotId(spotId);
   };
+
   return (
     <div>
       <ScrollToElement id={"search"} />
-      <div id="search">
-        <h3>Search</h3>
-        <Space size="sm" />
+      <section id="search" className="grid gap-4">
+        <h3 className="text-xl font-semibold">Search</h3>
         {!userLocation && (
-          <div
-            css={`
-              ${col}
-              align-items: start;
-            `}
-          >
-            <button onClick={getUserLocation}>Find spots nearby</button>
+          <div className="grid items-start gap-2">
+            <Button onClick={getUserLocation}>Find spots nearby</Button>
             {userLocationError && (
-              <Error>
+              <p className="text-sm text-destructive">
                 Failed to get location. Enable location access in your web
                 browser and try again.
-              </Error>
+              </p>
             )}
           </div>
         )}
-        <Space size="sm" />
-        <form>
+
+        <form
+          className="grid w-full max-w-md gap-4"
+          autoComplete="off"
+          data-lpignore="true"
+        >
           <SpotAutocomplete
             spots={filteredSpots}
             value={filters.name}
             setValue={handleChangeName}
           />
-          <div>
-            <label htmlFor="state">State</label>
-            <select
-              id="state"
-              value={filters.state}
-              onChange={handleSelectState}
+
+          <div className="grid gap-2">
+            <Label htmlFor="state">State</Label>
+            <Select
+              value={filters.state || EMPTY_STATE_VALUE}
+              onValueChange={handleSelectState}
             >
-              <option value="">Pick a state</option>
-              <SelectStateOptions />
-            </select>
-          </div>
-          <div>
-            <label htmlFor="city">City</label>
-            <select id="city" value={filters.city} onChange={handleSelectCity}>
-              <option value="">Select a city</option>
-              <SelectCityOptions />
-            </select>
-          </div>
-          {userLocation && (
-            <div>
-              <label htmlFor="distance">Within distance</label>
-              <select
-                id="distance"
-                value={filters.distance}
-                onChange={handleSelectDistance}
-              >
-                <option value="any">Any</option>
-                <option value="5">5 miles</option>
-                <option value="10">10 miles</option>
-                <option value="25">25 miles</option>
-                <option value="50">50 miles</option>
-                <option value="100">100 miles</option>
-              </select>
-            </div>
-          )}
-          <div>
-            <label htmlFor="sort">Sort by</label>
-            <select id="sort" value={sortBy} onChange={handleSelectSortOrder}>
-              {userLocation && (
-                <option value="distance">
-                  Distance - {reverse ? "Closest" : "Farthest"}
-                </option>
-              )}
-              <option value="rating">
-                Rating - {reverse ? "Best" : "Worst"}
-              </option>
-              <option value="numWings">
-                {reverse ? "Most Popular" : "Least Popular"}
-              </option>
-              <option value="name">
-                Name ({reverse ? "A to Z" : "Z to A"})
-              </option>
-            </select>
+              <SelectTrigger id="state" className="w-full">
+                <SelectValue placeholder="Pick a state" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={EMPTY_STATE_VALUE}>Pick a state</SelectItem>
+                {STATE_OPTIONS.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div
-            css={`
-              ${row}
-              white-space: nowrap;
-            `}
-          >
-            <button
-              type="button"
-              onClick={() => {
-                setReverse((prev) => !prev);
-              }}
-            >
+          <div className="grid gap-2">
+            <Label htmlFor="city">City</Label>
+            <Select value={filters.city || EMPTY_CITY_VALUE} onValueChange={handleSelectCity}>
+              <SelectTrigger id="city" className="w-full">
+                <SelectValue placeholder="Select a city" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={EMPTY_CITY_VALUE}>Select a city</SelectItem>
+                {cityOptions.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {userLocation && (
+            <div className="grid gap-2">
+              <Label htmlFor="distance">Within distance</Label>
+              <Select value={filters.distance} onValueChange={handleSelectDistance}>
+                <SelectTrigger id="distance" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="5">5 miles</SelectItem>
+                  <SelectItem value="10">10 miles</SelectItem>
+                  <SelectItem value="25">25 miles</SelectItem>
+                  <SelectItem value="50">50 miles</SelectItem>
+                  <SelectItem value="100">100 miles</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="grid gap-2">
+            <Label htmlFor="sort">Sort by</Label>
+            <Select value={sortBy} onValueChange={handleSelectSortOrder}>
+              <SelectTrigger id="sort" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {userLocation && (
+                  <SelectItem value="distance">
+                    Distance - {reverse ? "Closest" : "Farthest"}
+                  </SelectItem>
+                )}
+                <SelectItem value="rating">
+                  Rating - {reverse ? "Best" : "Worst"}
+                </SelectItem>
+                <SelectItem value="numWings">
+                  {reverse ? "Most Popular" : "Least Popular"}
+                </SelectItem>
+                <SelectItem value="name">
+                  Name ({reverse ? "A to Z" : "Z to A"})
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-wrap gap-2 whitespace-nowrap">
+            <Button type="button" variant="secondary" onClick={() => setReverse((prev) => !prev)}>
               Reverse {reverse ? "▲" : "▼"}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleReset()}
-              css={`
-                color: var(--red-5);
-                &:hover {
-                  --_border: var(--red-5);
-                }
-              `}
-            >
+            </Button>
+            <Button type="button" variant="destructive" onClick={handleReset}>
               Reset ↺
-            </button>
-            <Link href="#results">
-              <button
-                css={`
-                  width: 100%;
-                `}
-              >
+            </Button>
+            <Button asChild>
+              <Link href="#results">
                 {numFilteredSpots} Result{numFilteredSpots !== 1 ? "s" : ""} 👇
-              </button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </form>
-      </div>
-      <Space size="md" />
-      <div id="map">
-        <h3>Map</h3>
-        <Space size="sm" />
+      </section>
+
+      <div className="h-8" />
+
+      <section id="map" className="grid gap-4">
+        <h3 className="text-xl font-semibold">Map</h3>
         {!showMap ? (
           <Image
             src={mapPlaceholder}
             alt="Click to view wing map"
             onClick={() => setShowMap(true)}
+            className="cursor-pointer rounded-lg border"
           />
         ) : (
           <>
@@ -361,69 +366,42 @@ export const SpotsDisplay = ({
               />
             </GoogleMapsApiProvider>
             {selectedSpot && (
-              <>
-                <Space size="sm" />
-                <div>
-                  <SpotInfo
-                    spot={selectedSpot}
-                    distance={spotDistancesMap?.[selectedSpot.id]?.display}
-                  />
-                  <Space size="sm" />
-                  <Link href={`/spots/${selectedSpot.id}`}>
-                    <button>View</button>
-                  </Link>
-                </div>
-              </>
+              <div className="grid gap-3">
+                <SpotInfo
+                  spot={selectedSpot}
+                  distance={spotDistancesMap?.[selectedSpot.id]?.display}
+                />
+                <Button asChild className="w-fit">
+                  <Link href={`/spots/${selectedSpot.id}`}>View</Link>
+                </Button>
+              </div>
             )}
           </>
         )}
-        <Space size="md" />
-      </div>
-      <div
-        id="results"
-        css={`
-          min-height: 100vh;
-        `}
-      >
-        <h3>Results</h3>
-        <Space size="sm" />
+      </section>
+
+      <div className="h-8" />
+
+      <section id="results" className="grid min-h-screen gap-4">
+        <h3 className="text-xl font-semibold">Results</h3>
         {filteredSpots && filteredSpots.length ? (
-          <div
-            css={`
-              ${col}
-              align-items: flex-start;
-              gap: var(--gap-list);
-            `}
-          >
+          <div className="grid items-start gap-4">
             {filteredSpots.map((spot) => (
               <div key={spot.id} id={spot.id}>
                 <Card>
-                  <ImageDisplay
-                    imageKeys={spot.images.map((image) => image.key)}
-                  />
-                  <div
-                    css={`
-                      ${col}
-                      gap: var(--gap-list);
-                      justify-content: space-between;
-                      padding: var(--card-padding);
-                    `}
-                  >
+                  <ImageDisplay imageKeys={spot.images.map((image) => image.key)} />
+                  <div className="flex flex-col justify-between gap-4 p-4 md:p-6">
                     <SpotInfo
                       spot={spot}
                       distance={spotDistancesMap?.[spot.id]?.display}
                     />
-                    <div
-                      css={`
-                        ${row}
-                      `}
-                    >
-                      <Link href={`/spots/${spot.id}`}>
-                        <button>View</button>
-                      </Link>
-                      <Link href={`/spots/${spot.id}/addWing`}>
-                        <button>+ Add rating</button>
-                      </Link>
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild>
+                        <Link href={`/spots/${spot.id}`}>View</Link>
+                      </Button>
+                      <Button asChild variant="secondary">
+                        <Link href={`/spots/${spot.id}/addWing`}>+ Add rating</Link>
+                      </Button>
                     </div>
                   </div>
                 </Card>
@@ -431,29 +409,19 @@ export const SpotsDisplay = ({
             ))}
           </div>
         ) : (
-          <div>
+          <div className="grid gap-4">
             <p>There are no spots matching this search...</p>
-            <Space size="sm" />
-            <div
-              css={`
-                ${row}
-              `}
-            >
-              <Link href="/spots/add">
-                <button>Add a spot</button>
-              </Link>
-              <button
-                onClick={() => {
-                  handleReset();
-                }}
-                type="reset"
-              >
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link href="/spots/add">Add a spot</Link>
+              </Button>
+              <Button onClick={handleReset} variant="destructive" type="reset">
                 Reset search and filters
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import { Button } from "@/components/ui/button";
 
 export const scrollToId = (id: string) => {
   const element = document.getElementById(id);
@@ -13,17 +13,14 @@ export const ScrollToElement = ({ id }: { id: string }) => {
   };
 
   return (
-    <button
+    <Button
       onClick={handleClick}
-      css={`
-        position: fixed;
-        bottom: var(--size-2);
-        right: var(--size-2);
-        z-index: var(--layer-important);
-        opacity: 0.6;
-      `}
+      size="icon"
+      variant="secondary"
+      className="fixed right-3 bottom-3 z-50 opacity-70"
+      aria-label="scroll to section"
     >
       ⬆
-    </button>
+    </Button>
   );
 };

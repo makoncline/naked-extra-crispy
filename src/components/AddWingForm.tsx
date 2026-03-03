@@ -3,15 +3,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import React from "react";
 import { Rating } from "./Rating";
 import { ImageUpload } from "./ImageUpload";
-import { Error, Success, Warn } from "../styles/text";
-import { Space } from "./Space";
 import { ImageUploadLabel } from "./ImageUploadLabel";
-import { col } from "../styles/utils";
 import mainWing from "../../public/mainWing.webp";
 import drumWing from "../../public/drumWing.webp";
 import flatWing from "../../public/flatWing.webp";
-import { boolean } from "zod";
 import { getRatingDescription } from "../lib/getRatingDescription";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 
 export type AddWFormInputs = {
   userId: string;
@@ -26,7 +25,6 @@ export type AddWFormInputs = {
 export const AddWingForm = ({
   userId,
   spotId,
-  spotName,
   onSuccess,
 }: {
   userId: string;
@@ -40,7 +38,7 @@ export const AddWingForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
     setValue,
   } = useForm<AddWFormInputs>();
@@ -49,7 +47,7 @@ export const AddWingForm = ({
   const utils = trpc.useContext();
   const createWing = trpc.auth.createWing.useMutation({
     onSuccess: () => {
-      utils.invalidate();
+      void utils.invalidate();
     },
   });
   const handleRatingChange = (rating: number) => {
@@ -61,17 +59,19 @@ export const AddWingForm = ({
   };
   const isUploading = isMainUploading || isDrumUploading || isFlatUploading;
   return (
-    <>
-      <form id="add-wing">
+    <div className="grid gap-4">
+      <form id="add-wing" className="grid gap-4">
         <input
           {...register("userId", { required: true })}
           value={userId}
           hidden
+          readOnly
         />
         <input
           {...register("spotId", { required: true })}
           value={spotId}
           hidden
+          readOnly
         />
         <input
           {...register("rating", {
@@ -82,6 +82,7 @@ export const AddWingForm = ({
           })}
           id="rating"
           hidden
+          readOnly
         />
         <input
           {...register("mainImageId", {
@@ -92,53 +93,59 @@ export const AddWingForm = ({
             },
           })}
           hidden
+          readOnly
         />
-        <input {...register("drumImageId")} hidden />
-        <input {...register("flatImageId")} hidden />
-        <div
-          css={`
-            border: 1px solid var(--color-gray-300);
-          `}
-        >
+        <input {...register("drumImageId")} hidden readOnly />
+        <input {...register("flatImageId")} hidden readOnly />
+
+        <Card className="border-input p-4">
           <Rating aria-label="rating" onChange={handleRatingChange} />
-          {!watchRating && !errors.rating && <span>Select your rating</span>}
+          {!watchRating && !errors.rating && (
+            <span className="text-sm text-muted-foreground">Select your rating</span>
+          )}
           {watchRating && watchRating === 7 ? (
-            <Error>Come on... choose a something besides 7.</Error>
+            <p className="text-sm text-destructive">
+              Come on... choose a something besides 7.
+            </p>
           ) : (
-            <span>{getRatingDescription(watchRating)}</span>
+            <span className="text-sm text-muted-foreground">
+              {getRatingDescription(watchRating)}
+            </span>
           )}
 
-          {errors.rating && <Error>{errors.rating.message}</Error>}
-        </div>
-        <div>
-          <textarea
+          {errors.rating && (
+            <p className="text-sm text-destructive">{errors.rating.message}</p>
+          )}
+        </Card>
+
+        <div className="grid gap-2">
+          <Textarea
             aria-label="review"
             {...register("review")}
             placeholder="I'm totally in love with these wings. They definitely have the best Buffalo wings in the neighborhood and arguably some of the best in the city. They are always crispy, sauce is just the right amount of spicy and tangy, and their blue cheese is divine."
-            css={`
-              min-height: 200px;
-            `}
+            className="min-h-[200px]"
           />
           {!watchReview && (
-            <span>Were they crispy? How was the sauce? Leave a review.</span>
+            <span className="text-sm text-muted-foreground">
+              Were they crispy? How was the sauce? Leave a review.
+            </span>
           )}
           {watchReview && watchReview.length < 60 && (
-            <Warn>Don't leave us hanging - what else you got?</Warn>
+            <p className="text-sm text-amber-500">
+              Don&apos;t leave us hanging - what else you got?
+            </p>
           )}
           {watchReview && watchReview.length >= 60 && (
-            <Success>Now you're rolling - got any more to add?</Success>
+            <p className="text-sm text-emerald-500">
+              Now you&apos;re rolling - got any more to add?
+            </p>
           )}
         </div>
       </form>
-      <Space size="sm" />
-      <h2>Attach Photos</h2>
-      <Space size="sm" />
-      <div
-        css={`
-          ${col}
-        `}
-      >
-        <div>
+
+      <h2 className="text-xl font-semibold">Attach Photos</h2>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-2">
           <ImageUpload
             id="main"
             onUploadSuccess={(id) => {
@@ -148,7 +155,9 @@ export const AddWingForm = ({
           >
             <ImageUploadLabel image={mainWing} type="Main" />
           </ImageUpload>
-          {errors.mainImageId && <Error>{errors.mainImageId.message}</Error>}
+          {errors.mainImageId && (
+            <p className="text-sm text-destructive">{errors.mainImageId.message}</p>
+          )}
         </div>
 
         <div>
@@ -162,6 +171,7 @@ export const AddWingForm = ({
             <ImageUploadLabel image={drumWing} type="Drum" />
           </ImageUpload>
         </div>
+
         <div>
           <ImageUpload
             id="flat"
@@ -174,23 +184,24 @@ export const AddWingForm = ({
           </ImageUpload>
         </div>
       </div>
-      <Space size="sm" />
+
       <form>
-        <button
+        <Button
           type="submit"
           onClick={handleSubmit(onSubmit)}
           form="add-wing"
           disabled={isUploading}
         >
           Submit
-        </button>
+        </Button>
       </form>
+
       {Object.keys(errors).length > 0 &&
         Object.entries(errors).map(([key, error]) => (
           <div key={key}>
-            <Error>{error.message}</Error>
+            <p className="text-sm text-destructive">{error.message}</p>
           </div>
         ))}
-    </>
+    </div>
   );
 };

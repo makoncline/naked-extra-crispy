@@ -1,133 +1,61 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { col, row } from "../styles/utils";
 import { Loading } from "./Loading";
 import { DrumSvg } from "./DrumSvg";
 import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const Navigation = () => {
   const router = useRouter();
   const showLogoText = router.pathname !== "/";
   const { data: session, status } = useSession();
   const isLoading = status === "loading";
-  return (
-    <div
-      css={`
-        display: grid;
-        grid-template-columns: auto 1fr;
-        padding-top: var(--size-2);
-        width: 100%;
-      `}
+
+  const navLink = (href: string, label: string) => (
+    <Link
+      href={href}
+      className={cn(
+        "text-sm text-muted-foreground hover:text-foreground",
+        router.pathname === href && "text-foreground underline"
+      )}
     >
-      <div
-        css={`
-          ${row}
-          align-items: center;
-          gap: var(--space-sm);
-          @media (max-width: 420px) {
-            ${col}
-            align-items: flex-start;
-          }
-        `}
-      >
-        <Link href="/">
-          <div
-            css={`
-              ${row}
-              align-items: center;
-            `}
-          >
-            <DrumSvg />
-            {showLogoText && (
-              <div
-                css={`
-                  ${col}
-                  gap: 0;
-                  color: var(--text-2);
-                  line-height: 1;
-                `}
-              >
-                <span
-                  css={`
-                    font-size: var(--font-size-4);
-                    font-weight: var(--font-weight-9);
-                  `}
-                >
-                  Naked
-                </span>
-                <span
-                  css={`
-                    font-size: var(--font-size-0);
-                    font-weight: var(--font-weight-8);
-                  `}
-                >
-                  Extra Crispy
-                </span>
-              </div>
-            )}
-          </div>
+      {label}
+    </Link>
+  );
+
+  return (
+    <div className="grid w-full grid-cols-[auto_1fr] gap-4 pt-2">
+      <div className="flex flex-wrap items-center gap-4 max-[420px]:flex-col max-[420px]:items-start">
+        <Link href="/" className="flex items-center gap-2 no-underline">
+          <DrumSvg />
+          {showLogoText && (
+            <div className="flex flex-col gap-0 leading-none text-muted-foreground">
+              <span className="text-xl font-black">Naked</span>
+              <span className="text-xs font-extrabold">Extra Crispy</span>
+            </div>
+          )}
         </Link>
-        <div
-          css={`
-            ${row}
-          `}
-        >
-          <Link href="/spots">
-            <span
-              css={`
-                color: var(--text-2);
-                text-decoration: ${router.pathname === "/spots"
-                  ? "underline"
-                  : "none"};
-              `}
-            >
-              Spots
-            </span>
-          </Link>
-          <Link href="/ratings">
-            <span
-              css={`
-                color: var(--text-2);
-                text-decoration: ${router.pathname === "/ratings"
-                  ? "underline"
-                  : "none"};
-              `}
-            >
-              Ratings
-            </span>
-          </Link>
-          <Link href="/map">
-            <span
-              css={`
-                color: var(--text-2);
-                text-decoration: ${router.pathname === "/map"
-                  ? "underline"
-                  : "none"};
-              `}
-            >
-              Map
-            </span>
-          </Link>
+        <div className="flex items-center gap-3">
+          {navLink("/spots", "Spots")}
+          {navLink("/ratings", "Ratings")}
+          {navLink("/map", "Map")}
         </div>
       </div>
-      <div
-        css={`
-          justify-self: end;
-          ${col}
-          align-items: flex-end;
-        `}
-      >
+      <div className="justify-self-end text-right text-sm">
         {session ? (
-          <>
-            {session.user?.email} <br />
-            <a onClick={() => signOut()} href="#">
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-muted-foreground">{session.user?.email}</span>
+            <Button variant="ghost" size="sm" onClick={() => signOut()}>
               Sign out
-            </a>
-          </>
+            </Button>
+          </div>
         ) : isLoading ? (
           <Loading scale={0.5} />
         ) : (
-          <button onClick={() => signIn("google")}>Sign in</button>
+          <Button size="sm" onClick={() => signIn("google")}>
+            Sign in
+          </Button>
         )}
       </div>
     </div>

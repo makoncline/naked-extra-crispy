@@ -1,22 +1,22 @@
 import Link from "next/link";
 import { Layout } from "../components/Layout";
-import { Space } from "../components/Space";
+import { Button } from "@/components/ui/button";
 
 const Thanks = () => {
   return (
     <Layout>
-      <h1>Thanks for the feedback!</h1>
-      <Space size="md" />
+      <h1 className="text-3xl font-black">Thanks for the feedback!</h1>
+      <div className="h-8" />
       <p>
         A team of dedicated chicken wing enthusiasts carefully reviewed your
         feedback form and are already brainstorming ways to improve our service.
       </p>
-      <Space size="sm" />
-      <p>Keep on wingin' and keep the feedback coming!</p>
-      <Space size="md" />
-      <Link href={`/`}>
-        <button>Return to the wings</button>
-      </Link>
+      <div className="h-4" />
+      <p>Keep on wingin&apos; and keep the feedback coming!</p>
+      <div className="h-8" />
+      <Button asChild>
+        <Link href={`/`}>Return to the wings</Link>
+      </Button>
     </Layout>
   );
 };

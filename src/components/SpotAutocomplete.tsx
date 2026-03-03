@@ -1,10 +1,16 @@
-import { useCombobox } from "downshift";
 import React from "react";
-import { row } from "../styles/utils";
 import { useRouter } from "next/router";
-import { Autocomplete } from "./AutocompleteStyles";
 import Link from "next/link";
 import { RouterOutputs } from "../utils/trpc";
+import { Label } from "@/components/ui/label";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 
 type AutoCompleteSpot = Pick<
   RouterOutputs["public"]["getAllSpots"][number],
@@ -21,80 +27,64 @@ export const SpotAutocomplete = ({
   setValue: (value: string) => void;
 }) => {
   const router = useRouter();
-  const {
-    isOpen,
-    getLabelProps,
-    getMenuProps,
-    getInputProps,
-    highlightedIndex,
-    getItemProps,
-    selectItem,
-  } = useCombobox({
-    inputId: "spot-autocomplete",
-    labelId: "spot-autocomplete-label",
-    menuId: "spot-autocomplete-menu",
-    items: spots,
-    inputValue: value,
-    onInputValueChange: ({ inputValue }) => {
-      setValue(inputValue || "");
-    },
-    onSelectedItemChange: ({ selectedItem }) => {
-      if (selectedItem) {
-        setTimeout(() => {
-          router.push({
-            pathname: `/spots/[id]`,
-            query: { id: selectedItem.id },
-          });
-        }, 100);
-      }
-    },
-    itemToString: (item) => (item ? item.name : ""),
-  });
+  const handleSelectSpot = (selectedSpot: AutoCompleteSpot | null) => {
+    if (!selectedSpot) {
+      return;
+    }
+    setTimeout(() => {
+      void router.push({
+        pathname: `/spots/[id]`,
+        query: { id: selectedSpot.id },
+      });
+    }, 100);
+  };
 
   return (
-    <div>
-      <label {...getLabelProps()}>Name</label>
-      <div
-        css={`
-          ${row}
-          margin-bottom: var(--size-2);
-        `}
+    <div className="grid gap-2">
+      <Label htmlFor="spot-autocomplete">Name</Label>
+      <Combobox<AutoCompleteSpot>
+        items={spots}
+        inputValue={value}
+        onInputValueChange={(inputValue) => setValue(inputValue || "")}
+        onValueChange={handleSelectSpot}
+        itemToStringLabel={(item) => item.name}
+        itemToStringValue={(item) => item.id}
+        isItemEqualToValue={(item, selected) => item.id === selected.id}
+        filter={() => true}
       >
-        <input {...getInputProps()} placeholder="What's it called?" />
-        <button
-          aria-label="toggle menu"
-          onClick={() => selectItem(null)}
-          type="reset"
-        >
-          &#10007;
-        </button>
-      </div>
-      <Autocomplete.Container {...getMenuProps()}>
-        {isOpen &&
-          spots.map((spot, index) => {
-            const { name, id, place } = spot;
-            const { address } = place || {};
-            return (
-              <Autocomplete.Item
-                highlighted={highlightedIndex === index}
-                key={id}
-                {...getItemProps({
-                  item: spot,
-                  index,
-                })}
-              >
-                <strong>{name}</strong>{" "}
-                {address ? <small>{address}</small> : null}
-              </Autocomplete.Item>
-            );
-          })}
-        {spots.length === 0 && (
-          <Autocomplete.Item highlighted={false}>
-            No spots found.{"  "}
-            <Link href="/spots/add">Add new spot?</Link>
-          </Autocomplete.Item>
-        )}
-      </Autocomplete.Container>
+        <ComboboxInput
+          id="spot-autocomplete"
+          className="w-full"
+          placeholder="What's it called?"
+          type="search"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          name="spot-search"
+          showClear
+          data-lpignore="true"
+          data-1p-ignore="true"
+          data-form-type="other"
+        />
+        <ComboboxContent>
+          <ComboboxEmpty className="px-3 py-2 text-sm text-muted-foreground">
+            No spots found. <Link href="/spots/add">Add new spot?</Link>
+          </ComboboxEmpty>
+          <ComboboxList>
+            {(spot: AutoCompleteSpot) => (
+              <ComboboxItem key={spot.id} value={spot}>
+                <div className="grid">
+                  <strong>{spot.name}</strong>
+                  {spot.place?.address ? (
+                    <small className="text-muted-foreground">{spot.place.address}</small>
+                  ) : null}
+                </div>
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
     </div>
   );
 };

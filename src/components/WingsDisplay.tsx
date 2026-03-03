@@ -1,12 +1,18 @@
 import Link from "next/link";
 import React from "react";
-import { Subtle } from "../styles/text";
-import { row, col } from "../styles/utils";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
-import { Space } from "./Space";
 import { RouterOutputs } from "../utils/trpc";
 import { RatingDisplay } from "./RatingDisplay";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const WingsDisplay = ({
   wings,
@@ -18,7 +24,7 @@ export const WingsDisplay = ({
   const [show, setShow] = React.useState(10);
   const [sort, setSort] = React.useState<"date" | "rating">("date");
   const [reverse, setReverse] = React.useState(false);
-  const sortedWings = wings
+  const sortedWings = [...wings]
     .sort((a, b) => {
       let value = 0;
       if (sort === "rating") {
@@ -37,85 +43,63 @@ export const WingsDisplay = ({
   };
   return (
     <>
-      <h3>Sort</h3>
-      <Space size="sm" />
-      <form>
-        <div>
-          <label htmlFor="sort">Sort by</label>
-          <select
-            id="sort"
+      <h3 className="text-xl font-semibold">Sort</h3>
+      <div className="h-4" />
+      <form className="grid w-full max-w-md gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="sort">Sort by</Label>
+          <Select
             value={sort}
-            onChange={(e) => setSort(e.target.value as any)}
+            onValueChange={(value) => setSort(value as "date" | "rating")}
             name="sort"
-            css={`
-              min-width: 10ch;
-            `}
           >
-            <option value="rating">{reverse ? "Worst" : "Best"}</option>
-            <option value="date">{reverse ? "Oldest" : "Newest"}</option>
-          </select>
+            <SelectTrigger id="sort" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rating">{reverse ? "Worst" : "Best"}</SelectItem>
+              <SelectItem value="date">{reverse ? "Oldest" : "Newest"}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div
-          css={`
-            ${row}
-            white-space: nowrap;
-          `}
-        >
-          <button onClick={() => setReverse((prev) => !prev)} type="button">
+        <div className="flex flex-wrap gap-2 whitespace-nowrap">
+          <Button onClick={() => setReverse((prev) => !prev)} type="button" variant="secondary">
             Reverse {reverse ? "▲" : "▼"}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => {
               setSort("rating");
               setReverse(false);
             }}
             type="reset"
+            variant="destructive"
           >
             Reset ↺
-          </button>
-          <Link href="#results">
-            <button
-              css={`
-                width: 100%;
-              `}
-            >
+          </Button>
+          <Button asChild>
+            <Link href="#results">
               {numWings} Result{numWings !== 1 ? "s" : ""} 👇
-            </button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </form>
-      <Space size="sm" />
-      <h3 id="results">Results</h3>
-      <Space size="sm" />
+      <div className="h-4" />
+      <h3 id="results" className="text-xl font-semibold">
+        Results
+      </h3>
+      <div className="h-4" />
       {wings && wings.length > 0 ? (
-        <div
-          css={`
-            ${col}
-            gap: var(--gap-list);
-          `}
-        >
+        <div className="grid gap-4">
           {sortedWings.map((wing) => (
             <Card key={wing.id} id={wing.id}>
               <ImageDisplay imageKeys={wing.images.map((image) => image.key)} />
               <Card.Body>
                 {showSpotName && (
-                  <div
-                    css={`
-                      ${col}
-                      gap: var(--gap-list);
-                      p {
-                        color: var(--text-2);
-                      }
-                    `}
-                  >
+                  <div className="grid gap-4">
                     <div>
-                      <h4>{wing.spot.name}</h4>
-                      <div
-                        css={`
-                          ${row}
-                        `}
-                      >
-                        <p>
+                      <h4 className="text-lg font-semibold">{wing.spot.name}</h4>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-muted-foreground">
                           {wing.spot.city}, {wing.spot.state}
                         </p>
                         {wing.spot.place && (
@@ -133,13 +117,10 @@ export const WingsDisplay = ({
                 )}
                 <p>{wing.review}</p>
                 <RatingDisplay rating={wing.rating} />
-                <div
-                  css={`
-                    ${row}
-                    justify-content: space-between;
-                  `}
-                >
-                  <Subtle>{wing.createdAt.toLocaleDateString()}</Subtle>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {wing.createdAt.toLocaleDateString()}
+                  </span>
                   <Link href={`/wings/${wing.id}`}>🔗</Link>
                 </div>
               </Card.Body>
@@ -149,8 +130,8 @@ export const WingsDisplay = ({
       ) : (
         <p>There are no ratings for this spot...</p>
       )}
-      <Space size="sm" />
-      <button onClick={handleShowMore}>Show More</button>
+      <div className="h-4" />
+      <Button onClick={handleShowMore}>Show More</Button>
     </>
   );
 };

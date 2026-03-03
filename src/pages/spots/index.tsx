@@ -3,7 +3,6 @@ import { trpc } from "../../utils/trpc";
 import React from "react";
 import { SpotsDisplay } from "../../components/SpotsDisplay";
 import { Layout } from "../../components/Layout";
-import { Space } from "../../components/Space";
 import { Loading } from "../../components/Loading";
 
 import { createServerSideHelpers } from "@trpc/react-query/server";
@@ -17,8 +16,8 @@ const Home: NextPage = () => {
   const isLoading = status === "pending";
   return (
     <Layout>
-      <h1>Spots</h1>
-      <Space size="sm" />
+      <h1 className="text-3xl font-black">Spots</h1>
+      <div className="h-4" />
       {isLoading ? <Loading /> : <SpotsDisplay spots={spots} />}
     </Layout>
   );

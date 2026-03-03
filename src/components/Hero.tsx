@@ -1,72 +1,33 @@
 import Link from "next/link";
 import { siteConfig } from "../siteConfig";
-import { row } from "../styles/utils";
-import Image from "next/image";
-import wings from "../../public/wings.webp";
 import { LogoSVG } from "./LogoSvg";
+import { Button } from "@/components/ui/button";
 
 export const Hero = () => {
   const { title, description } = siteConfig;
   return (
-    <div>
-      <div
-        css={`
-          display: grid;
-          align-items: center;
-          grid-template-columns: 1fr 1fr;
-        `}
-      >
-        <section
-          css={`
-            display: grid;
-            gap: var(--size-5);
-          `}
-        >
-          <h1
-            css={`
-              display: grid;
-              grid-template-columns: max-content;
-              color: var(--text);
-              line-height: var(--font-lineheight-0);
-              font-size: var(--font-size-fluid-2);
-              & > div:last-child {
-                color: var(--brand-color);
-                font-size: var(--font-size-fluid-1);
-              }
-            `}
-          >
+    <div className="grid gap-5">
+      <div className="grid items-center gap-4 md:grid-cols-2">
+        <section className="grid gap-5">
+          <h1 className="grid max-w-max gap-1 text-4xl leading-tight font-black md:text-5xl">
             <div>{title}</div>
-            <div>{description}</div>
+            <div className="text-primary text-3xl md:text-4xl">{description}</div>
           </h1>
-          <p
-            css={`
-              margin-block-end: var(--size-3);
-              font-size: var(--font-size-fluid-0);
-            `}
-          >
-            Naked Extra Crispy. It's how we like our wings. Good wings are
-            crispy, but never breaded. They're tossed in buffalo sauce and come
-            with a dip. Housemade sauces are key. We're not a wing spot, but we
+          <p className="text-muted-foreground">
+            Naked Extra Crispy. It&apos;s how we like our wings. Good wings are
+            crispy, but never breaded. They&apos;re tossed in buffalo sauce and come
+            with a dip. Housemade sauces are key. We&apos;re not a wing spot, but we
             do wings right.
           </p>
         </section>
-        <div
-          css={`
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            padding: var(--space-sm);
-          `}
-        >
+        <div className="flex items-center justify-center p-4">
           <LogoSVG />
         </div>
       </div>
       <div>
-        <Link href="#results">
-          <button>Show me the wings</button>
-        </Link>
+        <Button asChild>
+          <Link href="#results">Show me the wings</Link>
+        </Button>
       </div>
     </div>
   );
