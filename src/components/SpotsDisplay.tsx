@@ -39,6 +39,29 @@ import {
 
 const EMPTY_STATE_VALUE = "__empty_state__";
 const EMPTY_CITY_VALUE = "__empty_city__";
+const stateLabelByValue: Map<string, string> = new Map(
+  STATE_OPTIONS.map(({ value, label }) => [value, label] as const)
+);
+
+const normalizeLocationFilters = (filters: FilterValues): FilterValues => {
+  const hasState = filters.state.length > 0;
+  const hasCity = filters.city.length > 0;
+  const hasDistance = filters.distance !== "any";
+
+  if (hasState) {
+    return { ...filters, city: "", distance: "any" };
+  }
+
+  if (hasCity) {
+    return { ...filters, state: "", distance: "any" };
+  }
+
+  if (hasDistance) {
+    return { ...filters, state: "", city: "" };
+  }
+
+  return filters;
+};
 
 export const SpotsDisplay = ({
   spots = [],
@@ -55,7 +78,9 @@ export const SpotsDisplay = ({
     if (!sortedAfterLocationEnabled.current) {
       setSortBy("distance");
       setFilters((filters) => ({
-        ...filters,
+        ...normalizeLocationFilters(filters),
+        state: "",
+        city: "",
         distance: "10",
       }));
       sortedAfterLocationEnabled.current = true;
@@ -73,9 +98,8 @@ export const SpotsDisplay = ({
     [userLocation]
   );
 
-  const filtersFromUrl = parseFiltersFromQueryWithDefaults(
-    router.query.filters,
-    defaultFilters
+  const filtersFromUrl = normalizeLocationFilters(
+    parseFiltersFromQueryWithDefaults(router.query.filters, defaultFilters)
   );
   const reverseFromUrl = parseReverseFromQuery(router.query.reverse);
   const sortByFromUrl = parseSortByFromQuery(router.query.sortBy, defaultSortBy);
@@ -111,23 +135,32 @@ export const SpotsDisplay = ({
     setSelectedSpotId(null);
   };
   const handleSelectState = (state: string) => {
+    const nextState = state === EMPTY_STATE_VALUE ? "" : state;
     setFilters((prev) => ({
       ...prev,
-      state: state === EMPTY_STATE_VALUE ? "" : state,
+      state: nextState,
+      city: nextState ? "" : prev.city,
+      distance: nextState ? "any" : prev.distance,
     }));
     setSelectedSpotId(null);
   };
   const handleSelectCity = (city: string) => {
+    const nextCity = city === EMPTY_CITY_VALUE ? "" : city;
     setFilters((prev) => ({
       ...prev,
-      city: city === EMPTY_CITY_VALUE ? "" : city,
+      city: nextCity,
+      state: nextCity ? "" : prev.state,
+      distance: nextCity ? "any" : prev.distance,
     }));
     setSelectedSpotId(null);
   };
   const handleSelectDistance = (distance: string) => {
+    const nextDistance = distance as DistanceFilterValues;
     setFilters((prev) => ({
       ...prev,
-      distance: distance as DistanceFilterValues,
+      distance: nextDistance,
+      state: nextDistance !== "any" ? "" : prev.state,
+      city: nextDistance !== "any" ? "" : prev.city,
     }));
     setSelectedSpotId(null);
   };
@@ -158,12 +191,13 @@ export const SpotsDisplay = ({
       });
     }, {} as Record<string, { distance: number; display: string }>);
 
-  const filteredSpots = spots
-    .filter((spot) =>
-      filters.name
-        ? spot.name.toLowerCase().includes(filters.name.toLowerCase())
-        : true
-    )
+  const nameFilteredSpots = spots.filter((spot) =>
+    filters.name
+      ? spot.name.toLowerCase().includes(filters.name.toLowerCase())
+      : true
+  );
+
+  const filteredSpots = nameFilteredSpots
     .filter((spot) => (filters.state ? spot.state === filters.state : true))
     .filter((spot) => (filters.city ? spot.city === filters.city : true))
     .filter((spot) => {
@@ -204,7 +238,12 @@ export const SpotsDisplay = ({
     });
 
   const numFilteredSpots = filteredSpots.length;
-  const cityOptions = Array.from(new Set(spots.map((spot) => spot.city.trim()))).sort();
+  const stateOptions = Array.from(
+    new Set(nameFilteredSpots.map((spot) => spot.state.trim()).filter(Boolean))
+  ).sort();
+  const cityOptions = Array.from(
+    new Set(nameFilteredSpots.map((spot) => spot.city.trim()).filter(Boolean))
+  ).sort();
 
   const handleSelectSpot = (spotId: string) => {
     scrollToId("map");
@@ -250,9 +289,9 @@ export const SpotsDisplay = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={EMPTY_STATE_VALUE}>Pick a state</SelectItem>
-                {STATE_OPTIONS.map(({ value, label }) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
+                {stateOptions.map((stateValue) => (
+                  <SelectItem key={stateValue} value={stateValue}>
+                    {stateLabelByValue.get(stateValue) ?? stateValue}
                   </SelectItem>
                 ))}
               </SelectContent>

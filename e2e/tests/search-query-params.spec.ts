@@ -3,6 +3,34 @@ import { setupDatabase } from "../setup/setup";
 
 let cleanup: () => Promise<void> = async () => {};
 
+const getFiltersFromUrl = (url: string) => {
+  const filters = new URL(url).searchParams.get("filters");
+  if (!filters) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(filters) as {
+      name?: string;
+      state?: string;
+      city?: string;
+      distance?: string;
+    };
+  } catch {
+    return null;
+  }
+};
+
+const getNormalizedFiltersFromUrl = (url: string) => {
+  const filters = getFiltersFromUrl(url);
+  return {
+    name: filters?.name ?? "",
+    state: filters?.state ?? "",
+    city: filters?.city ?? "",
+    distance: filters?.distance ?? "any",
+  };
+};
+
 test.beforeEach(async () => {
   const setup = await setupDatabase();
   cleanup = setup.cleanup;
@@ -44,6 +72,32 @@ for (const route of ["/spots", "/map"]) {
     await searchInput.fill("");
     await expect.poll(() => new URL(page.url()).search).toBe("");
   });
+
+  test(`location filters are mutually exclusive and state options are result-backed on ${route}`, async ({
+    page,
+  }) => {
+    await page.goto(route);
+
+    await page.locator("#state").click();
+    await expect(page.getByRole("option", { name: "Colorado" })).toBeVisible();
+    await expect(page.getByRole("option", { name: "Alaska" })).toHaveCount(0);
+    await page.getByRole("option", { name: "Colorado" }).click();
+
+    await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
+      state: "CO",
+      city: "",
+      distance: "any",
+    });
+
+    await page.locator("#city").click();
+    await page.getByRole("option", { name: "Denver" }).click();
+
+    await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
+      state: "",
+      city: "Denver",
+      distance: "any",
+    });
+  });
 }
 
 test.describe("nearby defaults", () => {
@@ -58,4 +112,32 @@ test.describe("nearby defaults", () => {
     await expect(page.locator("#distance")).toBeVisible();
     await expect.poll(() => new URL(page.url()).search).toBe("");
   });
+
+  for (const route of ["/spots", "/map"]) {
+    test(`distance and state filters are mutually exclusive on ${route}`, async ({
+      page,
+    }) => {
+      await page.goto(route);
+
+      await expect(page.locator("#distance")).toBeVisible();
+
+      await page.locator("#state").click();
+      await page.getByRole("option", { name: "Colorado" }).click();
+
+      await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
+        state: "CO",
+        city: "",
+        distance: "any",
+      });
+
+      await page.locator("#distance").click();
+      await page.getByRole("option", { name: "10 miles" }).click();
+
+      await expect(page.locator("#distance")).toContainText("10 miles");
+      await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
+        state: "",
+        city: "",
+      });
+    });
+  }
 });

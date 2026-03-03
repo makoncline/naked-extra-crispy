@@ -46,6 +46,8 @@
 | 2026-03-03 | self | Typed copied router query as `Record<string, string | string[]>` and broke TS due optional query values | Keep copied `router.query` untyped (or include `undefined`) when mutating query params |
 | 2026-03-03 | self | Re-ran `rg` checks with unquoted bracket-route file paths in arguments and hit zsh glob errors | Quote bracket-route paths even inside multi-file `rg` commands (`'src/pages/spots/[id]/index.tsx'`) |
 | 2026-03-03 | self | Repeated unquoted bracket-route paths in verification commands (`git diff`, `rg`) and lost time to avoidable zsh errors | For any command with `[id]` routes, quote paths first before adding patterns/options |
+| 2026-03-03 | self | Used `Map` inferred from `STATE_OPTIONS` literal union keys, then looked up by runtime `string` and hit TS key-type error | Type lookup maps as `Map<string, string>` when runtime values are not literal-union constrained |
+| 2026-03-03 | self | E2E assertions assumed missing `distance` query param always meant `any`; nearby defaults can omit `distance=10` when it is default | In URL-state tests, assert effective UI selection for context-dependent defaults instead of assuming omitted param value |
 
 ## User Preferences
 
