@@ -1,140 +1,199 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { execSync } from "child_process";
-import fs from "fs";
 import path from "path";
 
 const testDbPath = path.join(process.cwd(), "test.db");
 const testDbUrl = `file:${testDbPath}`;
 let prisma: PrismaClient;
+let schemaInitialized = false;
+
+const sleep = async (ms: number) =>
+  await new Promise((resolve) => setTimeout(resolve, ms));
+
+const isRetryableDbError = (error: unknown) => {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const code = (error as { code?: string }).code;
+  const message = error.message.toLowerCase();
+  return (
+    code === "P1008" ||
+    message.includes("timed out") ||
+    message.includes("database is locked")
+  );
+};
+
+const withDbRetry = async <T>(operation: () => Promise<T>, attempts = 5) => {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableDbError(error) || attempt === attempts) {
+        throw error;
+      }
+      await sleep(100 * attempt);
+    }
+  }
+
+  throw lastError;
+};
+
+const createId = (prefix: string) =>
+  `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 async function createTestDatabase() {
-  // Ensure we start fresh
-  await cleanupDatabase();
+  if (!schemaInitialized) {
+    // Ensure schema exists once per test process.
+    execSync("npx prisma db push --schema=prisma/schema.prisma", {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        DATABASE_URL: testDbUrl,
+        TURSO_DATABASE_URL: testDbUrl,
+        // Prisma 7 schema engine intermittently fails here without trace logging.
+        RUST_LOG: "trace",
+      },
+    });
+    schemaInitialized = true;
+  }
 
-  // Create new database with schema
-  execSync("npx prisma db push --schema=prisma/schema.prisma", {
-    stdio: "inherit",
-    env: {
-      ...process.env,
-      DATABASE_URL: testDbUrl,
-      TURSO_DATABASE_URL: testDbUrl,
-      // Prisma 7 schema engine intermittently fails here without trace logging.
-      RUST_LOG: "trace",
-    },
-  });
-
-  prisma = new PrismaClient({
-    adapter: new PrismaLibSql({
-      url: testDbUrl,
-    }),
-  });
+  if (!prisma) {
+    prisma = new PrismaClient({
+      adapter: new PrismaLibSql({
+        url: testDbUrl,
+      }),
+    });
+  }
 }
 
 async function cleanupDatabase() {
-  if (prisma) {
-    await prisma.$disconnect();
-  }
-
-  if (fs.existsSync(testDbPath)) {
-    fs.unlinkSync(testDbPath);
-  }
+  // Intentionally no-op. We use unique IDs per test setup call and keep writes
+  // minimal to avoid SQLite lock contention against the running app process.
 }
 
 async function setupDatabase() {
   await createTestDatabase();
 
-  // Create test user
-  const user = await prisma.user.create({
-    data: {
-      id: "test-user-id",
-      email: "test@example.com",
-      name: "Test User",
-    },
+  const userId = createId("test-user");
+  const spotId = createId("test-spot");
+  const wingId = createId("test-wing");
+  const sessionToken = createId("test-session-token");
+
+  const user = await withDbRetry(async () => {
+    return await prisma.user.create({
+      data: {
+        id: userId,
+        email: `${userId}@example.com`,
+        name: "Test User",
+      },
+    });
   });
 
-  const spot = await prisma.spot.create({
-    data: {
-      id: "test-spot",
-      name: "Test Spot",
-      city: "Test City",
-      state: "TS",
-      userId: user.id,
-    },
+  const spot = await withDbRetry(async () => {
+    return await prisma.spot.create({
+      data: {
+        id: spotId,
+        name: "Test Spot",
+        city: "Test City",
+        state: "TS",
+        userId: user.id,
+      },
+    });
   });
 
-  const wing = await prisma.wing.create({
-    data: {
-      id: "test-wing",
-      userId: user.id,
-      spotId: spot.id,
-      review: "Test review",
-      rating: 7,
-    },
+  const wing = await withDbRetry(async () => {
+    return await prisma.wing.create({
+      data: {
+        id: wingId,
+        userId: user.id,
+        spotId: spot.id,
+        review: "Test review",
+        rating: 7,
+      },
+    });
   });
 
-  const sessionToken = "test-session-token";
-  const session = await prisma.session.create({
-    data: {
-      sessionToken,
-      userId: user.id,
-      expires: new Date(Date.now() + 1000 * 60 * 60),
-    },
+  const session = await withDbRetry(async () => {
+    return await prisma.session.create({
+      data: {
+        sessionToken,
+        userId: user.id,
+        expires: new Date(Date.now() + 1000 * 60 * 60),
+      },
+    });
   });
 
-  await prisma.$disconnect();
   return { user, spot, wing, sessionToken, session, cleanup: cleanupDatabase };
 }
 
 async function setupOtherUserSessionDatabase() {
   await createTestDatabase();
 
-  const creator = await prisma.user.create({
-    data: {
-      id: "creator-user-id",
-      email: "creator@example.com",
-      name: "Creator User",
-    },
+  const creatorId = createId("creator-user");
+  const otherUserId = createId("other-user");
+  const spotId = createId("test-spot");
+  const wingId = createId("test-wing");
+  const sessionToken = createId("other-user-session-token");
+
+  const creator = await withDbRetry(async () => {
+    return await prisma.user.create({
+      data: {
+        id: creatorId,
+        email: `${creatorId}@example.com`,
+        name: "Creator User",
+      },
+    });
   });
 
-  const otherUser = await prisma.user.create({
-    data: {
-      id: "other-user-id",
-      email: "other@example.com",
-      name: "Other User",
-    },
+  const otherUser = await withDbRetry(async () => {
+    return await prisma.user.create({
+      data: {
+        id: otherUserId,
+        email: `${otherUserId}@example.com`,
+        name: "Other User",
+      },
+    });
   });
 
-  const spot = await prisma.spot.create({
-    data: {
-      id: "test-spot",
-      name: "Test Spot",
-      city: "Test City",
-      state: "TS",
-      userId: creator.id,
-    },
+  const spot = await withDbRetry(async () => {
+    return await prisma.spot.create({
+      data: {
+        id: spotId,
+        name: "Test Spot",
+        city: "Test City",
+        state: "TS",
+        userId: creator.id,
+      },
+    });
   });
 
-  const wing = await prisma.wing.create({
-    data: {
-      id: "test-wing",
-      userId: creator.id,
-      spotId: spot.id,
-      review: "Test review",
-      rating: 7,
-    },
+  const wing = await withDbRetry(async () => {
+    return await prisma.wing.create({
+      data: {
+        id: wingId,
+        userId: creator.id,
+        spotId: spot.id,
+        review: "Test review",
+        rating: 7,
+      },
+    });
   });
 
-  const sessionToken = "other-user-session-token";
-  const session = await prisma.session.create({
-    data: {
-      sessionToken,
-      userId: otherUser.id,
-      expires: new Date(Date.now() + 1000 * 60 * 60),
-    },
+  const session = await withDbRetry(async () => {
+    return await prisma.session.create({
+      data: {
+        sessionToken,
+        userId: otherUser.id,
+        expires: new Date(Date.now() + 1000 * 60 * 60),
+      },
+    });
   });
 
-  await prisma.$disconnect();
   return {
     creator,
     otherUser,

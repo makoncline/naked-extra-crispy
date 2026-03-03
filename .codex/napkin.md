@@ -36,6 +36,8 @@
 | 2026-03-03 | self | Assumed this repo had a Vitest/unit test harness when starting UI work | Check `package.json` scripts and existing test directories first; in this repo, add integration coverage through Playwright e2e |
 | 2026-03-03 | self | Ran `tsx -e` with unescaped template-literal syntax in a double-quoted zsh command and got `bad substitution` | Wrap `tsx -e` snippets in single quotes (or escape `${...}`) when running inline scripts from zsh |
 | 2026-03-03 | self | Imported `ButtonProps` from `@/components/ui/button`, but this repo’s button component only exports `Button` and `buttonVariants` | For local UI primitives, derive prop types with `React.ComponentProps<typeof Button>` instead of assuming exported prop aliases |
+| 2026-03-03 | self | E2E setup deleted and recreated `test.db` while `next start` held a persistent Prisma connection, causing cross-test 500s and inconsistent auth/UI state | In Playwright setup, keep the SQLite file stable and reset data in-place with ordered `deleteMany` calls instead of unlinking the DB file |
+| 2026-03-03 | self | Clearing all tables in e2e setup (`deleteMany` reset) still hit intermittent Prisma `P1008` timeouts under `next start` due SQLite lock contention | Avoid global table-clearing during each test; seed each test with unique IDs and make cleanup a no-op for short CI runs to remove write-lock hotspots |
 
 ## User Preferences
 
@@ -52,6 +54,7 @@
 - Use repeated `npm run build` passes after each fix to surface the next upgrade regression quickly.
 - `npm run dev` now boots Turso + Next together; if homepage load returns `200` on `/api/trpc/public.getAllSpots`, the local DB wiring is healthy.
 - For text search fields that must avoid browser/password-manager suggestions, set anti-autofill attributes on both the `<form>` and the `<input>` (including `data-lpignore` for LastPass).
+- For Playwright + SQLite under `next start`, use unique IDs per seeded test data and avoid full-table cleanup during each test to prevent lock-related flake.
 
 ## Patterns That Don't Work
 
