@@ -8,6 +8,8 @@ import { trpc } from "../../utils/trpc";
 import Error from "next/error";
 import { Loading } from "../../components/Loading";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import { Layout } from "../../components/Layout";
 import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
@@ -24,13 +26,34 @@ import { NextSeo } from "../../components/Seo";
 
 const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: wingId } = props;
+  const router = useRouter();
+  const utils = trpc.useUtils();
+  const { data: session } = useSession();
   const { data: wing, isLoading } = trpc.public.getWing.useQuery({ wingId });
+  const deleteWing = trpc.auth.deleteWing.useMutation();
   if (isLoading) {
     return <Loading />;
   }
   if (!wing) {
     return <Error statusCode={404} />;
   }
+  const isCreator = session?.user?.id === wing.user.id;
+  const handleDelete = async () => {
+    const shouldDelete = window.confirm(
+      "Delete this rating? This can't be undone."
+    );
+    if (!shouldDelete) {
+      return;
+    }
+    try {
+      const deletedWing = await deleteWing.mutateAsync({ wingId: wing.id });
+      void utils.public.getAllWings.invalidate();
+      void utils.public.getSpot.invalidate({ spotId: deletedWing.spotId });
+      void router.push(`/spots/${deletedWing.spotId}`);
+    } catch {
+      // Ignore and keep the button available for retry.
+    }
+  };
   const { spot } = wing;
   const title = `${wing.spot.name} wing review - ${wing.rating}/10`;
   const description = `${wing.review}`;
@@ -86,6 +109,31 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         </div>
         <Space size="md" />
         <WingDisplay wing={wing} />
+        <Space size="lg" />
+        {isCreator && (
+          <div
+            css={`
+              display: flex;
+              justify-content: flex-end;
+            `}
+          >
+            <button
+              type="button"
+              className="link"
+              onClick={handleDelete}
+              disabled={deleteWing.isPending}
+              css={`
+                color: var(--text-2);
+                font-size: var(--font-size-00);
+                opacity: 0.65;
+                text-decoration: underline;
+                text-underline-offset: 2px;
+              `}
+            >
+              {deleteWing.isPending ? "Deleting rating..." : "Delete rating"}
+            </button>
+          </div>
+        )}
       </Layout>
     </>
   );
