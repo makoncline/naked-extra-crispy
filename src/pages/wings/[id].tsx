@@ -107,29 +107,18 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         </Button>
         <div className="h-8" />
         <WingDisplay wing={wing} />
-        <Space size="lg" />
+        <div className="h-8" />
         {isCreator && (
-          <div
-            css={`
-              display: flex;
-              justify-content: flex-end;
-            `}
-          >
-            <button
+          <div className="flex justify-end">
+            <Button
               type="button"
-              className="link"
               onClick={handleDelete}
+              variant="ghost"
               disabled={deleteWing.isPending}
-              css={`
-                color: var(--text-2);
-                font-size: var(--font-size-00);
-                opacity: 0.65;
-                text-decoration: underline;
-                text-underline-offset: 2px;
-              `}
+              className="h-auto p-0 text-xs text-muted-foreground underline underline-offset-2"
             >
               {deleteWing.isPending ? "Deleting rating..." : "Delete rating"}
-            </button>
+            </Button>
           </div>
         )}
       </Layout>
