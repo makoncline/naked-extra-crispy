@@ -38,6 +38,10 @@
 | 2026-03-03 | self | Imported `ButtonProps` from `@/components/ui/button`, but this repo’s button component only exports `Button` and `buttonVariants` | For local UI primitives, derive prop types with `React.ComponentProps<typeof Button>` instead of assuming exported prop aliases |
 | 2026-03-03 | self | E2E setup deleted and recreated `test.db` while `next start` held a persistent Prisma connection, causing cross-test 500s and inconsistent auth/UI state | In Playwright setup, keep the SQLite file stable and reset data in-place with ordered `deleteMany` calls instead of unlinking the DB file |
 | 2026-03-03 | self | Clearing all tables in e2e setup (`deleteMany` reset) still hit intermittent Prisma `P1008` timeouts under `next start` due SQLite lock contention | Avoid global table-clearing during each test; seed each test with unique IDs and make cleanup a no-op for short CI runs to remove write-lock hotspots |
+| 2026-03-03 | self | Ran `pnpm run build` without loading required env vars and hit schema validation failures in `src/env/server.mjs` | Use `dotenv -f .env.development run -- pnpm run build` (or set required env vars) for local build validation |
+| 2026-03-03 | self | Assumed `dotenv -e` syntax from `dotenv-cli`, but this environment uses python-dotenv (`-f` + `run`) | Check `dotenv --help` before using flags in this repo shell |
+| 2026-03-03 | self | Tried to pass port args to `pnpm run start` (`-- --port` / `-- -p`), which Next interpreted as project-directory args | For this repo’s `start` script, set `PORT=<port>` in env instead of passing CLI args |
+| 2026-03-03 | self | Treated `distance=any` as the only default when serializing search filters, so geolocation auto-default (`distance=10`) leaked into URL on first load | Use context-aware default filters (location-aware) for both query parsing and serialization |
 
 ## User Preferences
 
@@ -57,6 +61,7 @@
 - For text search fields that must avoid browser/password-manager suggestions, set anti-autofill attributes on both the `<form>` and the `<input>` (including `data-lpignore` for LastPass).
 - For Playwright + SQLite under `next start`, use unique IDs per seeded test data and avoid full-table cleanup during each test to prevent lock-related flake.
 - For package-manager migrations, run `pnpm import` in each package directory to convert existing `package-lock.json` files, then switch scripts/workflows to `pnpm` and delete the npm lockfiles.
+- For shared `/spots` + `/map` search state, use a single query-state helper and only serialize params whose values differ from defaults to keep URLs clean.
 
 ## Patterns That Don't Work
 
