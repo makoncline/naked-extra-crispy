@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { siteConfig } from "../../../siteConfig";
 import { env } from "../../../env/server.mjs";
@@ -171,5 +172,53 @@ export const authRouter = router({
         // ignore
       }
       return wing;
+    }),
+  deleteWing: protectedProcedure
+    .input(
+      z.object({
+        wingId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const wing = await ctx.prisma.wing.findFirst({
+        where: {
+          id: input.wingId,
+        },
+        select: {
+          id: true,
+          userId: true,
+          spotId: true,
+        },
+      });
+
+      if (!wing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Rating not found.",
+        });
+      }
+
+      if (wing.userId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only delete your own ratings.",
+        });
+      }
+
+      await ctx.prisma.wingSocialPost.deleteMany({
+        where: {
+          wingId: wing.id,
+        },
+      });
+      await ctx.prisma.wing.delete({
+        where: {
+          id: wing.id,
+        },
+      });
+
+      return {
+        id: wing.id,
+        spotId: wing.spotId,
+      };
     }),
 });
