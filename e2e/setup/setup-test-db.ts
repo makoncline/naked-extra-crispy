@@ -37,7 +37,7 @@ async function setupTestDatabase() {
   // Push schema
   console.log("📝 Pushing schema...");
   execSync(
-    `npx prisma db push --schema=${path.join(
+    `pnpm exec prisma db push --schema=${path.join(
       process.cwd(),
       "prisma",
       "schema.prisma"

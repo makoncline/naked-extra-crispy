@@ -49,7 +49,7 @@ const createId = (prefix: string) =>
 async function createTestDatabase() {
   if (!schemaInitialized) {
     // Ensure schema exists once per test process.
-    execSync("npx prisma db push --schema=prisma/schema.prisma", {
+    execSync("pnpm exec prisma db push --schema=prisma/schema.prisma", {
       stdio: "inherit",
       env: {
         ...process.env,

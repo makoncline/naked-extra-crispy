@@ -22,4 +22,4 @@ echo "🔄 Setting up test environment..."
 
 # Run the tests
 echo "🧪 Running e2e tests..."
-npm run test:e2e 
+pnpm run test:e2e

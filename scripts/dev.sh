@@ -19,7 +19,7 @@ if is_turso_running; then
   echo "Turso already running on 127.0.0.1:8080"
 else
   echo "Starting Turso on 127.0.0.1:8080..."
-  npm run turso:dev &
+  pnpm run turso:dev &
   TURSO_PID=$!
 
   i=0

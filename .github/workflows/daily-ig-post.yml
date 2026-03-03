@@ -15,16 +15,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: "pnpm"
+          cache-dependency-path: scripts/pnpm-lock.yaml
       - name: Install dependencies
         working-directory: ./scripts
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - name: Compile TypeScript for post-to-instagram script
         working-directory: ./scripts
-        run: npm run build:post-to-instagram
+        run: pnpm run build:post-to-instagram
       - name: Run post-to-instagram script
         env:
           IG_USERNAME: ${{ secrets.IG_USERNAME }}
