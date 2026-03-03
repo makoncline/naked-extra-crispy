@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { AddWingForm } from "../../../components/AddWingForm";
 import { Layout } from "../../../components/Layout";
 import { Loading } from "../../../components/Loading";
-import { Space } from "../../../components/Space";
 import { trpc } from "../../../utils/trpc";
 
 const AddWing: NextPage<{ spotId: string }> = ({ spotId }) => {
@@ -17,18 +16,18 @@ const AddWing: NextPage<{ spotId: string }> = ({ spotId }) => {
   }
   const userId = session?.user?.id;
   if (!userId) {
-    signIn("google");
+    void signIn("google");
     return null;
   }
   return (
     <Layout>
-      <h1>{spot.name}</h1>
-      <Space size="sm" />
+      <h1 className="text-3xl font-black">{spot.name}</h1>
+      <div className="h-4" />
       <AddWingForm
         userId={userId}
         spotId={spotId}
         spotName={spot!.name}
-        onSuccess={() => router.push(`/spots/${spotId}`)}
+        onSuccess={() => void router.push(`/spots/${spotId}`)}
       />
     </Layout>
   );

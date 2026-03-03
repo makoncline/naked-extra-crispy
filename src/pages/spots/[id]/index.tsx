@@ -1,7 +1,5 @@
 import type {
   GetStaticPaths,
-  GetStaticProps,
-  NextPage,
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
@@ -11,10 +9,7 @@ import Error from "next/error";
 import { Loading } from "../../../components/Loading";
 import Link from "next/link";
 import { Layout } from "../../../components/Layout";
-import { Space } from "../../../components/Space";
-import { col, row } from "../../../styles/utils";
 import { ImageDisplay } from "../../../components/ImageDisplay";
-import { Rating } from "../../../components/Rating";
 import { Card } from "../../../components/Card";
 import { WingsDisplay } from "../../../components/WingsDisplay";
 import { LocalBusinessJsonLd } from "next-seo";
@@ -26,9 +21,9 @@ import { createServerSideHelpers } from "@trpc/react-query/server";
 import { createContextInner } from "../../../server/trpc/context";
 import superjson from "superjson";
 import { env } from "../../../env/client.mjs";
-import { getRatingDescription } from "../../../lib/getRatingDescription";
 import { RatingDisplay } from "../../../components/RatingDisplay";
 import { NextSeo } from "../../../components/Seo";
+import { Button } from "@/components/ui/button";
 
 const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: spotId } = props;
@@ -103,25 +98,17 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         servesCuisine={["Chicken Wings", "Buffalo Wings"]}
       />
       <Layout title={`${name} - Naked Extra Crispy`}>
-        <h1>{spot.name}</h1>
-        <Space size="md" />
+        <h1 className="text-3xl font-black">{spot.name}</h1>
+        <div className="h-8" />
         <Card>
           <ImageDisplay
             imageKeys={spot.images.map((image) => image.key)}
             priority
           />
-          <Card.Body
-            css={`
-              justify-content: space-between;
-            `}
-          >
+          <Card.Body className="justify-between">
             <div>
-              <div
-                css={`
-                  ${row}
-                `}
-              >
-                <p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-muted-foreground">
                   {spot.city}, {spot.state}
                 </p>
                 {spot.place && (
@@ -140,26 +127,24 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 <span>🚫 No ratings</span>
               )}
               {spot.numWings > 0 && (
-                <p>{spot.numWings.toLocaleString()} ratings</p>
+                <p className="text-sm text-muted-foreground">
+                  {spot.numWings.toLocaleString()} ratings
+                </p>
               )}
             </div>
-            <div
-              css={`
-                ${col}
-              `}
-            >
-              <Link href={`#results`}>
-                <button>Show me the wings</button>
-              </Link>
-              <Link href={`/spots/${spotId}/addWing`}>
-                <button>+ Add rating</button>
-              </Link>
+            <div className="grid gap-2">
+              <Button asChild>
+                <Link href={`#results`}>Show me the wings</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href={`/spots/${spotId}/addWing`}>+ Add rating</Link>
+              </Button>
             </div>
           </Card.Body>
         </Card>
-        <Space size="md" />
-        <h2>Wings</h2>
-        <Space size="sm" />
+        <div className="h-8" />
+        <h2 className="text-2xl font-semibold">Wings</h2>
+        <div className="h-4" />
         <WingsDisplay wings={wings} />
       </Layout>
     </>

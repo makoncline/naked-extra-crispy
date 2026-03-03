@@ -1,13 +1,17 @@
 import React from "react";
 import { siteConfig } from "../siteConfig";
-import { Error } from "../styles/text";
 import Image from "next/image";
-import { col, row } from "../styles/utils";
 import { toBase64 } from "../lib/toBase64";
 import { Loading } from "./Loading";
-import * as Dialog from "@radix-ui/react-dialog";
-import { Space } from "./Space";
 import { env } from "../env/client.mjs";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export const ImageUpload = ({
   onUploadSuccess,
@@ -26,16 +30,17 @@ export const ImageUpload = ({
   const [status, setStatus] = React.useState<"idle" | "uploading">("idle");
   const [publicId, setPublicId] = React.useState<string | null>(null);
   const formRef = React.useRef<HTMLFormElement>(null);
+
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
-    const file = e.target.files?.[0];
-    if (file) {
-      setFile(file);
-      const base64Image = await toBase64(file);
+    const nextFile = e.target.files?.[0];
+    if (nextFile) {
+      setFile(nextFile);
+      const base64Image = await toBase64(nextFile);
       setPreviewImage(base64Image);
-    } else {
     }
   };
+
   const handleUpload = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setError(null);
@@ -67,6 +72,7 @@ export const ImageUpload = ({
       setUploading(false);
       setPublicId(data.public_id);
       onUploadSuccess(data.public_id);
+      setPreviewImage(null);
     } catch (err) {
       console.error(err);
       setStatus("idle");
@@ -74,6 +80,7 @@ export const ImageUpload = ({
       setError("Something went wrong. Try again later.");
     }
   };
+
   const handleClear = () => {
     setFile(null);
     setPreviewImage(null);
@@ -82,47 +89,31 @@ export const ImageUpload = ({
     setUploading(false);
     formRef.current?.reset();
   };
+
   const isUploading = status === "uploading";
-  const isUploaded = publicId;
+  const isUploaded = Boolean(publicId);
+
   return (
     <>
       {isUploading || isUploaded ? (
-        <div
-          css={`
-            display: grid;
-            justify-content: start;
-            place-items: center;
-            & > * {
-              grid-area: 1/1;
-            }
-          `}
-        >
-          <div
-            css={`
-              ${isUploading && `filter: grayscale(80%);`}
-            `}
-          >
-            {previewImage && (
-              <Image
-                src={previewImage}
-                width={300}
-                height={300}
-                style={{ objectFit: "cover" }}
-                alt="wing image"
-              />
-            )}
-          </div>
-          {isUploading && <Loading />}
+        <div className="relative grid place-items-start">
+          {previewImage && (
+            <Image
+              src={previewImage}
+              width={300}
+              height={300}
+              style={{ objectFit: "cover" }}
+              alt="wing image"
+            />
+          )}
+          {isUploading && (
+            <div className="absolute inset-0 grid place-items-center bg-background/40">
+              <Loading />
+            </div>
+          )}
         </div>
       ) : (
-        <form
-          ref={formRef}
-          onSubmit={handleUpload}
-          css={`
-            ${col}
-            align-items: flex-start;
-          `}
-        >
+        <form ref={formRef} onSubmit={handleUpload} className="grid gap-2">
           <label htmlFor={id}>{children}</label>
           <input
             id={id}
@@ -133,55 +124,43 @@ export const ImageUpload = ({
             onChange={onFileChange}
             hidden
           />
-          <Dialog.Root open={Boolean(previewImage)} onOpenChange={handleClear}>
-            <Dialog.Overlay
-              css={`
-                background-color: hsla(var(--surface-1-hsl) / 90%);
-                opacity: 1;
-                position: fixed;
-                inset: 0;
-                display: grid;
-                align-items: center;
-                justify-items: center;
-                z-index: var(--layer-important);
-              `}
-            >
-              <Dialog.Content
-                css={`
-                  background-color: var(--surface-1);
-                  padding: var(--space-sm);
-                  border: 1px solid var(--surface-2);
-                `}
-              >
-                <div>
-                  {previewImage && (
-                    <Image
-                      src={previewImage}
-                      width={300}
-                      height={300}
-                      style={{ objectFit: "cover" }}
-                      alt="wing image"
-                    />
-                  )}
-                  {error && <Error>{error}</Error>}
-                  <Space size="sm" />
-                  <div
-                    css={`
-                      ${row}
-                      justify-content: center;
-                    `}
-                  >
-                    <button onClick={handleClear} type="button">
-                      Try Again
-                    </button>
-                    <button type="submit">Looks Good!</button>
-                  </div>
-                </div>
-              </Dialog.Content>
-            </Dialog.Overlay>
-          </Dialog.Root>
         </form>
       )}
+
+      <Dialog
+        open={Boolean(previewImage)}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            handleClear();
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Preview</DialogTitle>
+          </DialogHeader>
+          <div className="grid justify-center">
+            {previewImage && (
+              <Image
+                src={previewImage}
+                width={300}
+                height={300}
+                style={{ objectFit: "cover" }}
+                alt="wing image"
+              />
+            )}
+            {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+          </div>
+          <DialogFooter className="sm:justify-center">
+            <Button onClick={handleClear} type="button" variant="outline">
+              Try Again
+            </Button>
+            <Button type="button" onClick={handleUpload}>
+              Looks Good!
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

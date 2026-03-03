@@ -1,10 +1,16 @@
 import usePlacesAutocomplete from "use-places-autocomplete";
 import { getPlaceGeoDataById } from "../lib/getPlaceDataById";
-import { useCombobox } from "downshift";
 import React from "react";
-import { row } from "../styles/utils";
 import { OnSelectPlaceData } from "./AddSpotForm";
-import { Autocomplete } from "./AutocompleteStyles";
+import { Label } from "@/components/ui/label";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 
 export const PlacesAutocomplete = ({
   onSelectPlace,
@@ -20,25 +26,6 @@ export const PlacesAutocomplete = ({
       componentRestrictions: { country: "us" },
     },
     debounce: 300,
-  });
-  const {
-    isOpen,
-    getLabelProps,
-    getMenuProps,
-    getInputProps,
-    highlightedIndex,
-    getItemProps,
-    selectItem,
-  } = useCombobox({
-    inputId: "places-autocomplete",
-    items: data,
-    onInputValueChange: ({ inputValue }) => {
-      setValue(inputValue || "");
-    },
-    onSelectedItemChange: ({ selectedItem }) => {
-      handleSelect(selectedItem);
-    },
-    itemToString: (item) => (item ? item.description : ""),
   });
 
   const handleSelect = async (
@@ -61,47 +48,43 @@ export const PlacesAutocomplete = ({
   };
 
   return (
-    <div>
-      <label {...getLabelProps()}>Search for a spot!</label>
-      <div
-        css={`
-          ${row}
-          margin-bottom: var(--size-2);
-        `}
+    <div className="grid gap-2">
+      <Label htmlFor="places-autocomplete">Search for a spot!</Label>
+      <Combobox<google.maps.places.AutocompletePrediction>
+        items={data}
+        onInputValueChange={(inputValue) => setValue(inputValue || "")}
+        onValueChange={(suggestion) => {
+          void handleSelect(suggestion);
+        }}
+        itemToStringLabel={(item) => item.description}
+        itemToStringValue={(item) => item.place_id}
+        isItemEqualToValue={(item, selected) => item.place_id === selected.place_id}
+        filter={() => true}
       >
-        <input {...getInputProps()} />
-        <button
-          aria-label="toggle menu"
-          onClick={() => selectItem(null)}
-          type="reset"
-        >
-          &#10007;
-        </button>
-      </div>
-      <Autocomplete.Container {...getMenuProps()}>
-        {isOpen &&
-          data.map((item, index) => {
-            const {
-              place_id,
-              structured_formatting: {
-                main_text: name,
-                secondary_text: address,
-              },
-            } = item;
-            return (
-              <Autocomplete.Item
-                highlighted={highlightedIndex === index}
-                key={place_id}
-                {...getItemProps({
-                  item,
-                  index,
-                })}
-              >
-                <strong>{name}</strong> <small>{address}</small>
-              </Autocomplete.Item>
-            );
-          })}
-      </Autocomplete.Container>
+        <ComboboxInput
+          id="places-autocomplete"
+          className="w-full"
+          placeholder="Search for a spot!"
+          showClear
+        />
+        <ComboboxContent>
+          <ComboboxEmpty className="px-3 py-2 text-sm text-muted-foreground">
+            No matching places found.
+          </ComboboxEmpty>
+          <ComboboxList>
+            {(item: google.maps.places.AutocompletePrediction) => (
+              <ComboboxItem key={item.place_id} value={item}>
+                <div className="grid">
+                  <strong>{item.structured_formatting.main_text}</strong>
+                  <small className="text-muted-foreground">
+                    {item.structured_formatting.secondary_text}
+                  </small>
+                </div>
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
     </div>
   );
 };

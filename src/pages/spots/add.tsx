@@ -3,7 +3,6 @@ import { AddSpotForm } from "../../components/AddSpotForm";
 import { Loading } from "../../components/Loading";
 import { useRouter } from "next/router";
 import { Layout } from "../../components/Layout";
-import { Space } from "../../components/Space";
 import React from "react";
 import { GoogleMapsApiProvider } from "../../components/GoogleMapsApiProvider";
 
@@ -15,17 +14,17 @@ const AddSpot = () => {
   }
   const userId = session?.user?.id;
   if (!userId) {
-    signIn("google");
+    void signIn("google");
     return null;
   }
   return (
     <GoogleMapsApiProvider>
       <Layout>
-        <h1>Add Spot</h1>
-        <Space size="sm" />
+        <h1 className="text-3xl font-black">Add Spot</h1>
+        <div className="h-4" />
         <AddSpotForm
           userId={userId}
-          onSuccess={(spotId) => router.push(`/spots/${spotId}`)}
+          onSuccess={(spotId) => void router.push(`/spots/${spotId}`)}
         />
       </Layout>
     </GoogleMapsApiProvider>

@@ -1,14 +1,13 @@
 import { useRouter } from "next/router";
-import { Space } from "./Space";
+import { Button } from "@/components/ui/button";
 
 export const BackButton = () => {
   const router = useRouter();
   return (
-    <>
-      <a onClick={() => router.back()} href="#">
+    <div className="mb-8">
+      <Button variant="link" className="px-0" onClick={() => router.back()}>
         ⬅️ Go back
-      </a>
-      <Space size="md" />
-    </>
+      </Button>
+    </div>
   );
 };

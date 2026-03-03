@@ -9,7 +9,6 @@ import Error from "next/error";
 import { Loading } from "../../components/Loading";
 import Link from "next/link";
 import { Layout } from "../../components/Layout";
-import { Space } from "../../components/Space";
 import { WingDisplay } from "../../components/WingDisplay";
 import { ArticleJsonLd } from "next-seo";
 import { toCloudinaryUrl } from "../../lib/cloudinary";
@@ -21,6 +20,7 @@ import superjson from "superjson";
 import { env } from "../../env/client.mjs";
 import { siteConfig } from "../../siteConfig";
 import { NextSeo } from "../../components/Seo";
+import { Button } from "@/components/ui/button";
 
 const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: wingId } = props;
@@ -77,14 +77,12 @@ const Wing = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         isAccessibleForFree={true}
       />
       <Layout>
-        <h1>{spot.name}</h1>
-        <Space size="sm" />
-        <div>
-          <Link href={`/spots/${spot.id}`}>
-            <button>View spot</button>
-          </Link>
-        </div>
-        <Space size="md" />
+        <h1 className="text-3xl font-black">{spot.name}</h1>
+        <div className="h-4" />
+        <Button asChild>
+          <Link href={`/spots/${spot.id}`}>View spot</Link>
+        </Button>
+        <div className="h-8" />
         <WingDisplay wing={wing} />
       </Layout>
     </>

@@ -1,14 +1,8 @@
 import { getRatingDescription } from "../lib/getRatingDescription";
-import { row } from "../styles/utils";
 
 export const RatingDisplay = ({ rating }: { rating: number }) => (
-  <div
-    css={`
-      ${row}
-      gap: var(--space-sm);
-    `}
-  >
+  <div className="flex flex-wrap items-center gap-3 text-sm">
     <span>{rating} / 10 🔥</span>
-    <span>{getRatingDescription(rating)}</span>
+    <span className="text-muted-foreground">{getRatingDescription(rating)}</span>
   </div>
 );

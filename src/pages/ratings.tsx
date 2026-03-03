@@ -3,7 +3,6 @@ import { trpc } from "../utils/trpc";
 import Error from "next/error";
 import { Loading } from "../components/Loading";
 import { Layout } from "../components/Layout";
-import { Space } from "../components/Space";
 import { NextSeo } from "../components/Seo";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "../server/trpc/router/_app";
@@ -37,8 +36,8 @@ const Wings = () => {
         }}
       />
       <Layout>
-        <h1>Wings</h1>
-        <Space size="sm" />
+        <h1 className="text-3xl font-black">Wings</h1>
+        <div className="h-4" />
         <WingsDisplay wings={wings} showSpotName={true} />
       </Layout>
     </>

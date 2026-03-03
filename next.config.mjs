@@ -19,9 +19,6 @@ export default defineNextConfig({
       },
     ],
   },
-  compiler: {
-    styledComponents: true,
-  },
   i18n: {
     locales: ["en"],
     defaultLocale: "en",

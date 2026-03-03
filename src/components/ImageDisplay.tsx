@@ -1,5 +1,4 @@
 import Image from "next/image";
-import styled from "styled-components";
 import { toCloudinaryBlurUrl, toCloudinaryUrl } from "../lib/cloudinary";
 import wings from "../../public/wings.webp";
 
@@ -14,12 +13,15 @@ export const ImageDisplay = ({
   const hasImages = imageKeys.length > 0;
   const imageSize = 400;
   return (
-    <ImageDisplayWrapper>
+    <div className="flex h-full snap-x snap-mandatory overflow-x-auto">
       {hasImages ? (
         imageKeys.map((key, i) => {
           return (
-            <ImageWrapper key={i}>
-              <BlurImage src={toCloudinaryBlurUrl(key)} />
+            <div key={i} className="relative min-w-full snap-start">
+              <div
+                style={{ backgroundImage: `url(${toCloudinaryBlurUrl(key)})` }}
+                className="absolute inset-0 -z-10 bg-cover bg-center"
+              />
               <Image
                 src={toCloudinaryUrl(key, imageSize)}
                 alt={alt}
@@ -30,11 +32,11 @@ export const ImageDisplay = ({
                 loading={i === 0 && priority ? "eager" : "lazy"}
                 unoptimized
               />
-            </ImageWrapper>
+            </div>
           );
         })
       ) : (
-        <ImageWrapper>
+        <div className="relative min-w-full snap-start">
           <Image
             src={wings}
             placeholder="blur"
@@ -44,49 +46,8 @@ export const ImageDisplay = ({
             height={imageSize}
             priority={priority}
           />
-        </ImageWrapper>
+        </div>
       )}
-    </ImageDisplayWrapper>
+    </div>
   );
 };
-
-const ImageDisplayWrapper = styled.div`
-  display: flex;
-  overflow-x: scroll;
-  height: 100%;
-  scroll-snap-type: x mandatory;
-  scroll-snap-points-x: repeat(100%);
-  -webkit-overflow-scrolling: touch;
-  -ms-scroll-snap-type: x mandatory;
-  -ms-scroll-snap-points-x: repeat(100%);
-  & > div {
-    scroll-snap-align: start;
-    min-width: 100%;
-  }
-  overflow-x: overlay;
-  ::-webkit-scrollbar {
-    -webkit-appearance: none;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-    background-color: var(--gray-6);
-  }
-`;
-
-const ImageWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1/1;
-`;
-
-const BlurImage = styled.div.attrs<{ src: string }>(({ src }) => ({
-  style: src ? { backgroundImage: `url(${src})` } : undefined,
-}))<{ src: string }>`
-  position: absolute;
-  width: 100%;
-  aspect-ratio: 1/1;
-  background-size: cover;
-  background-position: center;
-  z-index: -1;
-`;

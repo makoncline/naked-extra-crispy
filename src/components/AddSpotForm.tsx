@@ -3,11 +3,11 @@ import { SubmitHandler } from "react-hook-form";
 import React from "react";
 import { PlacesAutocomplete } from "./PlacesAutocomplete";
 import { GoogleMapsPlaceData } from "../lib/getPlaceDataById";
-import { Error } from "../styles/text";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 import { Spinner } from "./Spiner";
 import { z } from "zod";
 import { useZodForm } from "../hooks/useZodForm";
+import { Button } from "@/components/ui/button";
 
 export const addSpotInputSchema = z.object({
   userId: z.string(),
@@ -49,15 +49,15 @@ export const AddSpotForm = ({
   const utils = trpc.useContext();
   const createSpot = trpc.auth.createSpot.useMutation({
     onSuccess: () => {
-      utils.invalidate();
+      void utils.invalidate();
     },
   });
   const onSubmit: SubmitHandler<AddSpotInput> = async (data) => {
     try {
       const { id: spotId } = await createSpot.mutateAsync(data);
       onSuccess(spotId);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to add spot");
     }
   };
   const onSelectPlace = (placeData: OnSelectPlaceData) => {
@@ -71,41 +71,36 @@ export const AddSpotForm = ({
       setValue("lat", placeData.lat);
       setValue("lng", placeData.lng);
       setValue("address", placeData.address);
-      trigger();
+      void trigger();
     }
     setError(null);
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="grid w-full max-w-md gap-4">
       <input
         {...register("userId", { required: true })}
         value={userId}
         hidden
+        readOnly
       />
-      <input {...register("city")} hidden />
-      <input {...register("state")} hidden />
-      <input {...register("placeId")} hidden />
-      <input {...register("lat")} hidden />
-      <input {...register("lng")} hidden />
-      <input {...register("address")} hidden />
+      <input {...register("city")} hidden readOnly />
+      <input {...register("state")} hidden readOnly />
+      <input {...register("placeId")} hidden readOnly />
+      <input {...register("lat")} hidden readOnly />
+      <input {...register("lng")} hidden readOnly />
+      <input {...register("address")} hidden readOnly />
 
       {isGoogleMapsApiReady ? (
         <>
           <PlacesAutocomplete onSelectPlace={onSelectPlace} />
-          {errors.name && <Error>You have to select a place!</Error>}
-          <button disabled={!isValid}>Add spot</button>
-          {error && <Error>{error}</Error>}
+          {errors.name && (
+            <p className="text-sm text-destructive">You have to select a place!</p>
+          )}
+          <Button disabled={!isValid}>Add spot</Button>
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </>
       ) : (
-        <div
-          css={`
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100px;
-            width: 100%;
-          `}
-        >
+        <div className="flex h-24 w-full items-center justify-center">
           <Spinner />
         </div>
       )}

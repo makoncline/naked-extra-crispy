@@ -3,7 +3,6 @@ import { RouterOutputs } from "../utils/trpc.js";
 import { getCenter } from "geolib";
 import { useGoogleMapsApi } from "./GoogleMapsApiProvider";
 import { Spinner } from "./Spiner";
-import { css } from "styled-components";
 import { Place } from "@prisma/client";
 
 type SpotWithLocation = RouterOutputs["public"]["getAllSpots"][number] & {
@@ -15,11 +14,6 @@ const usCenterLocation = {
   lat: 39.8097343,
   lng: -98.5556199,
 } as const;
-
-const mapSize = css`
-  height: 400px;
-  width: 100%;
-`;
 
 export const SpotMap = ({
   spots = [],
@@ -35,14 +29,7 @@ export const SpotMap = ({
   const { isGoogleMapsApiReady } = useGoogleMapsApi();
   if (!isGoogleMapsApiReady) {
     return (
-      <div
-        css={`
-          ${mapSize}
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        `}
-      >
+      <div className="flex h-[400px] w-full items-center justify-center rounded-lg border">
         <Spinner />
       </div>
     );
@@ -117,11 +104,15 @@ const Map = ({
   bounds: google.maps.LatLngBounds;
   centerOverride?: google.maps.LatLng;
 }) => {
-  const ref = React.useRef(null);
+  type MapChildProps = {
+    map?: google.maps.MarkerOptions["map"];
+  };
+  const ref = React.useRef<HTMLDivElement | null>(null);
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
   const isBoundsEmpty = bounds.isEmpty();
   const center = isBoundsEmpty ? usCenterLocation : bounds.getCenter().toJSON();
   const zoom = isBoundsEmpty ? defaultZoom : undefined;
+
   React.useEffect(() => {
     if (centerOverride) return;
     if (!isBoundsEmpty) {
@@ -153,18 +144,12 @@ const Map = ({
   }, [ref, map, center, zoom]);
 
   return (
-    <div
-      ref={ref}
-      css={`
-        ${mapSize}
-      `}
-    >
+    <div ref={ref} className="h-[400px] w-full rounded-lg border">
       {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          // set the map prop on the child component
-          // @ts-ignore
+        if (React.isValidElement<MapChildProps>(child)) {
           return React.cloneElement(child, { map });
         }
+        return child;
       })}
     </div>
   );
@@ -172,8 +157,8 @@ const Map = ({
 
 const Marker = ({
   map,
-  lat: lat,
-  lng: lng,
+  lat,
+  lng,
   title,
   id,
   onSelect,
@@ -194,7 +179,6 @@ const Marker = ({
       setMarker(new google.maps.Marker());
     }
 
-    // remove marker from map on unmount
     return () => {
       if (marker) {
         marker.setMap(null);

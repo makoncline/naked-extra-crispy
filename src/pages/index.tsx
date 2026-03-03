@@ -4,7 +4,6 @@ import React from "react";
 import { SpotsDisplay } from "../components/SpotsDisplay";
 import { Layout } from "../components/Layout";
 import { Hero } from "../components/Hero";
-import { Space } from "../components/Space";
 import { Loading } from "../components/Loading";
 import { Contact } from "../components/Contact";
 import { useSession } from "next-auth/react";
@@ -22,13 +21,13 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <Hero />
-      <Space size="md" />
+      <div className="h-8" />
       <div>
-        <h2>Spots</h2>
-        <Space size="md" />
+        <h2 className="text-2xl font-semibold">Spots</h2>
+        <div className="h-8" />
         {isLoading ? <Loading /> : <SpotsDisplay spots={spots} />}
       </div>
-      <Space size="lg" />
+      <div className="h-12" />
       <Contact userEmail={session?.user?.email || undefined} />
     </Layout>
   );

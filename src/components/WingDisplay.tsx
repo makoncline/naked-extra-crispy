@@ -1,8 +1,6 @@
-import { Subtle } from "../styles/text";
 import { RouterOutputs } from "../utils/trpc";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
-import { Rating } from "./Rating";
 import { RatingDisplay } from "./RatingDisplay";
 
 export const WingDisplay = ({
@@ -16,7 +14,9 @@ export const WingDisplay = ({
       <Card.Body>
         <p>{wing.review}</p>
         <RatingDisplay rating={wing.rating} />
-        <Subtle>{wing.createdAt.toLocaleDateString()}</Subtle>
+        <span className="text-sm text-muted-foreground">
+          {wing.createdAt.toLocaleDateString()}
+        </span>
       </Card.Body>
     </Card>
   );
