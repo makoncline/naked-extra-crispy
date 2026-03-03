@@ -24,21 +24,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { STATE_OPTIONS } from "./SelectStateOptions";
+import {
+  type DistanceFilterValues,
+  type FilterValues,
+  type SortOrder,
+  buildSearchStateQuery,
+  buildSearchStateQueryValues,
+  defaultFilterValues,
+  isSearchStateQueryChanged,
+  parseFiltersFromQueryWithDefaults,
+  parseReverseFromQuery,
+  parseSortByFromQuery,
+} from "../lib/searchStateQuery";
 
-type SortOrder = "distance" | "rating" | "name" | "numWings";
-type DistanceFilterValues = "5" | "10" | "25" | "50" | "100" | "any";
-type FilterValues = {
-  name: string;
-  state: string;
-  city: string;
-  distance: DistanceFilterValues;
-};
-const defaultFilterValues = {
-  name: "",
-  state: "",
-  city: "",
-  distance: "any",
-} as const;
 const EMPTY_STATE_VALUE = "__empty_state__";
 const EMPTY_CITY_VALUE = "__empty_city__";
 
@@ -67,43 +65,44 @@ export const SpotsDisplay = ({
     onUserLocationEnabled: handleUserLocationEnabled,
   });
   const defaultSortBy = userLocation ? "distance" : "rating";
+  const defaultFilters = React.useMemo<FilterValues>(
+    () => ({
+      ...defaultFilterValues,
+      distance: userLocation ? "10" : "any",
+    }),
+    [userLocation]
+  );
 
-  const filtersFromUrl = router.query.filters
-    ? JSON.parse(router.query.filters.toString())
-    : defaultFilterValues;
-  const reverseFromUrl = router.query.reverse
-    ? Boolean(router.query.reverse)
-    : true;
-  const sortByFromUrl = router.query.sortBy
-    ? (router.query.sortBy as SortOrder)
-    : defaultSortBy;
+  const filtersFromUrl = parseFiltersFromQueryWithDefaults(
+    router.query.filters,
+    defaultFilters
+  );
+  const reverseFromUrl = parseReverseFromQuery(router.query.reverse);
+  const sortByFromUrl = parseSortByFromQuery(router.query.sortBy, defaultSortBy);
 
   const [filters, setFilters] = React.useState<FilterValues>(filtersFromUrl);
   const [reverse, setReverse] = React.useState(reverseFromUrl);
   const [sortBy, setSortBy] = React.useState<SortOrder>(sortByFromUrl);
 
   React.useEffect(() => {
-    const newQuery = {
-      filters: JSON.stringify(filters),
-      reverse: reverse.toString(),
-      sortBy: sortBy,
-    };
-    if (
-      !(
-        newQuery.filters === router.query.filters &&
-        newQuery.reverse === router.query.reverse &&
-        newQuery.sortBy === router.query.sortBy
-      )
-    ) {
+    const nextQueryValues = buildSearchStateQueryValues({
+      filters,
+      reverse,
+      sortBy,
+      defaultSortBy,
+      defaultFilters,
+    });
+
+    if (isSearchStateQueryChanged(router.query, nextQueryValues)) {
       void router.replace(
         {
-          query: newQuery,
+          query: buildSearchStateQuery(router.query, nextQueryValues),
         },
         undefined,
         { scroll: false, shallow: true }
       );
     }
-  }, [filters, reverse, sortBy, router]);
+  }, [defaultFilters, defaultSortBy, filters, reverse, sortBy, router]);
 
   const sortedAfterLocationEnabled = React.useRef(false);
 
@@ -137,7 +136,7 @@ export const SpotsDisplay = ({
     setSelectedSpotId(null);
   };
   const handleReset = () => {
-    setFilters(defaultFilterValues);
+    setFilters(defaultFilters);
     setReverse(true);
   };
   const [showMap, setShowMap] = React.useState(false);
