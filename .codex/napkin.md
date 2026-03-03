@@ -48,6 +48,8 @@
 | 2026-03-03 | self | Repeated unquoted bracket-route paths in verification commands (`git diff`, `rg`) and lost time to avoidable zsh errors | For any command with `[id]` routes, quote paths first before adding patterns/options |
 | 2026-03-03 | self | Used `Map` inferred from `STATE_OPTIONS` literal union keys, then looked up by runtime `string` and hit TS key-type error | Type lookup maps as `Map<string, string>` when runtime values are not literal-union constrained |
 | 2026-03-03 | self | E2E assertions assumed missing `distance` query param always meant `any`; nearby defaults can omit `distance=10` when it is default | In URL-state tests, assert effective UI selection for context-dependent defaults instead of assuming omitted param value |
+| 2026-03-03 | self | Radix Select e2e used global `getByRole("option")`, so tests could click options from the wrong dropdown and flake | Scope option locators to the currently open `listbox` when selecting state/city/distance values |
+| 2026-03-03 | self | `/map` crashed when `SpotMap` called `bounds.getCenter().toJSON()` and Google returned an undefined center | Guard map-center extraction and fall back to US center/default zoom when bounds center is invalid |
 
 ## User Preferences
 

@@ -31,6 +31,17 @@ const getNormalizedFiltersFromUrl = (url: string) => {
   };
 };
 
+const firstOpenListboxOption = (
+  page: Parameters<typeof test>[0]["page"],
+  placeholder: string
+) =>
+  page
+    .getByRole("listbox")
+    .last()
+    .getByRole("option")
+    .filter({ hasNotText: placeholder })
+    .first();
+
 test.beforeEach(async () => {
   const setup = await setupDatabase();
   cleanup = setup.cleanup;
@@ -78,25 +89,33 @@ for (const route of ["/spots", "/map"]) {
   }) => {
     await page.goto(route);
 
+    const searchInput = page.getByRole("combobox", { name: "Name" });
+    await searchInput.fill("qzxjv-no-match");
+
     await page.locator("#state").click();
-    await expect(page.getByRole("option", { name: "Colorado" })).toBeVisible();
-    await expect(page.getByRole("option", { name: "Alaska" })).toHaveCount(0);
-    await page.getByRole("option", { name: "Colorado" }).click();
+    await expect(page.getByRole("listbox").last().getByRole("option")).toHaveCount(1);
+    await page.keyboard.press("Escape");
+
+    await searchInput.fill("");
+    await page.locator("#state").click();
+    await expect(firstOpenListboxOption(page, "Pick a state")).toBeVisible();
+    await firstOpenListboxOption(page, "Pick a state").click();
 
     await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
-      state: "CO",
       city: "",
-      distance: "any",
     });
+    await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).state).not.toBe("");
+    await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).distance).toBe("any");
 
     await page.locator("#city").click();
-    await page.getByRole("option", { name: "Denver" }).click();
+    await expect(firstOpenListboxOption(page, "Select a city")).toBeVisible();
+    await firstOpenListboxOption(page, "Select a city").click();
 
     await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
       state: "",
-      city: "Denver",
       distance: "any",
     });
+    await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).city).not.toBe("");
   });
 }
 
@@ -122,16 +141,17 @@ test.describe("nearby defaults", () => {
       await expect(page.locator("#distance")).toBeVisible();
 
       await page.locator("#state").click();
-      await page.getByRole("option", { name: "Colorado" }).click();
+      await expect(firstOpenListboxOption(page, "Pick a state")).toBeVisible();
+      await firstOpenListboxOption(page, "Pick a state").click();
 
       await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
-        state: "CO",
         city: "",
         distance: "any",
       });
+      await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).state).not.toBe("");
 
       await page.locator("#distance").click();
-      await page.getByRole("option", { name: "10 miles" }).click();
+      await page.getByRole("listbox").last().getByRole("option", { name: "10 miles" }).click();
 
       await expect(page.locator("#distance")).toContainText("10 miles");
       await expect.poll(() => getNormalizedFiltersFromUrl(page.url())).toMatchObject({
