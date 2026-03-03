@@ -341,12 +341,18 @@ export const SpotsDisplay = ({
       <section id="map" className="grid gap-4">
         <h3 className="text-xl font-semibold">Map</h3>
         {!showMap ? (
-          <Image
-            src={mapPlaceholder}
-            alt="Click to view wing map"
+          <button
+            type="button"
             onClick={() => setShowMap(true)}
-            className="cursor-pointer rounded-lg border"
-          />
+            className="w-full overflow-hidden rounded-lg border text-left transition-[box-shadow,border-color] focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Open interactive wing map"
+          >
+            <Image
+              src={mapPlaceholder}
+              alt="Map preview"
+              className="h-auto w-full"
+            />
+          </button>
         ) : (
           <>
             <GoogleMapsApiProvider>
@@ -381,7 +387,7 @@ export const SpotsDisplay = ({
 
       <div className="h-8" />
 
-      <section id="results" className="grid min-h-screen gap-4">
+      <section id="results" className="grid min-h-screen gap-4 scroll-mt-24">
         <h3 className="text-xl font-semibold">Results</h3>
         {filteredSpots && filteredSpots.length ? (
           <div className="grid items-start gap-4">
@@ -409,7 +415,7 @@ export const SpotsDisplay = ({
           </div>
         ) : (
           <div className="grid gap-4">
-            <p>There are no spots matching this search...</p>
+            <p>There are no spots matching this search…</p>
             <div className="flex flex-wrap gap-2">
               <Button asChild>
                 <Link href="/spots/add">Add a spot</Link>

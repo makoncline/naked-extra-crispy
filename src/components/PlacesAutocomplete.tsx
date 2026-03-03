@@ -65,6 +65,12 @@ export const PlacesAutocomplete = ({
           id="places-autocomplete"
           className="w-full"
           placeholder="Search for a spot!"
+          type="search"
+          name="place-search"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           showClear
         />
         <ComboboxContent>

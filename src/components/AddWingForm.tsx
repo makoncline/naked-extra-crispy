@@ -105,7 +105,7 @@ export const AddWingForm = ({
           )}
           {watchRating && watchRating === 7 ? (
             <p className="text-sm text-destructive">
-              Come on... choose a something besides 7.
+              Come on… choose something besides 7.
             </p>
           ) : (
             <span className="text-sm text-muted-foreground">

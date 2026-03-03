@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { useRouter } from "next/router";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
 import { RouterOutputs } from "../utils/trpc";
@@ -21,9 +22,58 @@ export const WingsDisplay = ({
   wings: RouterOutputs["public"]["getSpot"]["wings"];
   showSpotName?: boolean;
 }) => {
-  const [show, setShow] = React.useState(10);
-  const [sort, setSort] = React.useState<"date" | "rating">("date");
-  const [reverse, setReverse] = React.useState(false);
+  const router = useRouter();
+  const sortQuery = Array.isArray(router.query.sort)
+    ? router.query.sort[0]
+    : router.query.sort;
+  const reverseQuery = Array.isArray(router.query.reverse)
+    ? router.query.reverse[0]
+    : router.query.reverse;
+  const showQuery = Array.isArray(router.query.show)
+    ? router.query.show[0]
+    : router.query.show;
+
+  const sort: "date" | "rating" = sortQuery === "rating" ? "rating" : "date";
+  const reverse = reverseQuery === "1" || reverseQuery === "true";
+  const parsedShow = Number(showQuery);
+  const show = Number.isFinite(parsedShow) && parsedShow > 0 ? parsedShow : 10;
+
+  const setUrlState = React.useCallback(
+    (next: Partial<{ sort: "date" | "rating"; reverse: boolean; show: number }>) => {
+      const nextSort = next.sort ?? sort;
+      const nextReverse = next.reverse ?? reverse;
+      const nextShow = next.show ?? show;
+      const nextQuery = { ...router.query };
+
+      if (nextSort === "date") {
+        delete nextQuery.sort;
+      } else {
+        nextQuery.sort = nextSort;
+      }
+
+      if (!nextReverse) {
+        delete nextQuery.reverse;
+      } else {
+        nextQuery.reverse = "1";
+      }
+
+      if (nextShow <= 10) {
+        delete nextQuery.show;
+      } else {
+        nextQuery.show = String(nextShow);
+      }
+
+      void router.replace(
+        {
+          query: nextQuery,
+        },
+        undefined,
+        { shallow: true, scroll: false }
+      );
+    },
+    [reverse, router, show, sort]
+  );
+
   const sortedWings = [...wings]
     .sort((a, b) => {
       let value = 0;
@@ -39,7 +89,7 @@ export const WingsDisplay = ({
   const numWings = wings.length;
 
   const handleShowMore = () => {
-    setShow((prev) => prev + 10);
+    setUrlState({ show: show + 10 });
   };
   return (
     <>
@@ -50,7 +100,7 @@ export const WingsDisplay = ({
           <Label htmlFor="sort">Sort by</Label>
           <Select
             value={sort}
-            onValueChange={(value) => setSort(value as "date" | "rating")}
+            onValueChange={(value) => setUrlState({ sort: value as "date" | "rating" })}
             name="sort"
           >
             <SelectTrigger id="sort" className="w-full">
@@ -63,13 +113,16 @@ export const WingsDisplay = ({
           </Select>
         </div>
         <div className="flex flex-wrap gap-2 whitespace-nowrap">
-          <Button onClick={() => setReverse((prev) => !prev)} type="button" variant="secondary">
+          <Button
+            onClick={() => setUrlState({ reverse: !reverse })}
+            type="button"
+            variant="secondary"
+          >
             Reverse {reverse ? "▲" : "▼"}
           </Button>
           <Button
             onClick={() => {
-              setSort("rating");
-              setReverse(false);
+              setUrlState({ sort: "rating", reverse: false });
             }}
             type="reset"
             variant="destructive"
@@ -84,7 +137,7 @@ export const WingsDisplay = ({
         </div>
       </form>
       <div className="h-4" />
-      <h3 id="results" className="text-xl font-semibold">
+      <h3 id="results" className="scroll-mt-24 text-xl font-semibold">
         Results
       </h3>
       <div className="h-4" />
@@ -107,6 +160,7 @@ export const WingsDisplay = ({
                             href={`https://www.google.com/maps/search/?api=1&query=${wing.spot.place.name}&query_place_id=${wing.spot.place.id}`}
                             target="_blank"
                             rel="noreferrer"
+                            aria-label={`Open ${wing.spot.name} in Google Maps`}
                           >
                             📍
                           </a>
@@ -121,14 +175,16 @@ export const WingsDisplay = ({
                   <span className="text-sm text-muted-foreground">
                     {wing.createdAt.toLocaleDateString()}
                   </span>
-                  <Link href={`/wings/${wing.id}`}>🔗</Link>
+                  <Link href={`/wings/${wing.id}`} aria-label="View rating permalink">
+                    🔗
+                  </Link>
                 </div>
               </Card.Body>
             </Card>
           ))}
         </div>
       ) : (
-        <p>There are no ratings for this spot...</p>
+        <p>There are no ratings for this spot…</p>
       )}
       <div className="h-4" />
       <Button onClick={handleShowMore}>Show More</Button>
