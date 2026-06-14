@@ -20,7 +20,7 @@ export const Rating = ({
   };
 
   return (
-    <div className="flex flex-wrap items-end gap-2">
+    <div className="grid w-full grid-cols-10 items-end gap-1 sm:flex sm:flex-wrap sm:gap-2">
       {values.map((value) => (
         <React.Fragment key={value}>
           {displayValue ? (
@@ -30,7 +30,8 @@ export const Rating = ({
               onClick={() => handleChange(value)}
               type="button"
               disabled={Boolean(displayValue)}
-              className="rounded-sm p-0.5"
+              aria-label={`Rate ${value} out of 10`}
+              className="min-w-0 rounded-sm p-0.5"
             >
               <div className="flex flex-col items-center gap-0">
                 <Flame gray={value > rating} />
@@ -45,5 +46,5 @@ export const Rating = ({
 };
 
 const Flame = ({ gray = false }: { gray?: boolean }) => (
-  <span className={cn("text-2xl", gray && "grayscale")}>🔥</span>
+  <span className={cn("text-xl sm:text-2xl", gray && "grayscale")}>🔥</span>
 );
