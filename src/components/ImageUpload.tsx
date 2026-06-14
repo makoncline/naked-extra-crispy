@@ -42,6 +42,7 @@ type ImageUploadContextValue = {
   uploadedPreviewImage: string | null;
   isUploaded: boolean;
   isUploading: boolean;
+  isImageLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   imageRef: React.RefObject<HTMLImageElement | null>;
   setCrop: (nextCrop: PercentCrop) => void;
@@ -226,6 +227,7 @@ const ImageUploadRoot = ({
 
   const isUploading = status === "uploading";
   const isUploaded = Boolean(publicId);
+  const isImageLoading = Boolean(sourceImage && !crop);
 
   const clear = React.useCallback(() => {
     setFile(null);
@@ -339,6 +341,7 @@ const ImageUploadRoot = ({
       uploadedPreviewImage,
       isUploaded,
       isUploading,
+      isImageLoading,
       inputRef,
       imageRef,
       setCrop,
@@ -352,6 +355,7 @@ const ImageUploadRoot = ({
       crop,
       error,
       id,
+      isImageLoading,
       isUploaded,
       isUploading,
       onFileChange,
@@ -473,6 +477,11 @@ const ImageUploadCrop = () => {
 
   return (
     <div className="relative grid justify-center">
+      {!crop && (
+        <div className="mx-auto grid aspect-square w-full max-w-80 place-items-center rounded-md border bg-muted sm:max-w-[70vh]">
+          <Loading />
+        </div>
+      )}
       <ReactCrop
         crop={crop}
         onChange={(_, nextCrop) => {
@@ -484,7 +493,10 @@ const ImageUploadCrop = () => {
         keepSelection
         minWidth={40}
         minHeight={40}
-        className={isUploading ? "pointer-events-none opacity-60" : ""}
+        className={[
+          !crop ? "sr-only" : "",
+          isUploading ? "pointer-events-none opacity-60" : "",
+        ].join(" ")}
       >
         <Image
           ref={imageRef}
@@ -555,12 +567,12 @@ const ImageUploadSaveButton = ({
   disabled,
   ...props
 }: ImageUploadButtonProps) => {
-  const { upload, isUploading } = useImageUploadContext();
+  const { upload, isUploading, isImageLoading } = useImageUploadContext();
   return (
     <Button
       {...props}
       type="button"
-      disabled={isUploading || disabled}
+      disabled={isUploading || isImageLoading || disabled}
       onClick={(event) => {
         onClick?.(event);
         if (!event.defaultPrevented) {
