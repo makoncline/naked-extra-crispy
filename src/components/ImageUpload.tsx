@@ -37,6 +37,7 @@ type ImageUploadContextValue = {
   id: string;
   crop: PercentCrop | undefined;
   error: string | null;
+  uploadProgress: number | null;
   sourceImage: string | null;
   uploadedPreviewImage: string | null;
   isUploaded: boolean;
@@ -49,6 +50,15 @@ type ImageUploadContextValue = {
   clear: () => void;
   upload: () => Promise<void>;
 };
+
+type CloudinaryUploadResponse = {
+  public_id?: string;
+  error?: { message?: string };
+  message?: string;
+};
+
+const uploadErrorMessage =
+  "There was a problem uploading the image. Try again later.";
 
 const ImageUploadContext = React.createContext<ImageUploadContextValue | null>(
   null
@@ -136,6 +146,63 @@ const getCroppedBlob = async (
   });
 };
 
+const getCloudinaryErrorMessage = (data: CloudinaryUploadResponse) =>
+  data.error?.message ?? data.message;
+
+const parseCloudinaryResponse = (responseText: string) => {
+  try {
+    return JSON.parse(responseText) as CloudinaryUploadResponse;
+  } catch {
+    return { message: responseText };
+  }
+};
+
+const uploadToCloudinary = (
+  formData: FormData,
+  onProgress: (progress: number) => void
+) =>
+  new Promise<CloudinaryUploadResponse>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open(
+      "POST",
+      `https://api.cloudinary.com/v1_1/${siteConfig.cloudinaryCloudName}/image/upload`
+    );
+
+    request.upload.onprogress = (event) => {
+      if (event.lengthComputable && event.total > 0) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    };
+
+    request.onload = () => {
+      const data = parseCloudinaryResponse(request.responseText);
+
+      if (request.status >= 200 && request.status < 300) {
+        onProgress(100);
+        resolve(data);
+        return;
+      }
+
+      console.error("Cloudinary upload failed", {
+        status: request.status,
+        statusText: request.statusText,
+        message: getCloudinaryErrorMessage(data),
+        response: data,
+      });
+      reject(new Error(uploadErrorMessage));
+    };
+
+    request.onerror = () => {
+      console.error("Cloudinary upload failed", {
+        status: request.status,
+        statusText: request.statusText,
+      });
+      reject(new Error(uploadErrorMessage));
+    };
+
+    request.send(formData);
+  });
+
 const ImageUploadRoot = ({
   children,
   id,
@@ -144,6 +211,9 @@ const ImageUploadRoot = ({
 }: ImageUploadRootProps) => {
   const [status, setStatus] = React.useState<ImageUploadStatus>("idle");
   const [error, setError] = React.useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = React.useState<number | null>(
+    null
+  );
   const [file, setFile] = React.useState<File | null>(null);
   const [sourceImage, setSourceImage] = React.useState<string | null>(null);
   const [uploadedPreviewImage, setUploadedPreviewImage] = React.useState<
@@ -162,6 +232,7 @@ const ImageUploadRoot = ({
     setSourceImage(null);
     setCrop(undefined);
     setError(null);
+    setUploadProgress(null);
     setStatus("idle");
     setUploading(false);
     if (inputRef.current) {
@@ -172,6 +243,7 @@ const ImageUploadRoot = ({
   const onFileChange = React.useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       setError(null);
+      setUploadProgress(null);
       const nextFile = event.target.files?.[0];
       if (!nextFile) {
         return;
@@ -200,6 +272,7 @@ const ImageUploadRoot = ({
     }
 
     setError(null);
+    setUploadProgress(0);
     setStatus("uploading");
     setUploading(true);
 
@@ -227,21 +300,10 @@ const ImageUploadRoot = ({
         "upload_preset",
         env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
       );
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${siteConfig.cloudinaryCloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Cloudinary upload failed");
-      }
-
-      const data = (await response.json()) as { public_id?: string };
+      const data = await uploadToCloudinary(formData, setUploadProgress);
       if (!data.public_id) {
-        throw new Error("Upload response missing public ID");
+        console.error("Cloudinary upload response missing public ID", data);
+        throw new Error(uploadErrorMessage);
       }
 
       setUploadedPreviewImage(await toBase64(fileToUpload));
@@ -262,6 +324,7 @@ const ImageUploadRoot = ({
       );
     } finally {
       setStatus("idle");
+      setUploadProgress(null);
       setUploading(false);
     }
   }, [crop, file, onUploadSuccess, setUploading, status]);
@@ -271,6 +334,7 @@ const ImageUploadRoot = ({
       id,
       crop,
       error,
+      uploadProgress,
       sourceImage,
       uploadedPreviewImage,
       isUploaded,
@@ -294,6 +358,7 @@ const ImageUploadRoot = ({
       onImageLoad,
       sourceImage,
       upload,
+      uploadProgress,
       uploadedPreviewImage,
     ]
   );
@@ -345,28 +410,21 @@ const ImageUploadTrigger = ({
 };
 
 const ImageUploadPreview = () => {
-  const { sourceImage, uploadedPreviewImage, isUploading, isUploaded } =
-    useImageUploadContext();
-  const previewImage = isUploading ? sourceImage : uploadedPreviewImage;
+  const { uploadedPreviewImage, isUploaded } = useImageUploadContext();
 
-  if (!previewImage || (!isUploading && !isUploaded)) {
+  if (!uploadedPreviewImage || !isUploaded) {
     return null;
   }
 
   return (
     <div className="relative grid place-items-start">
       <Image
-        src={previewImage}
+        src={uploadedPreviewImage}
         width={300}
         height={300}
         style={{ objectFit: "cover" }}
         alt="wing image"
       />
-      {isUploading && (
-        <div className="absolute inset-0 grid place-items-center bg-background/40">
-          <Loading />
-        </div>
-      )}
     </div>
   );
 };
@@ -399,15 +457,22 @@ const ImageUploadDialog = ({
 };
 
 const ImageUploadCrop = () => {
-  const { sourceImage, crop, setCrop, onImageLoad, imageRef, isUploading } =
-    useImageUploadContext();
+  const {
+    sourceImage,
+    crop,
+    setCrop,
+    onImageLoad,
+    imageRef,
+    isUploading,
+    uploadProgress,
+  } = useImageUploadContext();
 
   if (!sourceImage) {
     return null;
   }
 
   return (
-    <div className="grid justify-center">
+    <div className="relative grid justify-center">
       <ReactCrop
         crop={crop}
         onChange={(_, nextCrop) => {
@@ -432,6 +497,21 @@ const ImageUploadCrop = () => {
           unoptimized
         />
       </ReactCrop>
+      {isUploading && (
+        <div className="absolute inset-0 grid place-items-center bg-background/70 p-6">
+          <div className="grid w-full max-w-xs gap-3">
+            <progress
+              aria-label="Upload progress"
+              className="h-2 w-full"
+              max={100}
+              value={uploadProgress ?? undefined}
+            />
+            <p className="text-center text-sm font-medium">
+              Uploading{uploadProgress === null ? "" : ` ${uploadProgress}%`}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -488,7 +568,13 @@ const ImageUploadSaveButton = ({
         }
       }}
     >
-      {children}
+      {isUploading ? (
+        <span aria-label="Uploading">
+          <Loading scale={0.5} />
+        </span>
+      ) : (
+        children
+      )}
     </Button>
   );
 };
