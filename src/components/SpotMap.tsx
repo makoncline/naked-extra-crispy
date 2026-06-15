@@ -207,17 +207,23 @@ const Marker = ({
   }, [marker]);
 
   React.useEffect(() => {
-    if (marker) {
-      marker.setOptions({
-        map,
-        position: { lat, lng },
-        title,
-        icon: selected ? undefined : TEAL_MARKER,
-      });
-      marker.addListener("click", () => {
-        onSelect(id);
-      });
+    if (!marker) {
+      return;
     }
+
+    marker.setOptions({
+      map,
+      position: { lat, lng },
+      title,
+      icon: selected ? undefined : TEAL_MARKER,
+    });
+    const listener = marker.addListener("click", () => {
+      onSelect(id);
+    });
+
+    return () => {
+      listener.remove();
+    };
   }, [id, lat, lng, map, marker, onSelect, selected, title]);
 
   return null;

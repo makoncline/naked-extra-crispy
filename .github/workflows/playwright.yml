@@ -46,6 +46,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
       # Setup and seed the database inside setup-test-db.ts
       - name: Setup test database
         run: pnpm exec tsx e2e/setup/setup-test-db.ts

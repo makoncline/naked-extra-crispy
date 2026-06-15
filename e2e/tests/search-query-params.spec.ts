@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { setupDatabase } from "../setup/setup";
 
 let cleanup: () => Promise<void> = async () => {};
@@ -31,10 +31,7 @@ const getNormalizedFiltersFromUrl = (url: string) => {
   };
 };
 
-const firstOpenListboxOption = (
-  page: Parameters<typeof test>[0]["page"],
-  placeholder: string
-) =>
+const firstOpenListboxOption = (page: Page, placeholder: string) =>
   page
     .getByRole("listbox")
     .last()

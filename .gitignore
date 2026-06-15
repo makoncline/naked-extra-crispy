@@ -10,6 +10,7 @@
 /coverage
 /test-results/
 /playwright-report/
+/walkthrough-video/
 
 # database
 /prisma/db.sqlite

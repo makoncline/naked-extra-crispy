@@ -43,7 +43,7 @@ const defaultWingsSelect = Prisma.validator<Prisma.WingDefaultArgs>()({
   },
 });
 
-const defaultSpotSelect = Prisma.validator<Prisma.SpotDefaultArgs>()({
+const defaultSpotDetailSelect = Prisma.validator<Prisma.SpotDefaultArgs>()({
   select: {
     id: true,
     name: true,
@@ -61,17 +61,51 @@ const defaultSpotSelect = Prisma.validator<Prisma.SpotDefaultArgs>()({
   },
 });
 
+const defaultSpotListSelect = Prisma.validator<Prisma.SpotDefaultArgs>()({
+  select: {
+    id: true,
+    name: true,
+    state: true,
+    city: true,
+    place: {
+      select: {
+        id: true,
+        name: true,
+        lat: true,
+        lng: true,
+        address: true,
+      },
+    },
+    images: {
+      where: { type: "main" },
+      ...defaultImagesSelect,
+      orderBy: { createdAt: "desc" },
+    },
+  },
+});
+
 export const publicRouter = router({
   getAllSpots: publicProcedure.query(async ({ ctx }) => {
-    const spots = await ctx.prisma.spot.findMany(defaultSpotSelect);
+    const spots = await ctx.prisma.spot.findMany(defaultSpotListSelect);
+    const wingStats = await ctx.prisma.wing.groupBy({
+      by: ["spotId"],
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+    const wingStatsBySpotId = new Map(
+      wingStats.map((stat) => [stat.spotId, stat] as const)
+    );
 
     return spots.map((spot) => {
-      const ratings = spot.wings.map((wing) => wing.rating);
-      const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
-      const numWings = spot.wings.length;
-      const roundedRating =
-        numWings > 0 ? limitToOneDecimal(totalRating / numWings) : 0;
-      return { ...spot, rating: roundedRating, numWings };
+      const stat = wingStatsBySpotId.get(spot.id);
+      const numWings = stat?._count._all ?? 0;
+      const rating =
+        stat?._avg.rating != null ? limitToOneDecimal(stat._avg.rating) : 0;
+      return { ...spot, rating, numWings };
     });
   }),
   getSpot: publicProcedure
@@ -81,7 +115,7 @@ export const publicRouter = router({
         where: {
           id: input.spotId,
         },
-        ...defaultSpotSelect,
+        ...defaultSpotDetailSelect,
       });
       const ratings = spot.wings.map((wing) => wing.rating);
       const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
