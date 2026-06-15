@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit --incremental false",
     "postinstall": "prisma generate",
     "turso:dev": "dotenv -e .env.development -- sh -c 'turso dev --db-file=$LOCAL_DB_FILE_PATH'",
     "migrate:dev": "dotenv -e .env.development -- sh -c 'pnpm exec tsx --tsconfig tsconfig.scripts.json prisma/migrate.ts'",

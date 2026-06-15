@@ -12,11 +12,11 @@ export const authRouter = router({
   createSpot: protectedProcedure
     .input(addSpotInputSchema)
     .mutation(async ({ input, ctx }) => {
-      const { placeId, lat, lng, name, city, state, userId, address } = input;
+      const { placeId, lat, lng, name, city, state, address } = input;
       try {
         const spot = await ctx.prisma.spot.create({
           data: {
-            userId,
+            userId: ctx.session.user.id,
             name: input.name.trim(),
             city: input.city.trim(),
             state,
@@ -85,7 +85,6 @@ export const authRouter = router({
   createWing: protectedProcedure
     .input(
       z.object({
-        userId: z.string(),
         spotId: z.string(),
         review: z.string(),
         rating: z.number().positive().min(1).max(10),
@@ -96,7 +95,8 @@ export const authRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { mainImageId, drumImageId, flatImageId, ...wingReview } = input;
-      const { userId, spotId } = wingReview;
+      const { spotId } = wingReview;
+      const userId = ctx.session.user.id;
       const baseImageData = { userId, spotId };
       let images = [
         {
@@ -122,6 +122,7 @@ export const authRouter = router({
       const wing = await ctx.prisma.wing.create({
         data: {
           ...wingReview,
+          userId,
           images: {
             create: images,
           },

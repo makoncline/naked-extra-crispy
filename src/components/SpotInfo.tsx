@@ -1,11 +1,16 @@
 import { RouterOutputs } from "../utils/trpc";
 import { RatingDisplay } from "./RatingDisplay";
 
+type SpotInfoSpot = Pick<
+  RouterOutputs["public"]["getAllSpots"][number],
+  "name" | "city" | "state" | "place" | "rating" | "numWings"
+>;
+
 export const SpotInfo = ({
   spot,
   distance,
 }: {
-  spot: RouterOutputs["public"]["getSpot"];
+  spot: SpotInfoSpot;
   distance?: string | null;
 }) => {
   return (

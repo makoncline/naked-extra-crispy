@@ -1,5 +1,5 @@
 import { trpc } from "../utils/trpc";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, useWatch, SubmitHandler } from "react-hook-form";
 import React from "react";
 import { Rating } from "./Rating";
 import { ImageUpload } from "./ImageUpload";
@@ -13,7 +13,6 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
 export type AddWFormInputs = {
-  userId: string;
   spotId: string;
   review: string;
   rating: number;
@@ -23,11 +22,9 @@ export type AddWFormInputs = {
 };
 
 export const AddWingForm = ({
-  userId,
   spotId,
   onSuccess,
 }: {
-  userId: string;
   spotId: string;
   spotName: string;
   onSuccess: () => void;
@@ -35,15 +32,16 @@ export const AddWingForm = ({
   const [isMainUploading, setIsMainUploading] = React.useState(false);
   const [isDrumUploading, setIsDrumUploading] = React.useState(false);
   const [isFlatUploading, setIsFlatUploading] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    control,
     setValue,
   } = useForm<AddWFormInputs>();
-  const watchReview = watch("review");
-  const watchRating = watch("rating");
+  const watchReview = useWatch({ control, name: "review" });
+  const watchRating = useWatch({ control, name: "rating" });
   const utils = trpc.useContext();
   const createWing = trpc.auth.createWing.useMutation({
     onSuccess: () => {
@@ -54,19 +52,18 @@ export const AddWingForm = ({
     setValue("rating", rating, { shouldValidate: true });
   };
   const onSubmit: SubmitHandler<AddWFormInputs> = async (data) => {
-    createWing.mutate(data);
-    onSuccess();
+    setSubmitError(null);
+    try {
+      await createWing.mutateAsync(data);
+      onSuccess();
+    } catch {
+      setSubmitError("Failed to add rating");
+    }
   };
   const isUploading = isMainUploading || isDrumUploading || isFlatUploading;
   return (
     <div className="grid gap-4">
       <form id="add-wing" className="grid gap-4">
-        <input
-          {...register("userId", { required: true })}
-          value={userId}
-          hidden
-          readOnly
-        />
         <input
           {...register("spotId", { required: true })}
           value={spotId}
@@ -223,12 +220,13 @@ export const AddWingForm = ({
           type="submit"
           onClick={handleSubmit(onSubmit)}
           form="add-wing"
-          disabled={isUploading}
+          disabled={isUploading || createWing.isPending}
         >
-          Submit
+          {createWing.isPending ? "Submitting..." : "Submit"}
         </Button>
       </form>
 
+      {submitError && <p className="text-sm text-destructive">{submitError}</p>}
       {Object.keys(errors).length > 0 &&
         Object.entries(errors).map(([key, error]) => (
           <div key={key}>

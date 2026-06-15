@@ -10,7 +10,6 @@ import { useZodForm } from "../hooks/useZodForm";
 import { Button } from "@/components/ui/button";
 
 export const addSpotInputSchema = z.object({
-  userId: z.string(),
   name: z.string(),
   state: z.string().min(1).max(2),
   city: z.string().min(1),
@@ -26,10 +25,8 @@ export type OnSelectPlaceData =
   | null;
 
 export const AddSpotForm = ({
-  userId,
   onSuccess,
 }: {
-  userId: string;
   onSuccess: (spotId: string) => void;
 }) => {
   const { isGoogleMapsApiReady } = useGoogleMapsApi();
@@ -43,7 +40,6 @@ export const AddSpotForm = ({
     trigger,
   } = useZodForm<AddSpotInput>({
     schema: addSpotInputSchema,
-    defaultValues: { userId },
     reValidateMode: "onChange",
   });
   const utils = trpc.useContext();
@@ -77,12 +73,6 @@ export const AddSpotForm = ({
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid w-full max-w-md gap-4">
-      <input
-        {...register("userId", { required: true })}
-        value={userId}
-        hidden
-        readOnly
-      />
       <input {...register("city")} hidden readOnly />
       <input {...register("state")} hidden readOnly />
       <input {...register("placeId")} hidden readOnly />

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { setupDatabase } from "../setup/setup";
 
 let cleanup: () => Promise<void> = async () => {};
@@ -31,16 +31,34 @@ const getNormalizedFiltersFromUrl = (url: string) => {
   };
 };
 
-const firstOpenListboxOption = (
-  page: Parameters<typeof test>[0]["page"],
-  placeholder: string
-) =>
+const waitForNameFilter = async (page: Page, name: string) => {
+  await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).name).toBe(name);
+};
+
+const firstOpenListboxOption = (page: Page, placeholder: string) =>
   page
     .getByRole("listbox")
     .last()
     .getByRole("option")
     .filter({ hasNotText: placeholder })
     .first();
+
+const openSelect = async (page: Page, selector: string) => {
+  const trigger = page.locator(selector);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await expect(trigger).toBeVisible();
+    await trigger.click({ force: true });
+    try {
+      await expect(page.getByRole("listbox").last()).toBeVisible({
+        timeout: 2000,
+      });
+      return;
+    } catch {
+      await page.keyboard.press("Escape");
+    }
+  }
+  await trigger.click();
+};
 
 test.beforeEach(async () => {
   const setup = await setupDatabase();
@@ -91,13 +109,15 @@ for (const route of ["/spots", "/map"]) {
 
     const searchInput = page.getByRole("combobox", { name: "Name" });
     await searchInput.fill("qzxjv-no-match");
+    await waitForNameFilter(page, "qzxjv-no-match");
 
-    await page.locator("#state").click();
+    await openSelect(page, "#state");
     await expect(page.getByRole("listbox").last().getByRole("option")).toHaveCount(1);
     await page.keyboard.press("Escape");
 
     await searchInput.fill("");
-    await page.locator("#state").click();
+    await expect.poll(() => new URL(page.url()).search).toBe("");
+    await openSelect(page, "#state");
     await expect(firstOpenListboxOption(page, "Pick a state")).toBeVisible();
     await firstOpenListboxOption(page, "Pick a state").click();
 
@@ -107,7 +127,7 @@ for (const route of ["/spots", "/map"]) {
     await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).state).not.toBe("");
     await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).distance).toBe("any");
 
-    await page.locator("#city").click();
+    await openSelect(page, "#city");
     await expect(firstOpenListboxOption(page, "Select a city")).toBeVisible();
     await firstOpenListboxOption(page, "Select a city").click();
 
@@ -140,7 +160,7 @@ test.describe("nearby defaults", () => {
 
       await expect(page.locator("#distance")).toBeVisible();
 
-      await page.locator("#state").click();
+      await openSelect(page, "#state");
       await expect(firstOpenListboxOption(page, "Pick a state")).toBeVisible();
       await firstOpenListboxOption(page, "Pick a state").click();
 
@@ -150,7 +170,7 @@ test.describe("nearby defaults", () => {
       });
       await expect.poll(() => getNormalizedFiltersFromUrl(page.url()).state).not.toBe("");
 
-      await page.locator("#distance").click();
+      await openSelect(page, "#distance");
       await page.getByRole("listbox").last().getByRole("option", { name: "10 miles" }).click();
 
       await expect(page.locator("#distance")).toContainText("10 miles");

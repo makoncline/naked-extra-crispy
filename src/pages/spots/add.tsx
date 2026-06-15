@@ -23,7 +23,6 @@ const AddSpot = () => {
         <h1 className="text-3xl font-black">Add Spot</h1>
         <div className="h-4" />
         <AddSpotForm
-          userId={userId}
           onSuccess={(spotId) => void router.push(`/spots/${spotId}`)}
         />
       </Layout>

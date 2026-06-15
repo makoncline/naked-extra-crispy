@@ -16,6 +16,26 @@ export const defaultFilterValues: FilterValues = {
   distance: "any",
 };
 
+export const normalizeLocationFilters = (filters: FilterValues): FilterValues => {
+  const hasState = filters.state.length > 0;
+  const hasCity = filters.city.length > 0;
+  const hasDistance = filters.distance !== "any";
+
+  if (hasState) {
+    return { ...filters, city: "", distance: "any" };
+  }
+
+  if (hasCity) {
+    return { ...filters, state: "", distance: "any" };
+  }
+
+  if (hasDistance) {
+    return { ...filters, state: "", city: "" };
+  }
+
+  return filters;
+};
+
 const SORT_ORDERS: readonly SortOrder[] = ["distance", "rating", "name", "numWings"];
 const DISTANCE_FILTER_VALUES: readonly DistanceFilterValues[] = [
   "5",

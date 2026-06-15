@@ -24,7 +24,6 @@ const AddWing: NextPage<{ spotId: string }> = ({ spotId }) => {
       <h1 className="text-3xl font-black">{spot.name}</h1>
       <div className="h-4" />
       <AddWingForm
-        userId={userId}
         spotId={spotId}
         spotName={spot!.name}
         onSuccess={() => void router.push(`/spots/${spotId}`)}
