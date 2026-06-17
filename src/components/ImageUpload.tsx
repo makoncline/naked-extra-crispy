@@ -150,6 +150,25 @@ const getCroppedBlob = async (
 const getCloudinaryErrorMessage = (data: CloudinaryUploadResponse) =>
   data.error?.message ?? data.message;
 
+const formatCloudinaryUploadError = ({
+  status,
+  statusText,
+  responseText,
+}: {
+  status: number;
+  statusText: string;
+  responseText: string;
+}) => {
+  const statusLabel = [status, statusText].filter(Boolean).join(" ");
+  const body = responseText.trim() || "No response body";
+  return [
+    uploadErrorMessage,
+    "",
+    "Cloudinary response" + (statusLabel ? " (" + statusLabel + ")" : "") + ":",
+    body,
+  ].join("\n");
+};
+
 const parseCloudinaryResponse = (responseText: string) => {
   try {
     return JSON.parse(responseText) as CloudinaryUploadResponse;
@@ -190,7 +209,15 @@ const uploadToCloudinary = (
         message: getCloudinaryErrorMessage(data),
         response: data,
       });
-      reject(new Error(uploadErrorMessage));
+      reject(
+        new Error(
+          formatCloudinaryUploadError({
+            status: request.status,
+            statusText: request.statusText,
+            responseText: request.responseText,
+          })
+        )
+      );
     };
 
     request.onerror = () => {
@@ -198,7 +225,15 @@ const uploadToCloudinary = (
         status: request.status,
         statusText: request.statusText,
       });
-      reject(new Error(uploadErrorMessage));
+      reject(
+        new Error(
+          [
+            uploadErrorMessage,
+            "",
+            "Cloudinary request failed before a response was received.",
+          ].join("\n")
+        )
+      );
     };
 
     request.send(formData);
@@ -533,7 +568,9 @@ const ImageUploadError = () => {
   if (!error) {
     return null;
   }
-  return <p className="mt-2 text-sm text-destructive">{error}</p>;
+  return (
+    <p className="mt-2 whitespace-pre-wrap text-sm text-destructive">{error}</p>
+  );
 };
 
 const ImageUploadClearButton = ({

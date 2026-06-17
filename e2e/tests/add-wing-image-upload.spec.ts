@@ -89,7 +89,7 @@ test("user can crop and save a main wing image", async ({ page, context }) => {
   await expect(page.getByAltText("wing image")).toBeVisible();
 });
 
-test("user sees a generic error when Cloudinary rejects the upload", async ({
+test("user sees Cloudinary details when Cloudinary rejects the upload", async ({
   page,
   context,
 }) => {
@@ -125,9 +125,12 @@ test("user sees a generic error when Cloudinary rejects the upload", async ({
   await expect(
     page.getByText("There was a problem uploading the image. Try again later.")
   ).toBeVisible();
+  await expect(page.getByText("Cloudinary response (400):")).toBeVisible();
   await expect(
-    page.getByText("Upload preset must be whitelisted for unsigned uploads")
-  ).toHaveCount(0);
+    page.getByText(
+      '{"error":{"message":"Upload preset must be whitelisted for unsigned uploads"}}'
+    )
+  ).toBeVisible();
   await expect(page.locator('input[name="mainImageId"]')).toHaveValue("");
 });
 
