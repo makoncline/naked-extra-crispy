@@ -7,7 +7,6 @@ import ReactCrop, {
   makeAspectCrop,
 } from "react-image-crop";
 import { siteConfig } from "../siteConfig";
-import { toBase64 } from "../lib/toBase64";
 import { Loading } from "./Loading";
 import { env } from "../env/client.mjs";
 import {
@@ -46,7 +45,7 @@ type ImageUploadContextValue = {
   inputRef: React.RefObject<HTMLInputElement | null>;
   imageRef: React.RefObject<HTMLImageElement | null>;
   setCrop: (nextCrop: PercentCrop) => void;
-  onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onImageLoad: (event: React.SyntheticEvent<HTMLImageElement>) => void;
   clear: () => void;
   upload: () => Promise<void>;
@@ -60,6 +59,8 @@ type CloudinaryUploadResponse = {
 
 const uploadErrorMessage =
   "There was a problem uploading the image. Try again later.";
+const maxImageSize = 1600;
+const jpegQuality = 0.95;
 
 const ImageUploadContext = React.createContext<ImageUploadContextValue | null>(
   null
@@ -104,8 +105,7 @@ const getInitialCrop = (
 
 const getCroppedBlob = async (
   image: HTMLImageElement,
-  crop: PercentCrop,
-  mimeType: string
+  crop: PercentCrop
 ): Promise<Blob> => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -117,8 +117,16 @@ const getCroppedBlob = async (
   const pixelCrop = toPixelCrop(crop, image);
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
-  canvas.width = Math.floor(pixelCrop.width * scaleX);
-  canvas.height = Math.floor(pixelCrop.height * scaleY);
+  const sourceWidth = pixelCrop.width * scaleX;
+  const sourceHeight = pixelCrop.height * scaleY;
+  const outputSize = Math.max(
+    1,
+    Math.min(maxImageSize, Math.floor(sourceWidth), Math.floor(sourceHeight))
+  );
+  canvas.width = outputSize;
+  canvas.height = outputSize;
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
 
   context.drawImage(
     image,
@@ -141,10 +149,19 @@ const getCroppedBlob = async (
         }
         resolve(blob);
       },
-      mimeType,
-      1
+      "image/jpeg",
+      jpegQuality
     );
   });
+};
+
+const useObjectUrlCleanup = (url: string | null) => {
+  React.useEffect(
+    () => () => {
+      if (url) URL.revokeObjectURL(url);
+    },
+    [url]
+  );
 };
 
 const getCloudinaryErrorMessage = (data: CloudinaryUploadResponse) =>
@@ -260,6 +277,9 @@ const ImageUploadRoot = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const imageRef = React.useRef<HTMLImageElement>(null);
 
+  useObjectUrlCleanup(sourceImage);
+  useObjectUrlCleanup(uploadedPreviewImage);
+
   const isUploading = status === "uploading";
   const isUploaded = Boolean(publicId);
   const isImageLoading = Boolean(sourceImage && !crop);
@@ -278,7 +298,7 @@ const ImageUploadRoot = ({
   }, [setUploading]);
 
   const onFileChange = React.useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       setError(null);
       setUploadProgress(null);
       const nextFile = event.target.files?.[0];
@@ -290,7 +310,7 @@ const ImageUploadRoot = ({
       setUploadedPreviewImage(null);
       setFile(nextFile);
       setCrop(undefined);
-      setSourceImage(await toBase64(nextFile));
+      setSourceImage(URL.createObjectURL(nextFile));
     },
     []
   );
@@ -320,14 +340,11 @@ const ImageUploadRoot = ({
 
       let fileToUpload = file;
       if (imageRef.current && crop) {
-        const croppedBlob = await getCroppedBlob(
-          imageRef.current,
-          crop,
-          file.type || "image/jpeg"
-        );
+        const croppedBlob = await getCroppedBlob(imageRef.current, crop);
+        const fileName = file.name.replace(/\.[^.]+$/, "") || "upload";
 
-        fileToUpload = new File([croppedBlob], file.name || "upload.jpg", {
-          type: croppedBlob.type || file.type || "image/jpeg",
+        fileToUpload = new File([croppedBlob], `${fileName}.jpg`, {
+          type: "image/jpeg",
         });
       }
 
@@ -343,7 +360,7 @@ const ImageUploadRoot = ({
         throw new Error(uploadErrorMessage);
       }
 
-      setUploadedPreviewImage(await toBase64(fileToUpload));
+      setUploadedPreviewImage(URL.createObjectURL(fileToUpload));
       setPublicId(data.public_id);
       setSourceImage(null);
       setFile(null);
@@ -463,6 +480,7 @@ const ImageUploadPreview = () => {
         height={300}
         style={{ objectFit: "cover" }}
         alt="wing image"
+        unoptimized
       />
     </div>
   );
