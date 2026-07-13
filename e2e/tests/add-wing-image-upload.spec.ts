@@ -1,5 +1,6 @@
 import path from "path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import sharp from "sharp";
 import { setupDatabase } from "../setup/setup";
 
 let cleanup: () => Promise<void> = async () => {};
@@ -50,8 +51,10 @@ test("rating controls fit on one row on mobile", async ({ page, context }) => {
   expect(Math.abs((firstBox?.y ?? 0) - (lastBox?.y ?? 0))).toBeLessThan(2);
 });
 
-test("user can crop and save a main wing image", async ({ page, context }) => {
+test("large phone photo is cropped to a bounded JPEG", async ({ page, context }) => {
+  let uploadBody = "";
   await page.route("https://api.cloudinary.com/v1_1/**/image/upload", async (route) => {
+    uploadBody = route.request().postDataBuffer()?.toString("latin1") ?? "";
     await new Promise((resolve) => setTimeout(resolve, 300));
     await route.fulfill({
       status: 200,
@@ -62,8 +65,16 @@ test("user can crop and save a main wing image", async ({ page, context }) => {
 
   await openAddWingPage({ page, context });
 
-  const uploadPath = path.join(process.cwd(), "public", "mainWing.webp");
-  await page.locator("input#main").setInputFiles(uploadPath);
+  const phonePhoto = await sharp({
+    create: { width: 2400, height: 2400, channels: 3, background: "#d97706" },
+  })
+    .jpeg()
+    .toBuffer();
+  await page.locator("input#main").setInputFiles({
+    name: "phone-photo.jpeg",
+    mimeType: "image/jpeg",
+    buffer: phonePhoto,
+  });
 
   await expect(page.getByRole("dialog", { name: "Upload Preview" })).toBeVisible();
   await expect(page.getByAltText("Crop preview")).toBeVisible();
@@ -87,6 +98,12 @@ test("user can crop and save a main wing image", async ({ page, context }) => {
     "mock-main-image-id"
   );
   await expect(page.getByAltText("wing image")).toBeVisible();
+  await expect(page.getByAltText("wing image")).toHaveJSProperty(
+    "naturalWidth",
+    1600
+  );
+  expect(uploadBody).toContain('filename="phone-photo.jpg"');
+  expect(uploadBody).toContain("Content-Type: image/jpeg");
 });
 
 test("user sees Cloudinary details when Cloudinary rejects the upload", async ({
@@ -125,7 +142,7 @@ test("user sees Cloudinary details when Cloudinary rejects the upload", async ({
   await expect(
     page.getByText("There was a problem uploading the image. Try again later.")
   ).toBeVisible();
-  await expect(page.getByText("Cloudinary response (400):")).toBeVisible();
+  await expect(page.getByText(/Cloudinary response \(400(?: Bad Request)?\):/)).toBeVisible();
   await expect(
     page.getByText(
       '{"error":{"message":"Upload preset must be whitelisted for unsigned uploads"}}'
