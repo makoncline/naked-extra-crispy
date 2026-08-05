@@ -1,0 +1,1 @@
+- [2026-08-05] Isolated npm cache for codemods: The default `~/.npm` cache contains root-owned files, so Next.js codemods that call `npm view` fail with `EPERM`. When a codemod must query npm, set `npm_config_cache` to a task-specific directory under `/tmp`.
