@@ -2,6 +2,7 @@ import { RouterOutputs } from "../utils/trpc";
 import { Card } from "./Card";
 import { ImageDisplay } from "./ImageDisplay";
 import { RatingDisplay } from "./RatingDisplay";
+import { formatDate } from "@/lib/formatDate";
 
 export const WingDisplay = ({
   wing,
@@ -15,7 +16,7 @@ export const WingDisplay = ({
         <p>{wing.review}</p>
         <RatingDisplay rating={wing.rating} />
         <span className="text-sm text-muted-foreground">
-          {wing.createdAt.toLocaleDateString()}
+          {formatDate(wing.createdAt)}
         </span>
       </Card.Body>
     </Card>
