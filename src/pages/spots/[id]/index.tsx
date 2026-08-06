@@ -24,6 +24,7 @@ import { env } from "../../../env/client.mjs";
 import { RatingDisplay } from "../../../components/RatingDisplay";
 import { NextSeo } from "../../../components/Seo";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/formatDate";
 
 const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { id: spotId } = props;
@@ -87,7 +88,7 @@ const Spot = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         }}
         review={spot.wings.map((rating) => ({
           author: rating.user.name ?? "Anonymous",
-          datePublished: rating.createdAt.toLocaleDateString(),
+          datePublished: formatDate(rating.createdAt),
           reviewBody: rating.review,
           reviewRating: {
             bestRating: "10",

@@ -7,6 +7,7 @@ import { RouterOutputs } from "../utils/trpc";
 import { RatingDisplay } from "./RatingDisplay";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { formatDate } from "@/lib/formatDate";
 import {
   Select,
   SelectContent,
@@ -173,7 +174,7 @@ export const WingsDisplay = ({
                 <RatingDisplay rating={wing.rating} />
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">
-                    {wing.createdAt.toLocaleDateString()}
+                    {formatDate(wing.createdAt)}
                   </span>
                   <Link href={`/wings/${wing.id}`} aria-label="View rating permalink">
                     🔗

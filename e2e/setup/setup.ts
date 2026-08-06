@@ -114,6 +114,7 @@ async function setupDatabase() {
         spotId: spot.id,
         review: "Test review",
         rating: 7,
+        createdAt: new Date("2023-03-06T01:17:58.835Z"),
       },
     });
   });
