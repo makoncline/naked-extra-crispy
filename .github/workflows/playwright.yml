@@ -49,6 +49,9 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
+      - name: Image URL integration tests
+        run: pnpm run test:cloudinary
+
       - name: Typecheck
         run: pnpm run typecheck
 

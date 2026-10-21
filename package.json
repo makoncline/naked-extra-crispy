@@ -15,10 +15,12 @@
     "migrate:prod": "dotenv -e .env.production -- sh -c 'pnpm exec tsx --tsconfig tsconfig.scripts.json prisma/migrate.ts'",
     "dev:test": "dotenv -e .env.e2e -- next dev",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:cloudinary": "node --import=tsx --test src/lib/cloudinary.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
+    "@cloudinary/url-gen": "1.22.0",
     "@googlemaps/react-wrapper": "^1.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@libsql/client": "^0.17.0",
@@ -32,7 +34,6 @@
     "@trpc/server": "^11.11.0",
     "@types/google.maps": "^3.58.1",
     "class-variance-authority": "^0.7.1",
-    "cloudinary-build-url": "^0.2.4",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
@@ -62,7 +63,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cld-apis/types": "^0.1.6",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^25.3.3",
