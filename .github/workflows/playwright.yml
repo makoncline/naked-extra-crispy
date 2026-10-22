@@ -37,12 +37,14 @@ jobs:
           version: 10.15.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: 20
+          node-version: 22.23.4
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
+      - name: Check patched Node runtime
+        run: node --test scripts/node-runtime.test.mjs
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
